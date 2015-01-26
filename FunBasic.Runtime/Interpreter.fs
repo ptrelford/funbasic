@@ -146,22 +146,38 @@ let run (ffi:IFFI) (program:instruction[]) =
     let eval = eval state
     /// Assigns result of expression to variable
     let assign (Set(identifier,expr)) = variables.[identifier] <- eval expr
+    /// Obtains array for specified identifier
+    let obtainArray identifier =
+        match arrays.TryGetValue(identifier) with
+        | true, array -> array
+        | false, _ -> 
+            let array = Dictionary<value,value>()
+            arrays.Add(identifier,array)
+            array
+    /// Obtains sub array from specified array
+    let obtainSubArray (array:Dictionary<value,value>) key =
+        match array.TryGetValue(key) with
+        | true, Array array -> array
+        | _, _ ->
+           let newArray = Dictionary<value,value>()
+           array.[key] <- Array newArray
+           newArray
     /// Instruction step
     let step () =
         let instruction = program.[!pi]
         match instruction with
         | Assign(set) -> assign set
-        | PropertySet(ns,name,x) -> ffi.PropertySet(ns,name,eval x |> toObj)
-        | SetAt(Location(identifier,[index]),expr) ->
-            let array = 
-                match arrays.TryGetValue(identifier) with
-                | true, array -> array
-                | false, _ -> 
-                    let array = Dictionary<value,value>()
-                    arrays.Add(identifier,array)
-                    array
-            array.[eval index] <- eval expr
-        | SetAt(Location(_,_),expr) -> raise (System.NotSupportedException())
+        | PropertySet(ns,name,x) -> ffi.PropertySet(ns,name,eval x |> toObj)       
+        | SetAt(Location(identifier,indices),expr) ->
+            let rec setAt (array:Dictionary<value,value>) = function
+               | x::[] -> array.[eval x] <- eval expr
+               | x::xs -> 
+                  let key = eval x
+                  let array = obtainSubArray array key
+                  setAt array xs
+               | [] -> invalidOp "Expecting array index"
+            let array = obtainArray identifier            
+            setAt array indices
         | Action(call) -> invoke state call |> ignore
         | If(condition) ->
             let rec check condition =
