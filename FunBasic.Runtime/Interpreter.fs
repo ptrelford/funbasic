@@ -60,8 +60,16 @@ let rec eval state (expr:expr) =
     match expr with
     | Literal x -> x
     | Identifier identifier -> vars.[identifier]
-    | GetAt(Location(identifier,[index])) -> arrays.[identifier].[eval state index]
-    | GetAt(Location(identifier,_)) -> raise (System.NotSupportedException())
+    | GetAt(Location(identifier,indices)) ->
+       let rec getAt (array:Dictionary<value,value>) = function
+          | x::[] -> array.[eval state x]
+          | x::xs ->
+              match array.[eval state x] with
+              | Array array -> getAt array xs
+              | _ -> invalidOp "Expecting array"
+          | _ -> invalidOp "Expecting array index"
+       let array = arrays.[identifier]
+       getAt array indices       
     | Func(call) -> invoke state call
     | Neg x -> arithmetic (eval state x) Multiply (Int(-1))
     | Arithmetic(l,op,r) -> arithmetic (eval state l) op (eval state r)
