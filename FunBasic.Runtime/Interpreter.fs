@@ -117,17 +117,17 @@ let run (ffi:IFFI) (program:instruction[]) =
     /// Call stack for Gosubs
     let callStack = Stack<index>()
     /// Finds first index of instructions
-    let findFirstIndex start (inc,dec) instructions =
+    let findFirstIndex start (inc,dec) condition =
         let mutable i = start
         let mutable nest = 0
-        while nest > 0 || instructions |> List.exists ((=) program.[i]) |> not do 
+        while nest > 0 || condition program.[i] |> not do 
             if inc program.[i] then nest <- nest + 1
             if nest > 0 && dec program.[i] then nest <- nest - 1
             i <- i + 1
         i
     /// Finds index of instruction
-    let findIndex start (inc,dec) instruction =
-        findFirstIndex start (inc,dec) [instruction]
+    let findIndex start (inc,dec) (instruction:instruction) =
+        findFirstIndex start (inc,dec) ((=)instruction)
     let isIf = function If(_) -> true | _ -> false
     let isEndIf = (=) EndIf
     let isFor = function For(_,_,_) -> true | _ -> false
@@ -163,14 +163,19 @@ let run (ffi:IFFI) (program:instruction[]) =
             array.[eval index] <- eval expr
         | SetAt(Location(_,_),expr) -> raise (System.NotSupportedException())
         | Action(call) -> invoke state call |> ignore
-        | If(condition) ->            
-            if eval condition |> toBool |> not then
-                let index = findFirstIndex (!pi+1) (isIf, isEndIf) [Else;EndIf]
-                pi := index
-        | Else ->
+        | If(condition) ->
+            let rec check condition =
+               if eval condition |> toBool |> not then
+                  let next = function Else | ElseIf(_) | EndIf -> true | _ -> false
+                  let index = findFirstIndex (!pi+1) (isIf, isEndIf) next
+                  pi := index
+                  match program.[index] with
+                  | ElseIf(condition) -> check condition
+                  | _ -> ()
+            check condition
+        | Else | ElseIf(_) ->
             let index = findIndex !pi (isIf,isEndIf) EndIf
             pi := index
-        | ElseIf(_) -> raise (System.NotSupportedException())        
         | EndIf -> ()
         | For((Set(identifier,expr) as from), target, step) ->
             assign from
