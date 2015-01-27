@@ -92,8 +92,8 @@ and arithmetic lhs op rhs =
     | Subtract, AsDoubles (l,r) -> Double(l - r)
     | Multiply, (Int l,Int r) -> Int(l * r)
     | Multiply, AsDoubles (l,r) -> Double(l * r)
-    | Divide, (Int l,Int r) -> Int(l - r)
-    | Divide, AsDoubles (l,r) -> Double(l - r)
+    | Divide, (Int l,Int r) -> Int(l / r)
+    | Divide, AsDoubles (l,r) -> Double(l / r)
     | _ -> raise (System.NotImplementedException())
 and logical lhs op rhs =
     match op, lhs, rhs with
