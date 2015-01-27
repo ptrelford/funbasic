@@ -62,13 +62,15 @@ Public Class Graphics
         Canvas.Children.Add(line)
     End Sub
 
-    Public Sub FillEllipse(brushColor As String, x1 As Integer, y1 As Integer, x2 As Integer, y2 As Integer) _
+    Public Sub FillEllipse(brushColor As String, _
+                           x1 As Integer, y1 As Integer, _
+                           width As Integer, height As Integer) _
         Implements Library.IGraphics.FillEllipse
         Dim brush = New SolidColorBrush(GetColor(brushColor))
         Dim ellipse = _
             New Ellipse With {.Fill = brush,
                               .Margin = New Thickness(x1, y1, 0, 0),
-                              .Width = Math.Abs(x2 - x1), .Height = Math.Abs(y2 - y1)}
+                              .Width = width, .Height = height}
         Canvas.Children.Add(ellipse)
     End Sub
 

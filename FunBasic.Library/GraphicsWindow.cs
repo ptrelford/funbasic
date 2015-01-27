@@ -29,9 +29,9 @@
          Graphics.DrawLine(PenWidth,PenColor,(int)x1,(int)y1,(int)x2,(int)y2);
       }
 
-      public static void FillEllipse(object x1, object y1, object x2, object y2)
+      public static void FillEllipse(object x1, object y1, object width, object height)
       {
-         Graphics.FillEllipse(BrushColor,(int)x1,(int)y1,(int)x2,(int)y2);
+         Graphics.FillEllipse(BrushColor,(int)x1,(int)y1,(int)width,(int)height);
       }
       
       public static void SetPixel(object x, object y, object color)
