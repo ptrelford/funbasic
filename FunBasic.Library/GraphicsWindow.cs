@@ -11,10 +11,17 @@
          {
             _graphics = value;
             PenWidth = 2.0;
+            BrushColor = "black";
             PenColor = "black";
+            FontSize = 12;
+            FontName = "Tahoma";
          }
 
       }
+
+      public static string Title { get; set; }
+
+      public static string LastKey { get; set; }
 
       public static string BackgroundColor {
          get { return _graphics.BackgroundColor; }
@@ -23,6 +30,18 @@
       public static string BrushColor { get; set; }
       public static string PenColor { get; set; }
       public static double PenWidth { get; set; }
+      public static double FontSize { get; set; }
+      public static string FontName { get; set; }
+
+      public static void Clear()
+      {
+         Graphics.Clear();
+      }
+
+      public static void DrawText(object x, object y, object text)
+      {
+         Graphics.DrawText(BrushColor, (int)x, (int)y, (string)text, FontSize, FontName);
+      }
       
       public static void DrawLine(object x1, object y1, object x2, object y2)
       {

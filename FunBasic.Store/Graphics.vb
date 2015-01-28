@@ -49,6 +49,10 @@ Public Class Graphics
         End Set
     End Property
 
+    Public Sub Clear() Implements Library.IGraphics.Clear
+        Canvas.Children.Clear()
+    End Sub
+
     Public Sub DrawLine(penWidth As Double, _
                         penColor As String, _
                         x1 As Integer, y1 As Integer, _
@@ -63,15 +67,29 @@ Public Class Graphics
     End Sub
 
     Public Sub FillEllipse(brushColor As String, _
-                           x1 As Integer, y1 As Integer, _
+                           x As Integer, y As Integer, _
                            width As Integer, height As Integer) _
         Implements Library.IGraphics.FillEllipse
         Dim brush = New SolidColorBrush(GetColor(brushColor))
         Dim ellipse = _
             New Ellipse With {.Fill = brush,
-                              .Margin = New Thickness(x1, y1, 0, 0),
+                              .Margin = New Thickness(x, y, 0, 0),
                               .Width = width, .Height = height}
         Canvas.Children.Add(ellipse)
+    End Sub
+
+    Public Sub DrawText(brushColor As String, _
+                        x As Integer, y As Integer,
+                        text As String,
+                        fontSize As Double, fontName As String) _
+        Implements Library.IGraphics.DrawText
+        Dim textBlock = _
+            New TextBlock With {.Foreground = New SolidColorBrush(GetColor(brushColor)),
+                                .Text = text,
+                                .Margin = New Thickness(x, y, 0, 0),
+                                .FontSize = fontSize,
+                                .FontFamily = New FontFamily(fontName)}
+        Canvas.Children.Add(textBlock)
     End Sub
 
 End Class
