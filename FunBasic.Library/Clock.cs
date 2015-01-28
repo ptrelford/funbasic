@@ -28,5 +28,14 @@
          }
       }
 
+      public static double ElapsedMilliseconds
+      {
+         get
+         {
+            TimeSpan now = DateTime.Now - new DateTime(1900, 1, 1);
+            return (double)now.TotalMilliseconds;
+         }
+      }
+
    }
 }

@@ -36,6 +36,16 @@
          Y = y2;
       }
 
+      public static void MoveTo(object x, object y)
+      {
+         Graphics.DrawLine(
+            GraphicsWindow.PenWidth,
+            GraphicsWindow.PenColor,
+            (int)X, (int)Y, (int) x, (int) y);
+         X = (int)x;
+         Y = (int)y;
+      }
+
       public static void Turn(object angle)
       {
          Angle += (int)angle;
