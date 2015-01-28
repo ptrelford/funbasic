@@ -54,21 +54,35 @@ open System.Collections.Generic
 type VarLookup = Dictionary<identifier,value>
 type ArrayLookup = Dictionary<identifier,Dictionary<value,value>>
 
+// Converts string literal to array
+let toArray (s:string) =
+   let items = s.Split(';')
+   let xs =
+      [for item in items -> 
+         let xs = item.Split('=') 
+         String xs.[0],String xs.[1]]
+   dict xs
+
 /// Evaluates expressions
 let rec eval state (expr:expr) =
-    let (vars:VarLookup), (arrays:ArrayLookup), _, _ = state
+    let (vars:VarLookup), _, _ = state
     match expr with
     | Literal x -> x
     | Identifier identifier -> vars.[identifier]
     | GetAt(Location(identifier,indices)) ->
-       let rec getAt (array:Dictionary<value,value>) = function
+       let rec getAt (array:IDictionary<value,value>) = function
           | x::[] -> array.[eval state x]
           | x::xs ->
               match array.[eval state x] with
               | Array array -> getAt array xs
+              | String s -> getAt (toArray s) xs                 
               | _ -> invalidOp "Expecting array"
           | _ -> invalidOp "Expecting array index"
-       let array = arrays.[identifier]
+       let array = 
+         match vars.TryGetValue identifier with
+         | true, Array array -> array :> IDictionary<_,_>
+         | true, String s -> toArray s
+         | _, _ -> invalidOp "Not found"
        getAt array indices       
     | Func(call) -> invoke state call
     | Neg x -> arithmetic (eval state x) Multiply (Int(-1))
@@ -101,7 +115,7 @@ and logical lhs op rhs =
     | Or, Bool l, Bool r -> Bool(l || r)
     | _, _, _ -> raise (System.NotImplementedException())
 and invoke state invoke =
-    let _, _, gosub,(ffi:IFFI) = state
+    let _, gosub,(ffi:IFFI) = state
     match invoke with
     | Call(name,args) -> gosub (name(*,args*)) |> fromObj
     | Method(ns,name,args) ->
@@ -116,8 +130,6 @@ let run (ffi:IFFI) (program:instruction[]) =
     let pi = ref 0
     /// Variable lookup   
     let variables = VarLookup()
-    /// Array lookup
-    let arrays = ArrayLookup()
     /// For from EndFor lookup
     let forLoops = Dictionary<index, index * identifier * expr * expr>()
     /// While from EndWhile lookup
@@ -149,27 +161,29 @@ let run (ffi:IFFI) (program:instruction[]) =
         pi := index
         null
     /// Current state
-    let state = variables, arrays, gosub, ffi
+    let state = variables, gosub, ffi
     /// Evaluates expression with variables
     let eval = eval state
     /// Assigns result of expression to variable
     let assign (Set(identifier,expr)) = variables.[identifier] <- eval expr
     /// Obtains array for specified identifier
     let obtainArray identifier =
-        match arrays.TryGetValue(identifier) with
-        | true, array -> array
-        | false, _ -> 
+        match variables.TryGetValue(identifier) with
+        | true, Array array -> array :> IDictionary<_,_>
+        | true, String s -> toArray s
+        | _, _ -> 
             let array = Dictionary<value,value>()
-            arrays.Add(identifier,array)
-            array
+            variables.Add(identifier,Array array)
+            array :> IDictionary<_,_>
     /// Obtains sub array from specified array
-    let obtainSubArray (array:Dictionary<value,value>) key =
+    let obtainSubArray (array:IDictionary<value,value>) key =
         match array.TryGetValue(key) with
-        | true, Array array -> array
+        | true, Array array -> array :> IDictionary<_,_>
+        | true, String s -> toArray s
         | _, _ ->
            let newArray = Dictionary<value,value>()
            array.[key] <- Array newArray
-           newArray
+           newArray :> IDictionary<_,_>
     /// Instruction step
     let step () =
         let instruction = program.[!pi]
@@ -177,7 +191,7 @@ let run (ffi:IFFI) (program:instruction[]) =
         | Assign(set) -> assign set
         | PropertySet(ns,name,x) -> ffi.PropertySet(ns,name,eval x |> toObj)       
         | SetAt(Location(identifier,indices),expr) ->
-            let rec setAt (array:Dictionary<value,value>) = function
+            let rec setAt (array:IDictionary<value,value>) = function
                | x::[] -> array.[eval x] <- eval expr
                | x::xs -> 
                   let key = eval x
