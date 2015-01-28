@@ -28,20 +28,13 @@
          var radians = Angle * System.Math.PI / 180;
          var x2 = X + n * System.Math.Cos(radians);
          var y2 = Y + n * System.Math.Sin(radians);
-         Graphics.DrawLine(
-            GraphicsWindow.PenWidth,
-            GraphicsWindow.PenColor,
-            (int)X, (int)Y, (int) x2, (int) y2);
+         Graphics.DrawLine((int)X, (int)Y, (int) x2, (int) y2);
          X = x2;
          Y = y2;
       }
 
       public static void MoveTo(object x, object y)
       {
-         Graphics.DrawLine(
-            GraphicsWindow.PenWidth,
-            GraphicsWindow.PenColor,
-            (int)X, (int)Y, (int) x, (int) y);
          X = (int)x;
          Y = (int)y;
       }

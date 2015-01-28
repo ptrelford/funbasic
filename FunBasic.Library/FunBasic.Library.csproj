@@ -110,6 +110,9 @@
     <Compile Include="IGraphics.cs" />
     <Compile Include="Math.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Shapes.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Stack.cs" />
     <Compile Include="TextWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

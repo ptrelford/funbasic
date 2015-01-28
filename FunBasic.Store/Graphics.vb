@@ -4,11 +4,12 @@ Imports Windows.UI, Windows.UI.Xaml.Shapes
 Public Class Graphics
     Implements FunBasic.Library.IGraphics
 
-    Dim Canvas As Canvas
+    Dim MyCanvas As Canvas
     Dim ColorLookup As New Dictionary(Of String, Color)()
+    Dim ShapeLookup As New Dictionary(Of String, UIElement)()
 
     Public Sub New(canvas As Canvas)
-        Me.Canvas = canvas
+        Me.MyCanvas = canvas
         PrepareColors()
     End Sub
 
@@ -28,14 +29,14 @@ Public Class Graphics
     Public ReadOnly Property Height As Double _
     Implements Library.IGraphics.Height
         Get
-            Return Canvas.Width
+            Return MyCanvas.Width
         End Get
     End Property
 
     Public ReadOnly Property Width As Double _
         Implements Library.IGraphics.Width
         Get
-            Return Canvas.Height
+            Return MyCanvas.Height
         End Get
     End Property
 
@@ -45,51 +46,120 @@ Public Class Graphics
             Throw New NotImplementedException()
         End Get
         Set(value As String)
-            Canvas.Background = New SolidColorBrush(GetColor(value))
+            MyCanvas.Background = New SolidColorBrush(GetColor(value))
         End Set
     End Property
 
+    Public Property BrushColor As String Implements Library.IGraphics.BrushColor
+    Public Property FontName As String Implements Library.IGraphics.FontName
+    Public Property FontSize As Double Implements Library.IGraphics.FontSize
+    Public Property PenColor As String Implements Library.IGraphics.PenColor
+    Public Property PenWidth As Double Implements Library.IGraphics.PenWidth
+
     Public Sub Clear() Implements Library.IGraphics.Clear
-        Canvas.Children.Clear()
+        MyCanvas.Children.Clear()
     End Sub
 
-    Public Sub DrawLine(penWidth As Double, _
-                        penColor As String, _
-                        x1 As Integer, y1 As Integer, _
+    Public Sub DrawLine(x1 As Integer, y1 As Integer, _
                         x2 As Integer, y2 As Integer) _
         Implements Library.IGraphics.DrawLine
-
-        Dim line = _
-            New Line With {.StrokeThickness = penWidth,
-                           .Stroke = New SolidColorBrush(GetColor(penColor)), _
-                           .X1 = x1, .Y1 = y1, .X2 = x2, .Y2 = y2}
-        Canvas.Children.Add(line)
+        Dim line = CreateLine(x1,y1,x2,y2)
+        MyCanvas.Children.Add(line)
     End Sub
 
-    Public Sub FillEllipse(brushColor As String, _
-                           x As Integer, y As Integer, _
+    Public Function CreateLine(x1 As Integer, y1 As Integer, _
+                               x2 As Integer, y2 As Integer)
+        Return _
+            New Line With {.StrokeThickness = PenWidth, _
+                    .Stroke = New SolidColorBrush(GetColor(PenColor)), _
+                    .X1 = x1, .Y1 = y1, .X2 = x2, .Y2 = y2}
+    End Function
+
+    Public Sub DrawImage(url As String, x As Integer, y As Integer) _
+        Implements Library.IGraphics.DrawImage
+        Dim image = CreateImage(url)
+        Canvas.SetLeft(image, x)
+        Canvas.SetTop(image, y)
+    End Sub
+
+    Public Function CreateImage(url As String) As Image
+        Dim bitmap = New BitmapImage With {.UriSource = New Uri(url)}
+        Return New Image With {.Source = bitmap}
+    End Function
+
+    Public Sub DrawText(x As Integer, y As Integer, _
+                        text As String) _
+    Implements Library.IGraphics.DrawText
+        Dim textBlock = CreateTextBlock(text)
+        textBlock.Margin = New Thickness(x, y, 0, 0)
+        MyCanvas.Children.Add(textBlock)
+    End Sub
+
+    Public Function CreateTextBlock(text As String) As TextBlock
+        Return _
+            New TextBlock With { _
+                .Foreground = New SolidColorBrush(GetColor(BrushColor)), _
+                .Text = text, _
+                .FontSize = FontSize, .FontFamily = New FontFamily(FontName) _
+                }
+    End Function
+
+    Public Sub FillEllipse(x As Integer, y As Integer, _
                            width As Integer, height As Integer) _
         Implements Library.IGraphics.FillEllipse
-        Dim brush = New SolidColorBrush(GetColor(brushColor))
+        Dim brush = New SolidColorBrush(GetColor(BrushColor))
         Dim ellipse = _
             New Ellipse With {.Fill = brush,
                               .Margin = New Thickness(x, y, 0, 0),
                               .Width = width, .Height = height}
-        Canvas.Children.Add(ellipse)
+        MyCanvas.Children.Add(ellipse)
     End Sub
 
-    Public Sub DrawText(brushColor As String, _
-                        x As Integer, y As Integer,
-                        text As String,
-                        fontSize As Double, fontName As String) _
-        Implements Library.IGraphics.DrawText
-        Dim textBlock = _
-            New TextBlock With {.Foreground = New SolidColorBrush(GetColor(brushColor)),
-                                .Text = text,
-                                .Margin = New Thickness(x, y, 0, 0),
-                                .FontSize = fontSize,
-                                .FontFamily = New FontFamily(fontName)}
-        Canvas.Children.Add(textBlock)
+    Public Function AddImage(url As String) As String _
+        Implements Library.IGraphics.AddImage
+        Dim name = "Image"
+        Dim image = CreateImage(url)
+        ShapeLookup.Add(name, image)
+        MyCanvas.Children.Add(image)
+        Return name
+    End Function
+
+    Public Function AddLine(x1 As Integer, y1 As Integer, x2 As Integer, y2 As Integer) As String _
+        Implements Library.IGraphics.AddLine
+        Dim name = "Line"
+        Dim line = CreateLine(x1, y1, x2, y2)
+        ShapeLookup.Add(name, line)
+        MyCanvas.Children.Add(line)
+        Return name
+    End Function
+
+    Public Function AddText(text As String) As String _
+        Implements Library.IGraphics.AddText
+        Dim name = "Text"
+        Dim textBlock = CreateTextBlock(text)
+        ShapeLookup.Add(name, textBlock)
+        MyCanvas.Children.Add(textBlock)
+        Return name
+    End Function
+
+    Public Sub Remove(name As String) _
+        Implements Library.IGraphics.Remove
+        Dim shape = ShapeLookup(name)
+        MyCanvas.Children.Remove(shape)
+        ShapeLookup.Remove(name)
+    End Sub
+
+    Public Sub Move(name As String, x As Integer, y As Integer) _
+        Implements Library.IGraphics.Move
+        Dim shape = ShapeLookup(name)
+        Canvas.SetLeft(shape, x)
+        Canvas.SetTop(shape, y)
+    End Sub
+
+    Public Sub SetOpacity(name As String, value As Integer) _
+        Implements Library.IGraphics.SetOpacity
+        Dim shape = ShapeLookup(name)
+        shape.Opacity = value
     End Sub
 
 End Class
