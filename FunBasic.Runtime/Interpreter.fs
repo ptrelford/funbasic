@@ -54,14 +54,27 @@ open System.Collections.Generic
 type VarLookup = Dictionary<identifier,value>
 type ArrayLookup = Dictionary<identifier,Dictionary<value,value>>
 
-// Converts string literal to array
-let toArray (s:string) =
-   let items = s.Split(';')
-   let xs =
-      [for item in items -> 
-         let xs = item.Split('=') 
-         String xs.[0],String xs.[1]]
-   dict xs
+/// Converts string literal to array
+let toArray (s:string) =   
+   let xs = HashTable()
+   let rec parse startIndex index =
+      if index < s.Length then readKey startIndex index
+   and readKey startIndex index =
+      if s.[index] = ';' then parse (index+1) (index+1)
+      elif s.[index] = '='
+      then 
+         let key = s.Substring(startIndex,index-startIndex)
+         readValue key (index+1) (index+1)
+      else parse startIndex (index+1)
+   and readValue key startIndex index =  
+      if index = s.Length || s.[index] = ';' 
+      then 
+         let value = s.Substring(startIndex,index-startIndex)
+         xs.Add(String key,String value)
+         parse (index+1) (index+1)
+      else readValue key index (index+1)
+   parse 0 0
+   xs
 
 /// Evaluates expressions
 let rec eval state (expr:expr) =
@@ -70,7 +83,7 @@ let rec eval state (expr:expr) =
     | Literal x -> x
     | Identifier identifier -> vars.[identifier]
     | GetAt(Location(identifier,indices)) ->
-       let rec getAt (array:IDictionary<value,value>) = function
+       let rec getAt (array:HashTable<_,_>) = function
           | x::[] -> array.[eval state x]
           | x::xs ->
               match array.[eval state x] with
@@ -80,7 +93,7 @@ let rec eval state (expr:expr) =
           | _ -> invalidOp "Expecting array index"
        let array = 
          match vars.TryGetValue identifier with
-         | true, Array array -> array :> IDictionary<_,_>
+         | true, Array array -> array
          | true, String s -> toArray s
          | _, _ -> invalidOp "Not found"
        getAt array indices       
@@ -169,21 +182,21 @@ let run (ffi:IFFI) (program:instruction[]) =
     /// Obtains array for specified identifier
     let obtainArray identifier =
         match variables.TryGetValue(identifier) with
-        | true, Array array -> array :> IDictionary<_,_>
+        | true, Array array -> array
         | true, String s -> toArray s
         | _, _ -> 
             let array = Dictionary<value,value>()
             variables.Add(identifier,Array array)
-            array :> IDictionary<_,_>
+            array
     /// Obtains sub array from specified array
-    let obtainSubArray (array:IDictionary<value,value>) key =
+    let obtainSubArray (array:HashTable<_,_>) key =
         match array.TryGetValue(key) with
-        | true, Array array -> array :> IDictionary<_,_>
+        | true, Array array -> array
         | true, String s -> toArray s
         | _, _ ->
-           let newArray = Dictionary<value,value>()
+           let newArray = HashTable()
            array.[key] <- Array newArray
-           newArray :> IDictionary<_,_>
+           newArray
     /// Instruction step
     let step () =
         let instruction = program.[!pi]
@@ -191,7 +204,7 @@ let run (ffi:IFFI) (program:instruction[]) =
         | Assign(set) -> assign set
         | PropertySet(ns,name,x) -> ffi.PropertySet(ns,name,eval x |> toObj)       
         | SetAt(Location(identifier,indices),expr) ->
-            let rec setAt (array:IDictionary<value,value>) = function
+            let rec setAt (array:HashTable<_,_>) = function
                | x::[] -> array.[eval x] <- eval expr
                | x::xs -> 
                   let key = eval x
