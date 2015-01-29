@@ -70,9 +70,11 @@ let toArray (s:string) =
       if index = s.Length || s.[index] = ';' 
       then 
          let value = s.Substring(startIndex,index-startIndex)
-         xs.Add(String key,String value)
+         match System.Int32.TryParse(key) with
+         | true, n -> xs.Add(Int n,String value)
+         | false,_ -> xs.Add(String key,String value)
          parse (index+1) (index+1)
-      else readValue key index (index+1)
+      else readValue key startIndex (index+1)
    parse 0 0
    xs
 
@@ -232,13 +234,20 @@ let run (ffi:IFFI) (program:instruction[]) =
             assign from
             let index = findIndex (!pi+1) (isFor,isEndFor) EndFor
             forLoops.[index] <- (!pi, identifier, target, step)
-            if toInt(variables.[identifier]) > toInt(eval target) 
+            let a = toInt(variables.[identifier])
+            let b = toInt(eval target)
+            let step = toInt(eval step)
+            if (step >= 0 && a > b) || (step < 0 && a < b)
             then pi := index
         | EndFor ->
             let start, identifier, target, step = forLoops.[!pi]
-            let x = variables.[identifier]
-            variables.[identifier] <- arithmetic x Add (eval step)
-            if toInt(variables.[identifier]) <= toInt(eval target) 
+            let x = variables.[identifier]            
+            let step = eval step
+            variables.[identifier] <- arithmetic x Add step
+            let a = toInt(variables.[identifier])
+            let b =  toInt(eval target) 
+            let step = toInt(step)
+            if (step >= 0 && a <= b) || (step < 0 && a >= b)
             then pi := start
         | While condition ->
             let index = findIndex (!pi+1) (isWhile,isEndWhile) EndWhile
