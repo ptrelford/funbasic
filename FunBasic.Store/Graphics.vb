@@ -139,7 +139,7 @@ Public Class Graphics
                 image = CreateImage(url)
                 MyCanvas.Children.Add(image)
             End Sub).AsTask().Wait()
-        ShapeLookup.Add(name, Image)
+        ShapeLookup.Add(name, image)
         Return name
     End Function
 
@@ -183,6 +183,19 @@ Public Class Graphics
         Dispatch(Sub()
                      Canvas.SetLeft(shape, x)
                      Canvas.SetTop(shape, y)
+                 End Sub)
+    End Sub
+
+    Public Sub Rotate(name As String, angle As Integer) _
+        Implements Library.IGraphics.Rotate
+        Dim shape = ShapeLookup(name)
+        Dispatch(Sub()
+                     Dim transform As New RotateTransform()
+                     Dim el = CType(shape, FrameworkElement)
+                     transform.CenterX = el.ActualWidth / 2
+                     transform.CenterY = el.ActualHeight / 2
+                     transform.Angle = angle
+                     shape.RenderTransform = transform
                  End Sub)
     End Sub
 

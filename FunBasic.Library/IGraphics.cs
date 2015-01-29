@@ -22,6 +22,7 @@
       string AddImage(string url);
 
       void Remove(string name);
+      void Rotate(string name, int angle);
       void SetOpacity(string name, int opacity);
       void Move(string name, int x, int y);      
    }

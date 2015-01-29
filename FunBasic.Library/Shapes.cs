@@ -40,7 +40,7 @@ namespace FunBasic.Library
 
       public static void Rotate(object name, object angle)
       {
-         throw new NotImplementedException();
+         GraphicsWindow.Graphics.Rotate((string)name, (int)angle);
       }
    }
 }
