@@ -3,14 +3,20 @@
 Public Class Console
     Implements FunBasic.Library.IConsole
 
-    Dim Output As StringBuilder
+    Dim MyTextBox As TextBox
 
-    Sub New(output As StringBuilder)
-        Me.Output = output
+    Sub New(textBox As TextBox)
+        textBox.Text = ""
+        Me.MyTextBox = textBox
     End Sub
 
     Public Sub WriteLine(value As Object) Implements Library.IConsole.WriteLine
-        Output.AppendLine(value.ToString())
+        Dim ignore =
+            MyTextBox.Dispatcher.RunAsync( _
+            Windows.UI.Core.CoreDispatcherPriority.Normal, _
+                Sub()
+                    MyTextBox.Text = MyTextBox.Text + value.ToString() + vbCrLf
+                End Sub)
     End Sub
 
 End Class
