@@ -48,6 +48,11 @@ namespace FunBasic.Library
          GraphicsWindow.Graphics.Move((string)name, (int)x, (int)y);
       }
 
+      public static void Animate(object name, object x, object y, object duration)
+      {
+         GraphicsWindow.Graphics.Animate((string)name, (int)x, (int)y, (int)duration);
+      }
+
       public static void Rotate(object name, object angle)
       {
          GraphicsWindow.Graphics.Rotate((string)name, (int)angle);

@@ -2,6 +2,7 @@
 Imports Windows.UI, Windows.UI.Xaml.Shapes
 Imports Windows.UI.Core
 Imports Windows.System
+Imports Windows.UI.Xaml.Media.Animation
 
 Public Class Graphics
     Implements FunBasic.Library.IGraphics
@@ -146,9 +147,10 @@ Public Class Graphics
             CoreDispatcherPriority.Normal, _
             Sub()
                 image = CreateImage(url)
+                image.Name = name
                 MyCanvas.Children.Add(image)
+                ShapeLookup.Add(name, image)
             End Sub).AsTask().Wait()
-        ShapeLookup.Add(name, image)
         Return name
     End Function
 
@@ -160,20 +162,22 @@ Public Class Graphics
             CoreDispatcherPriority.Normal, _
             Sub()
                 line = CreateLine(x1, y1, x2, y2)
+                line.Name = name
+                MyCanvas.Children.Add(line)
                 ShapeLookup.Add(name, line)
             End Sub).AsTask().Wait()
-        MyCanvas.Children.Add(line)
         Return name
     End Function
 
     Public Function AddRectangle(width As Integer, height As Integer) As String _
         Implements Library.IGraphics.AddRectangle
         Dim name = "Rectangle" + Guid.NewGuid().ToString()
-        Dim rectangle As Rectangle = Nothing
         MyCanvas.Dispatcher.RunAsync( _
             CoreDispatcherPriority.Normal, _
             Sub()
-                rectangle = CreateRectangle(width, height)
+                Dim rectangle = CreateRectangle(width, height)
+                rectangle.Name = name
+                MyCanvas.Children.Add(rectangle)
                 ShapeLookup.Add(name, rectangle)
             End Sub).AsTask().Wait()
         Return name
@@ -194,18 +198,16 @@ Public Class Graphics
         MyCanvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, _
             Sub()
                 textBlock = CreateTextBlock(text)
+                textBlock.Name = name
                 MyCanvas.Children.Add(textBlock)
+                ShapeLookup.Add(name, textBlock)
             End Sub).AsTask().Wait()
-        ShapeLookup.Add(name, textBlock)
         Return name
     End Function
 
     Public Sub SetText(name As String, text As String) Implements Library.IGraphics.SetText
         Dim textBlock = CType(ShapeLookup(name), TextBlock)
-        MyCanvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, _
-            Sub()
-                textBlock.Text = text
-            End Sub).AsTask().Wait()
+        Dispatch(Sub() textBlock.Text = text)
     End Sub
 
     Public Sub Remove(name As String) _
@@ -221,6 +223,29 @@ Public Class Graphics
         Dispatch(Sub()
                      Canvas.SetLeft(shape, x)
                      Canvas.SetTop(shape, y)
+                 End Sub)
+    End Sub
+
+    Public Sub Animate(name As String, x As Integer, y As Integer, duration As Integer) _
+        Implements Library.IGraphics.Animate
+        Dim shape = ShapeLookup(name)
+        Dispatch(Sub()
+                     Dim story = New Storyboard()
+                     story.Duration = TimeSpan.FromMilliseconds(duration)
+
+                     Dim left = New DoubleAnimation()
+                     left.To = x
+                     left.SetValue(Storyboard.TargetPropertyProperty, "(Canvas.Left)")
+                     story.Children.Add(left)
+
+                     Dim top = New DoubleAnimation()
+                     top.To = y
+                     top.SetValue(Storyboard.TargetPropertyProperty, "(Canvas.Top)")
+                     story.SetValue(Storyboard.TargetNameProperty, name)
+                     story.Children.Add(top)
+
+                     MyCanvas.Resources.Add(CType(Guid.NewGuid().ToString(), Object), story)
+                     story.Begin()
                  End Sub)
     End Sub
 

@@ -28,6 +28,7 @@
       string AddImage(string url);
       void Remove(string name);
       void Move(string name, int x, int y);
+      void Animate(string name, int x, int y, int duration);
       void Rotate(string name, int angle);
       void SetOpacity(string name, int opacity);
       void SetText(string name, string text);      
