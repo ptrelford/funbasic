@@ -34,7 +34,13 @@ let toInt = function
 /// Converts value to bool
 let toBool = function
     | Bool x -> x
-    | _ -> raise (new System.NotSupportedException())
+    | String "False" -> false
+    | String "True" -> true
+    | x -> raise (new System.NotSupportedException())
+let (|AsInt|_|) s =
+    match System.Int32.TryParse(s) with
+    | true, n -> Some n
+    | false,_ -> None
 /// Coerces a tuple of numeric values to double
 let (|AsDoubles|_|) = function
     | Double l, Double r -> Some(l,r)
@@ -90,9 +96,12 @@ let rec eval state (expr:expr) =
        | false, _ -> invalidOp (identifier+" not defined")
     | GetAt(Location(identifier,indices)) ->
        let rec getAt (array:HashTable<_,_>) = function
-          | x::[] -> array.[eval state x]
+          | x::[] ->
+              let index = eval state x
+              array.[index]
           | x::xs ->
-              match array.[eval state x] with
+              let index = eval state x
+              match array.[index] with
               | Array array -> getAt array xs
               | String s -> getAt (toArray s) xs                 
               | _ -> invalidOp "Expecting array"
@@ -121,6 +130,8 @@ and arithmetic lhs op rhs =
     | Add, (Int l,Int r) -> Int(l + r)
     | Add, AsDoubles (l,r) -> Double(l + r)
     | Add, (String l, String r) -> String(l + r)
+    | Add, (String(AsInt l), Int r) -> Int(l + r)
+    | Add, (Int l, String(AsInt r)) -> Int(l + r)
     | Subtract, (Int l,Int r) -> Int(l - r)
     | Subtract, AsDoubles (l,r) -> Double(l - r)
     | Multiply, (Int l,Int r) -> Int(l * r)
