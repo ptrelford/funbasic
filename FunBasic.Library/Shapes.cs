@@ -13,9 +13,19 @@ namespace FunBasic.Library
          return GraphicsWindow.Graphics.AddText((string)text);
       }
 
+      public static string AddEllipse(object width, object height)
+      {
+         return GraphicsWindow.Graphics.AddEllipse((int)width, (int)height);
+      }
+
       public static string AddLine(object x1, object y1, object x2, object y2)
       {
          return GraphicsWindow.Graphics.AddLine((int)x1,(int)y1,(int)x2,(int)y2);
+      }
+
+      public static string AddTriangle(object x1, object y1, object x2, object y2, object x3, object y3)
+      {
+         return GraphicsWindow.Graphics.AddTriangle((int)x1, (int)x2, (int)y1, (int)y2, (int)x3, (int)y3);
       }
 
       public static string AddRectangle(object width, object height)
@@ -26,6 +36,16 @@ namespace FunBasic.Library
       public static string AddImage(object url)
       {
          return GraphicsWindow.Graphics.AddImage((string)url);
+      }
+
+      public static void HideShape(object name)
+      {
+         GraphicsWindow.Graphics.HideShape((string)name);
+      }
+
+      public static void ShowShape(object name)
+      {
+         GraphicsWindow.Graphics.ShowShape((string)name);
       }
 
       public static void Remove(object name)
@@ -56,6 +76,11 @@ namespace FunBasic.Library
       public static void Rotate(object name, object angle)
       {
          GraphicsWindow.Graphics.Rotate((string)name, (int)angle);
+      }
+
+      public static void Zoom(object name, object scaleX, object scaleY)
+      {
+         GraphicsWindow.Graphics.Zoom((string)name,(double)scaleX, (double)scaleY);
       }
    }
 }

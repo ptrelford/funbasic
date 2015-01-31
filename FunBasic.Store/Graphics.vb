@@ -37,7 +37,7 @@ Public Class Graphics
         Return ColorLookup(name.ToLower())
     End Function
 
-    Private Sub PrepareColors()
+    Sub PrepareColors()
         Dim ti = GetType(Colors)
         Dim colors = ti.GetRuntimeProperties()
         For Each pi In colors
@@ -46,6 +46,7 @@ Public Class Graphics
         Next
     End Sub
 
+#Region "Properties"
     Public ReadOnly Property Height As Double _
     Implements Library.IGraphics.Height
         Get
@@ -75,12 +76,24 @@ Public Class Graphics
     Public Property FontSize As Double Implements Library.IGraphics.FontSize
     Public Property PenColor As String Implements Library.IGraphics.PenColor
     Public Property PenWidth As Double Implements Library.IGraphics.PenWidth
+#End Region
 
+#Region "Graphics"
     Public Sub Clear() Implements Library.IGraphics.Clear
         Dispatch(Sub()
                      Dim myTurtle = ShapeLookup("Turtle")
                      MyCanvas.Children.Clear()
                      MyCanvas.Children.Add(myTurtle)
+                 End Sub)
+    End Sub
+
+    Public Sub DrawEllipse(x As Integer, y As Integer, _
+                           width As Integer, height As Integer) _
+        Implements Library.IGraphics.DrawEllipse
+        Dispatch(Sub()
+                     Dim ellipse = CreateEllipse(x, y)
+                     ellipse.Margin = New Thickness(x, y, 0, 0)
+                     MyCanvas.Children.Add(ellipse)
                  End Sub)
     End Sub
 
@@ -94,12 +107,39 @@ Public Class Graphics
     End Sub
 
     Private Function CreateLine(x1 As Integer, y1 As Integer, _
-                               x2 As Integer, y2 As Integer)
+                            x2 As Integer, y2 As Integer)
         Return _
             New Line With {.StrokeThickness = PenWidth, _
                     .Stroke = New SolidColorBrush(GetColor(PenColor)), _
                     .X1 = x1, .Y1 = y1, .X2 = x2, .Y2 = y2}
     End Function
+
+    Public Sub DrawTriangle(x1 As Integer, y1 As Integer, _
+                            x2 As Integer, y2 As Integer, _
+                            x3 As Integer, y3 As Integer) _
+        Implements Library.IGraphics.DrawTriangle
+        Dispatch(Sub()
+                     Dim poly = CreateTriangle(x1, y1, x2, y2, x3, y3)
+                     poly.Stroke = New SolidColorBrush(GetColor(PenColor))
+                     MyCanvas.Children.Add(poly)
+                 End Sub)
+    End Sub
+
+    Function CreateTriangle(x1 As Integer, y1 As Integer, _
+                            x2 As Integer, y2 As Integer, _
+                            x3 As Integer, y3 As Integer) As Polygon
+        Dim poly = New Polygon()
+        poly.Points.Add(New Point(x1, y1))
+        poly.Points.Add(New Point(x2, y2))
+        poly.Points.Add(New Point(x3, y3))
+        Return poly
+    End Function
+
+    Public Sub DrawRectangle(x As Integer, y As Integer, _
+                             width As Integer, height As Integer) _
+        Implements Library.IGraphics.DrawRectangle
+        Throw New NotImplementedException()
+    End Sub
 
     Public Sub DrawImage(url As String, x As Integer, y As Integer) _
         Implements Library.IGraphics.DrawImage
@@ -139,22 +179,29 @@ Public Class Graphics
         Implements Library.IGraphics.FillEllipse
         Dispatch(Sub()
                      Dim brush = New SolidColorBrush(GetColor(BrushColor))
-                     Dim ellipse = _
-                         New Ellipse With {.Fill = brush,
-                                           .Margin = New Thickness(x, y, 0, 0),
-                                           .Width = width, .Height = height}
+                     Dim ellipse = CreateEllipse(width, height)
+                     ellipse.Margin = New Thickness(x, y, 0, 0)
                      MyCanvas.Children.Add(ellipse)
                  End Sub)
     End Sub
 
+    Function CreateEllipse(width As Integer, height As Integer) As Ellipse
+        Dim brush = New SolidColorBrush(GetColor(BrushColor))
+        Return _
+            New Ellipse With {.Fill = brush, _
+                              .Width = width, .Height = height}
+    End Function
+#End Region
+
+#Region "Shapes"
+
     Public Function AddImage(url As String) As String _
         Implements Library.IGraphics.AddImage
         Dim name = "Image" + Guid.NewGuid().ToString()
-        Dim image As Image = Nothing
         MyCanvas.Dispatcher.RunAsync( _
             CoreDispatcherPriority.Normal, _
             Sub()
-                image = CreateImage(url)
+                Dim image = CreateImage(url)
                 image.Name = name
                 MyCanvas.Children.Add(image)
                 ShapeLookup.Add(name, image)
@@ -162,7 +209,21 @@ Public Class Graphics
         Return name
     End Function
 
-    Public Function AddLine(x1 As Integer, y1 As Integer, x2 As Integer, y2 As Integer) As String _
+    Public Function AddEllipse(width As Integer, height As Integer) As String Implements Library.IGraphics.AddEllipse
+        Dim name = "Ellipse" + Guid.NewGuid().ToString()
+        MyCanvas.Dispatcher.RunAsync( _
+            CoreDispatcherPriority.Normal, _
+            Sub()
+                Dim ellipse = CreateEllipse(width, height)
+                ellipse.Name = name
+                MyCanvas.Children.Add(ellipse)
+                ShapeLookup.Add(name, ellipse)
+            End Sub).AsTask().Wait()
+        Return name
+    End Function
+
+    Public Function AddLine(x1 As Integer, y1 As Integer, _
+                            x2 As Integer, y2 As Integer) As String _
         Implements Library.IGraphics.AddLine
         Dim name = "Line" + Guid.NewGuid().ToString()
         Dim line As Line = Nothing
@@ -173,6 +234,24 @@ Public Class Graphics
                 line.Name = name
                 MyCanvas.Children.Add(line)
                 ShapeLookup.Add(name, line)
+            End Sub).AsTask().Wait()
+        Return name
+    End Function
+
+    Public Function AddTriangle(x1 As Integer, y1 As Integer, _
+                                x2 As Integer, y2 As Integer, _
+                                x3 As Integer, y3 As Integer) As String _
+        Implements Library.IGraphics.AddTriangle
+        Dim name = "Triangle" + Guid.NewGuid().ToString()
+        MyCanvas.Dispatcher.RunAsync( _
+            CoreDispatcherPriority.Normal, _
+            Sub()
+                Dim poly = CreateTriangle(x1, y1, x2, y2, x3, y3)
+                poly.Stroke = New SolidColorBrush(GetColor(PenColor))
+                poly.Fill = New SolidColorBrush(GetColor(BrushColor))
+                poly.Name = name
+                MyCanvas.Children.Add(poly)
+                ShapeLookup.Add(name, poly)
             End Sub).AsTask().Wait()
         Return name
     End Function
@@ -283,12 +362,20 @@ Public Class Graphics
                  End Sub)
     End Sub
 
+    Public Sub Zoom(name As String, scaleX As Double, scaleY As Double) _
+        Implements Library.IGraphics.Zoom
+        Throw New NotImplementedException()
+    End Sub
+
     Public Sub SetOpacity(name As String, value As Integer) _
         Implements Library.IGraphics.SetOpacity
         Dim shape = ShapeLookup(name)
         Dispatch(Sub() shape.Opacity = CType(value, Double) / 100.0)
     End Sub
 
+#End Region
+
+#Region "Keyboard"
     Public Event KeyDown(sender As Object, e As EventArgs) _
         Implements Library.IGraphics.KeyDown
 
@@ -302,7 +389,9 @@ Public Class Graphics
         MyLastKey = args.VirtualKey
         RaiseEvent KeyDown(Me, New EventArgs)
     End Sub
+#End Region
 
+#Region "Mouse"
     Public Event MouseDown(sender As Object, e As EventArgs) Implements Library.IGraphics.MouseDown
     Public Event MouseMove(sender As Object, e As EventArgs) Implements Library.IGraphics.MouseMove
     Public Event MouseUp(sender As Object, e As EventArgs) Implements Library.IGraphics.MouseUp
@@ -341,5 +430,6 @@ Public Class Graphics
         PointerY = position.Y
         RaiseEvent MouseMove(Me, New EventArgs())
     End Sub
+#End Region
 
 End Class

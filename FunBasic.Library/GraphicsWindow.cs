@@ -20,6 +20,8 @@
 
       public static string Title { get; set; }
 
+      public static bool CanResize { get { return false; } }
+
       public static double Width
       {
          get { return _graphics.Width; }
@@ -80,6 +82,16 @@
       public static void DrawLine(object x1, object y1, object x2, object y2)
       {
          Graphics.DrawLine((int)x1,(int)y1,(int)x2,(int)y2);
+      }
+
+      public static void DrawTriangle(object x1, object y1, object x2, object y2, object x3, object y3)
+      {
+         Graphics.DrawTriangle((int)x1, (int)y1, (int)x2, (int)y2, (int)x3, (int)y3);
+      }
+
+      public static void DrawRectangle(object x,object y, object width, object height)
+      {
+         Graphics.DrawRectangle((int)x, (int)y, (int)width, (int)height);
       }
 
       public static void FillEllipse(object x1, object y1, object width, object height)

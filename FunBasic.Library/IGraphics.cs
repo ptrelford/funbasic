@@ -15,7 +15,10 @@
 
       #region Render
       void Clear();
+      void DrawEllipse(int x, int y, int width, int height);   
       void DrawLine(int x1, int y1, int x2, int y2);
+      void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3);
+      void DrawRectangle(int x, int y, int width, int height);
       void DrawText(int x, int y, string text);      
       void DrawImage(string url, int x, int y);
       void FillEllipse(int x, int y, int width, int height);   
@@ -23,7 +26,9 @@
 
       #region Shapes
       string AddText(string text);
+      string AddEllipse(int width, int height);
       string AddLine(int x1, int y1, int x2, int y2);
+      string AddTriangle(int x1, int y1, int x2, int y2, int x3, int y3);
       string AddRectangle(int width, int height);
       string AddImage(string url);
       void HideShape(string name);
@@ -32,6 +37,7 @@
       void Move(string name, int x, int y);
       void Animate(string name, int x, int y, int duration);
       void Rotate(string name, int angle);
+      void Zoom(string name, double scaleX, double scaleY);
       void SetOpacity(string name, int opacity);
       void SetText(string name, string text);      
       #endregion
