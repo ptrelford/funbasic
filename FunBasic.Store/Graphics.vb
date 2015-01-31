@@ -19,6 +19,8 @@ Public Class Graphics
         PrepareColors()
 
         AddHandler canvas.PointerPressed, AddressOf PointerPressed
+        AddHandler canvas.PointerReleased, AddressOf PointerReleased
+        AddHandler canvas.PointerMoved, AddressOf PointerMoved
 
         Dim window = CoreWindow.GetForCurrentThread()
         AddHandler window.KeyDown, AddressOf OnKeyDown
@@ -302,6 +304,8 @@ Public Class Graphics
     End Sub
 
     Public Event MouseDown(sender As Object, e As EventArgs) Implements Library.IGraphics.MouseDown
+    Public Event MouseMove(sender As Object, e As EventArgs) Implements Library.IGraphics.MouseMove
+    Public Event MouseUp(sender As Object, e As EventArgs) Implements Library.IGraphics.MouseUp
 
     Public ReadOnly Property MouseX As Integer Implements Library.IGraphics.MouseX
         Get
@@ -319,8 +323,23 @@ Public Class Graphics
         Dim position = e.GetCurrentPoint(MyCanvas).Position
         PointerX = position.X
         PointerY = position.Y
+        FunBasic.Library.Mouse.IsLeftButtonDown = True
         RaiseEvent MouseDown(Me, New EventArgs())
     End Sub
 
+    Private Sub PointerReleased(sender As Object, e As PointerRoutedEventArgs)
+        Dim position = e.GetCurrentPoint(MyCanvas).Position
+        PointerX = position.X
+        PointerY = position.Y
+        FunBasic.Library.Mouse.IsLeftButtonDown = False
+        RaiseEvent MouseUp(Me, New EventArgs())
+    End Sub
+
+    Private Sub PointerMoved(sender As Object, e As PointerRoutedEventArgs)
+        Dim position = e.GetCurrentPoint(MyCanvas).Position
+        PointerX = position.X
+        PointerY = position.Y
+        RaiseEvent MouseMove(Me, New EventArgs())
+    End Sub
 
 End Class

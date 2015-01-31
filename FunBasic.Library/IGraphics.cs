@@ -40,6 +40,8 @@
       int MouseX { get; }
       int MouseY { get; }
       event System.EventHandler MouseDown;
+      event System.EventHandler MouseUp;
+      event System.EventHandler MouseMove;
       #endregion
 
       #region Keyboard

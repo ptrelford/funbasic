@@ -123,5 +123,18 @@
          add { _graphics.MouseDown += value; }
          remove { _graphics.MouseDown -= value; }
       }
+
+      public static event System.EventHandler MouseUp
+      {
+         add { _graphics.MouseUp += value; }
+         remove { _graphics.MouseUp -= value; }
+      }
+
+      public static event System.EventHandler MouseMove
+      {
+         add { _graphics.MouseMove += value; }
+         remove { _graphics.MouseMove -= value; }
+      }
+
    }
 }

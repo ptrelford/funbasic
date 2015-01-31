@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FunBasic.Library
+﻿namespace FunBasic.Library
 {
+   using System;
+
    public static class Timer
    {
       private static ITimer _timer;

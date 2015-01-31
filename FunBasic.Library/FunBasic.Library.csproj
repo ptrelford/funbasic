@@ -110,6 +110,7 @@
     <Compile Include="IGraphics.cs" />
     <Compile Include="ITimer.cs" />
     <Compile Include="Math.cs" />
+    <Compile Include="Mouse.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Shapes.cs">
       <SubType>Code</SubType>
