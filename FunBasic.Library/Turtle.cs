@@ -5,6 +5,7 @@
    public static class Turtle
    {
       private static IGraphics _graphics;
+      private static bool _isPenDown;
 
       public static IGraphics Graphics
       {
@@ -13,7 +14,8 @@
             _graphics = value;
             X = _graphics.Width/2.0;
             Y = _graphics.Height/2.0;
-            Angle = 270;
+            Angle = 0;
+            _isPenDown = true;
          }
       }
 
@@ -25,33 +27,59 @@
       public static void Move(object distance)
       {
          int n = (int)distance;
-         var radians = Angle * System.Math.PI / 180;
+         var radians = (Angle-90) * System.Math.PI / 180;
          var x2 = X + n * System.Math.Cos(radians);
          var y2 = Y + n * System.Math.Sin(radians);
-         Graphics.DrawLine((int)X, (int)Y, (int) x2, (int) y2);
+         if (_isPenDown)
+         {
+            Graphics.DrawLine((int)X, (int)Y, (int)x2, (int)y2);
+         }
          X = x2;
          Y = y2;
+         Graphics.Move("Turtle", ((int)X)-7, ((int)Y)-7);
       }
 
       public static void MoveTo(object x, object y)
       {
          X = (int)x;
          Y = (int)y;
+         Graphics.Move("Turtle", ((int)X) - 7, ((int)Y) - 7);
       }
 
       public static void Turn(object angle)
       {
-         Angle += (int)angle;
+         Angle += ((int)angle)%360;
+         Graphics.Rotate("Turtle", (int)(Angle));
       }
 
-      public static void TurnLeft(object angle)
+      public static void TurnLeft()
       {
-         Angle -= (int)angle;
+         Turn(-90);
       }
 
-      public static void TurnRight(object angle)
+      public static void TurnRight()
       {
-         Angle += (int)angle;
+         Turn(90);
+      }
+
+      public static void PenUp()
+      {
+         _isPenDown = false;
+      }
+
+      public static void PenDown()
+      {
+         _isPenDown = true;
+      }
+
+      public static void Show()
+      {
+         GraphicsWindow.Graphics.ShowShape("Turtle");
+      }
+
+      public static void Hide()
+      {
+         GraphicsWindow.Graphics.HideShape("Turtle");
       }
    }
 }

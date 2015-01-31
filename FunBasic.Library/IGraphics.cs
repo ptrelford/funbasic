@@ -26,6 +26,8 @@
       string AddLine(int x1, int y1, int x2, int y2);
       string AddRectangle(int width, int height);
       string AddImage(string url);
+      void HideShape(string name);
+      void ShowShape(string name);
       void Remove(string name);
       void Move(string name, int x, int y);
       void Animate(string name, int x, int y, int duration);

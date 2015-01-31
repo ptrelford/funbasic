@@ -14,7 +14,7 @@ Public Class Graphics
     Dim PointerX As Double
     Dim PointerY As Double
 
-    Public Sub New(canvas As Canvas)
+    Public Sub New(canvas As Canvas, turtle As UIElement)
         Me.MyCanvas = canvas
         PrepareColors()
 
@@ -22,6 +22,8 @@ Public Class Graphics
 
         Dim window = CoreWindow.GetForCurrentThread()
         AddHandler window.KeyDown, AddressOf OnKeyDown
+
+        ShapeLookup.Add("Turtle", turtle)
     End Sub
 
     Sub Dispatch(action As DispatchedHandler)
@@ -73,7 +75,11 @@ Public Class Graphics
     Public Property PenWidth As Double Implements Library.IGraphics.PenWidth
 
     Public Sub Clear() Implements Library.IGraphics.Clear
-        Dispatch(Sub() MyCanvas.Children.Clear())
+        Dispatch(Sub()
+                     Dim myTurtle = ShapeLookup("Turtle")
+                     MyCanvas.Children.Clear()
+                     MyCanvas.Children.Add(myTurtle)
+                 End Sub)
     End Sub
 
     Public Sub DrawLine(x1 As Integer, y1 As Integer, _
@@ -205,9 +211,22 @@ Public Class Graphics
         Return name
     End Function
 
-    Public Sub SetText(name As String, text As String) Implements Library.IGraphics.SetText
+    Public Sub SetText(name As String, text As String) _
+        Implements Library.IGraphics.SetText
         Dim textBlock = CType(ShapeLookup(name), TextBlock)
         Dispatch(Sub() textBlock.Text = text)
+    End Sub
+
+    Public Sub HideShape(name As String) _
+        Implements Library.IGraphics.HideShape
+        Dim shape = ShapeLookup(name)
+        shape.Visibility = Visibility.Collapsed
+    End Sub
+
+    Public Sub ShowShape(name As String) _
+        Implements Library.IGraphics.ShowShape
+        Dim shape = ShapeLookup(name)
+        shape.Visibility = Visibility.Visible
     End Sub
 
     Public Sub Remove(name As String) _
@@ -302,5 +321,6 @@ Public Class Graphics
         PointerY = position.Y
         RaiseEvent MouseDown(Me, New EventArgs())
     End Sub
+
 
 End Class

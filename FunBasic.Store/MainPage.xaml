@@ -8,13 +8,13 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Grid Margin="128">
+        <Grid Margin="48">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="96"/>
+                <ColumnDefinition Width="64"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <TextBox Name="Code" Grid.Column="0" Background="White" HorizontalAlignment="Left" TextWrapping="NoWrap" AcceptsReturn="True" VerticalAlignment="Center" Width="512" Height="512" xml:space="preserve">
+            <TextBox Name="Code" Grid.Column="0" Background="White" HorizontalAlignment="Left" TextWrapping="NoWrap" AcceptsReturn="True" VerticalAlignment="Center" Width="600" Height="512" xml:space="preserve">
                 <TextBox.Text>TextWindow.WriteLine("Hello World!")
 GraphicsWindow.DrawLine(50,50,100,100) 
 GraphicsWindow.PenColor = "red"
@@ -25,12 +25,14 @@ EndFor
                 </TextBox.Text>
             </TextBox>
             <StackPanel Orientation="Vertical" Grid.Column="1" VerticalAlignment="Center">
-                <Button Content="Run" HorizontalAlignment="Center" Width="80" Height="80" VerticalAlignment="Top" Click="Button_Click"/>
-                <!--Button Content="Step" HorizontalAlignment="Center" Width="80" Height="80" VerticalAlignment="Center" Click="Button_Click"/-->
-                <!--Button Content="Stop" HorizontalAlignment="Center" Width="80" Height="80" VerticalAlignment="Bottom" /-->
+                <Button Content="Run" HorizontalAlignment="Center" Width="64" Height="64" VerticalAlignment="Top" Click="Button_Click"/>
+                <!--Button Content="Step" HorizontalAlignment="Center" Width="64" Height="64" VerticalAlignment="Center" Click="Button_Click"/-->
+                <!--Button Content="Stop" HorizontalAlignment="Center" Width="64" Height="64" VerticalAlignment="Bottom" /-->                
             </StackPanel>
-            <Canvas Name="MyGraphics" Grid.Column="2" Background="White" HorizontalAlignment="Right" VerticalAlignment="Center" Width="512" Height="512"/>
-            <TextBox Name="MyConsole" Grid.Column="2" Background="Transparent" IsEnabled="False" IsReadOnly="True" HorizontalAlignment="Right" AcceptsReturn="True" VerticalAlignment="Center" Width="512" Height="512"/>
+            <Canvas Name="MyGraphics" Grid.Column="2" Background="White" HorizontalAlignment="Right" VerticalAlignment="Center" Width="600" Height="512">
+                <Image Name="MyTurtle" Source="Images/turtle.png" Visibility="Visible" Canvas.Left="300" Canvas.Top="256"/>
+            </Canvas>
+            <TextBox Name="MyConsole" Grid.Column="2" Background="Transparent" IsEnabled="False" IsReadOnly="True" HorizontalAlignment="Right" AcceptsReturn="True" VerticalAlignment="Center" Width="600" Height="512"/>
         </Grid>
 
     </Grid>

@@ -8,8 +8,10 @@ Public NotInheritable Class MainPage
     Private Sub Button_Click(sender As Object, e As RoutedEventArgs)
         Dim output = New StringBuilder()
         TextWindow.Console = New Console(Me.MyConsole)
+        Dim theTurtle = Me.MyTurtle
         Me.MyGraphics.Children.Clear()
-        Dim graphics = New Graphics(Me.MyGraphics)
+        Me.MyGraphics.Children.Add(theTurtle)
+        Dim graphics = New Graphics(Me.MyGraphics, Me.MyTurtle)
         GraphicsWindow.Graphics = graphics
         Turtle.Graphics = graphics
         FunBasic.Library.Timer.SetTimer(New Timer())
