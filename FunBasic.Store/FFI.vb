@@ -34,4 +34,12 @@ Public Class FFI
         Dim pi = ty.GetRuntimeProperty(name)
         pi.SetMethod().Invoke(Nothing, New Object() {value})
     End Sub
+
+    Public Sub EventAdd(ns As String, name As String, handler As EventHandler) _
+        Implements IFFI.EventAdd
+        Dim ty = ass.GetType("FunBasic.Library." + ns)
+        Dim ev = ty.GetRuntimeEvent(name)
+        ev.AddMethod.Invoke(Nothing, New Object() {handler})
+    End Sub
+
 End Class

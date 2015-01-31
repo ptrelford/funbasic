@@ -20,8 +20,6 @@
 
       public static string Title { get; set; }
 
-      public static string LastKey { get; set; }
-
       public static string BackgroundColor 
       {
          get { return Graphics.BackgroundColor; }
@@ -61,7 +59,7 @@
       {
          Graphics.Clear();
       }
-
+      
       public static void DrawText(object x, object y, object text)
       {
          Graphics.DrawText((int)x, (int)y, (string)text);
@@ -85,6 +83,17 @@
       public static void SetPixel(object x, object y, object color)
       {
          Graphics.DrawLine((int)x, (int)y, ((int)x) + 2, ((int)y));
+      }
+
+      public static string LastKey
+      {
+         get { return _graphics.LastKey; }
+      }
+
+      public static event System.EventHandler KeyDown
+      {
+         add { _graphics.KeyDown += value; }
+         remove { _graphics.KeyDown -= value; }
       }
    }
 }

@@ -1,6 +1,7 @@
 ﻿Imports System.Reflection
 Imports Windows.UI, Windows.UI.Xaml.Shapes
 Imports Windows.UI.Core
+Imports Windows.System
 
 Public Class Graphics
     Implements FunBasic.Library.IGraphics
@@ -8,10 +9,14 @@ Public Class Graphics
     Dim MyCanvas As Canvas
     Dim ColorLookup As New Dictionary(Of String, Color)()
     Dim ShapeLookup As New Dictionary(Of String, UIElement)()
+    Dim MyLastKey As VirtualKey
 
     Public Sub New(canvas As Canvas)
         Me.MyCanvas = canvas
         PrepareColors()
+
+        Dim window = CoreWindow.GetForCurrentThread()
+        AddHandler window.KeyDown, AddressOf OnKeyDown
     End Sub
 
     Sub Dispatch(action As DispatchedHandler)
@@ -203,6 +208,20 @@ Public Class Graphics
         Implements Library.IGraphics.SetOpacity
         Dim shape = ShapeLookup(name)
         Dispatch(Sub() shape.Opacity = CType(value, Double) / 100.0)
+    End Sub
+
+    Public Event KeyDown(sender As Object, e As EventArgs) _
+        Implements Library.IGraphics.KeyDown
+
+    Public ReadOnly Property LastKey As String Implements Library.IGraphics.LastKey
+        Get
+            Return [Enum].GetName(GetType(VirtualKey), MyLastKey)
+        End Get
+    End Property
+
+    Private Sub OnKeyDown(sender As CoreWindow, args As KeyEventArgs)
+        MyLastKey = args.VirtualKey
+        RaiseEvent KeyDown(Me, New EventArgs)
     End Sub
 
 End Class

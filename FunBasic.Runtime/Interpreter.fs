@@ -4,9 +4,10 @@ open AST
 
 /// Foreign Function Interface
 type IFFI =
-   abstract MethodInvoke : string * string * obj[] -> obj
-   abstract PropertyGet : string * string -> obj
-   abstract PropertySet : string * string * obj -> unit
+   abstract MethodInvoke : ns:string * name:string * value:obj[] -> obj
+   abstract PropertyGet : ns:string * name:string -> obj
+   abstract PropertySet : ns:string * name:string * value:obj -> unit
+   abstract EventAdd: ns:string * name:string * handler:System.EventHandler -> unit
 
 /// Converts value to obj
 let fromObj (x:obj) =
@@ -83,7 +84,10 @@ let rec eval state (expr:expr) =
     let (vars:VarLookup), _, _ = state
     match expr with
     | Literal x -> x
-    | Identifier identifier -> vars.[identifier]
+    | Identifier identifier -> 
+       match vars.TryGetValue(identifier) with
+       | true, value -> value
+       | false, _ -> invalidOp (identifier+" not defined")
     | GetAt(Location(identifier,indices)) ->
        let rec getAt (array:HashTable<_,_>) = function
           | x::[] -> array.[eval state x]
@@ -139,18 +143,21 @@ and invoke state invoke =
         |> fromObj
     | PropertyGet(ns,name) ->
         ffi.PropertyGet(ns,name) |> fromObj       
+
 /// Runs program
-let run (ffi:IFFI) (program:instruction[]) =
+let rec runWith (ffi:IFFI) (program:instruction[]) pc vars =
+    /// Global Variable lookup   
+    let variables = vars
+    
     /// Program index
-    let pi = ref 0
-    /// Variable lookup   
-    let variables = VarLookup()
+    let pi = ref pc
     /// For from EndFor lookup
     let forLoops = Dictionary<index, index * identifier * expr * expr>()
     /// While from EndWhile lookup
     let whileLoops = Dictionary<index, index>()
     /// Call stack for Gosubs
     let callStack = Stack<index>()
+
     /// Finds first index of instructions
     let findFirstIndex start (inc,dec) condition =
         let mutable i = start
@@ -170,8 +177,10 @@ let run (ffi:IFFI) (program:instruction[]) =
     let isWhile = function While(_) -> true | _ -> false
     let isEndWhile = (=) EndWhile
     let isFalse _ = false
-    let gosub (identifier) : obj =      
-        let index = findIndex 0 (isFalse, isFalse) (Sub(identifier,[]))
+    let findSub (identifier) =
+        findIndex 0 (isFalse, isFalse) (Sub(identifier,[]))
+    let gosub (identifier) : obj =
+        let index = findSub identifier
         callStack.Push(!pi)
         pi := index
         null
@@ -180,7 +189,8 @@ let run (ffi:IFFI) (program:instruction[]) =
     /// Evaluates expression with variables
     let eval = eval state
     /// Assigns result of expression to variable
-    let assign (Set(identifier,expr)) = variables.[identifier] <- eval expr
+    let assign (Set(identifier,expr)) =
+        variables.[identifier] <- eval expr
     /// Obtains array for specified identifier
     let obtainArray identifier =
         match variables.TryGetValue(identifier) with
@@ -203,8 +213,17 @@ let run (ffi:IFFI) (program:instruction[]) =
     let step () =
         let instruction = program.[!pi]
         match instruction with
-        | Assign(set) -> assign set
-        | PropertySet(ns,name,x) -> ffi.PropertySet(ns,name,eval x |> toObj)       
+        | Assign(set) -> 
+            assign set
+        | PropertySet(ns,name,expr) ->
+            match expr with
+            | Identifier s when not(variables.ContainsKey(s)) ->
+               let index = findSub s
+               let handler _ _ =                                     
+                  runWith ffi program (index+1) vars
+               ffi.EventAdd(ns,name, System.EventHandler(handler))
+            | _ ->
+               ffi.PropertySet(ns,name,eval expr |> toObj)       
         | SetAt(Location(identifier,indices),expr) ->
             let rec setAt (array:HashTable<_,_>) = function
                | x::[] -> array.[eval x] <- eval expr
@@ -258,10 +277,13 @@ let run (ffi:IFFI) (program:instruction[]) =
         | Sub(identifier, ps) ->
             pi := findIndex (!pi+1) (isFalse, isFalse) EndSub
         | EndSub ->
-            pi := callStack.Pop()
+            pi := 
+               if callStack.Count > 0 
+               then callStack.Pop() 
+               else program.Length
         | Label(label) -> ()
         | Goto(label) -> pi := findIndex 0 (isFalse,isFalse) (Label(label))
-        // Extensions
+        // Language Extensions
         | Deconstruct(pattern, e) -> raise (System.NotSupportedException())        
         | Function(name,ps) -> raise (System.NotSupportedException())
         | EndFunction -> raise (System.NotSupportedException())
@@ -269,3 +291,7 @@ let run (ffi:IFFI) (program:instruction[]) =
         | Case(clauses) -> raise (System.NotSupportedException())
         | EndSelect -> raise (System.NotSupportedException())
     while !pi < program.Length do step (); incr pi
+
+let run ffi program =
+   let vars = VarLookup()
+   runWith ffi program 0 vars
