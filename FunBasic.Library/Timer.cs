@@ -25,12 +25,12 @@
 
       public static void Pause()
       {
-
+         _timer.Pause();
       }
 
       public static void Resume()
       {
-
+         _timer.Resume();
       }
    }
 }

@@ -28,6 +28,30 @@
          }
       }
 
+      public static int Hour
+      {
+         get
+         {
+            return DateTime.Now.Hour;
+         }
+      }
+
+      public static int Minute
+      {
+         get
+         {
+            return DateTime.Now.Second;
+         }
+      }
+
+      public static int Millisecond
+      {
+         get
+         {
+            return DateTime.Now.Millisecond;
+         }
+      }
+
       public static double ElapsedMilliseconds
       {
          get
