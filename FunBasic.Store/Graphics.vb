@@ -10,10 +10,14 @@ Public Class Graphics
     Dim ColorLookup As New Dictionary(Of String, Color)()
     Dim ShapeLookup As New Dictionary(Of String, UIElement)()
     Dim MyLastKey As VirtualKey
+    Dim PointerX As Double
+    Dim PointerY As Double
 
     Public Sub New(canvas As Canvas)
         Me.MyCanvas = canvas
         PrepareColors()
+
+        AddHandler canvas.PointerPressed, AddressOf PointerPressed
 
         Dim window = CoreWindow.GetForCurrentThread()
         AddHandler window.KeyDown, AddressOf OnKeyDown
@@ -80,7 +84,7 @@ Public Class Graphics
                  End Sub)
     End Sub
 
-    Public Function CreateLine(x1 As Integer, y1 As Integer, _
+    Private Function CreateLine(x1 As Integer, y1 As Integer, _
                                x2 As Integer, y2 As Integer)
         Return _
             New Line With {.StrokeThickness = PenWidth, _
@@ -97,7 +101,7 @@ Public Class Graphics
                  End Sub)
     End Sub
 
-    Public Function CreateImage(url As String) As Image
+    Private Function CreateImage(url As String) As Image
         Dim bitmap = New BitmapImage With {.UriSource = New Uri(url)}
         Return New Image With {.Source = bitmap}
     End Function
@@ -112,7 +116,7 @@ Public Class Graphics
                  End Sub)
     End Sub
 
-    Public Function CreateTextBlock(text As String) As TextBlock
+    Private Function CreateTextBlock(text As String) As TextBlock
         Return _
             New TextBlock With { _
                 .Foreground = New SolidColorBrush(GetColor(BrushColor)), _
@@ -136,7 +140,7 @@ Public Class Graphics
 
     Public Function AddImage(url As String) As String _
         Implements Library.IGraphics.AddImage
-        Dim name = "Image"
+        Dim name = "Image" + Guid.NewGuid().ToString()
         Dim image As Image = Nothing
         MyCanvas.Dispatcher.RunAsync( _
             CoreDispatcherPriority.Normal, _
@@ -150,7 +154,7 @@ Public Class Graphics
 
     Public Function AddLine(x1 As Integer, y1 As Integer, x2 As Integer, y2 As Integer) As String _
         Implements Library.IGraphics.AddLine
-        Dim name = "Line"
+        Dim name = "Line" + Guid.NewGuid().ToString()
         Dim line As Line = Nothing
         MyCanvas.Dispatcher.RunAsync( _
             CoreDispatcherPriority.Normal, _
@@ -162,9 +166,30 @@ Public Class Graphics
         Return name
     End Function
 
+    Public Function AddRectangle(width As Integer, height As Integer) As String _
+        Implements Library.IGraphics.AddRectangle
+        Dim name = "Rectangle" + Guid.NewGuid().ToString()
+        Dim rectangle As Rectangle = Nothing
+        MyCanvas.Dispatcher.RunAsync( _
+            CoreDispatcherPriority.Normal, _
+            Sub()
+                rectangle = CreateRectangle(width, height)
+                ShapeLookup.Add(name, rectangle)
+            End Sub).AsTask().Wait()
+        Return name
+    End Function
+
+    Private Function CreateRectangle(width As Integer, height As Integer) As Rectangle
+        Return New Rectangle _
+            With {.StrokeThickness = PenWidth, _
+                    .Stroke = New SolidColorBrush(GetColor(PenColor)), _
+                    .Fill = New SolidColorBrush(GetColor(BrushColor)), _
+                    .Width = width, .Height = height}
+    End Function
+
     Public Function AddText(text As String) As String _
         Implements Library.IGraphics.AddText
-        Dim name = "Text"
+        Dim name = "Text" + Guid.NewGuid().ToString()
         Dim textBlock As TextBlock = Nothing
         MyCanvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, _
             Sub()
@@ -174,6 +199,14 @@ Public Class Graphics
         ShapeLookup.Add(name, textBlock)
         Return name
     End Function
+
+    Public Sub SetText(name As String, text As String) Implements Library.IGraphics.SetText
+        Dim textBlock = CType(ShapeLookup(name), TextBlock)
+        MyCanvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, _
+            Sub()
+                textBlock.Text = text
+            End Sub).AsTask().Wait()
+    End Sub
 
     Public Sub Remove(name As String) _
         Implements Library.IGraphics.Remove
@@ -222,6 +255,27 @@ Public Class Graphics
     Private Sub OnKeyDown(sender As CoreWindow, args As KeyEventArgs)
         MyLastKey = args.VirtualKey
         RaiseEvent KeyDown(Me, New EventArgs)
+    End Sub
+
+    Public Event MouseDown(sender As Object, e As EventArgs) Implements Library.IGraphics.MouseDown
+
+    Public ReadOnly Property MouseX As Integer Implements Library.IGraphics.MouseX
+        Get
+            Return PointerX
+        End Get
+    End Property
+
+    Public ReadOnly Property MouseY As Integer Implements Library.IGraphics.MouseY
+        Get
+            Return PointerY
+        End Get
+    End Property
+
+    Private Sub PointerPressed(sender As Object, e As PointerRoutedEventArgs)
+        Dim position = e.GetCurrentPoint(MyCanvas).Position
+        PointerX = position.X
+        PointerY = position.Y
+        RaiseEvent MouseDown(Me, New EventArgs())
     End Sub
 
 End Class

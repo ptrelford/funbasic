@@ -13,11 +13,13 @@ Public Class FFI
     Public Function MethodInvoke(ns As String, name As String, args() As Object) As Object _
         Implements IFFI.MethodInvoke
         Dim ty = ass.GetType("FunBasic.Library." + ns)
+        If ty Is Nothing Then Throw New InvalidOperationException(ns + " not defined")
         Dim ps(args.Length - 1) As Type
         For i = 0 To args.Length - 1
             ps(i) = GetType(Object)
         Next
         Dim mi = ty.GetRuntimeMethod(name, ps)
+        If mi Is Nothing Then Throw New InvalidOperationException(name + " not defined")
         Return mi.Invoke(Nothing, args)
     End Function
 
@@ -31,7 +33,9 @@ Public Class FFI
     Public Sub PropertySet(ns As String, name As String, value As Object) _
         Implements IFFI.PropertySet
         Dim ty = ass.GetType("FunBasic.Library." + ns)
+        If ty Is Nothing Then Throw New InvalidOperationException(ns + " not defined")
         Dim pi = ty.GetRuntimeProperty(name)
+        If pi Is Nothing Then Throw New InvalidOperationException(name + " not defined")
         pi.SetMethod().Invoke(Nothing, New Object() {value})
     End Sub
 

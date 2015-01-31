@@ -12,6 +12,7 @@ Public NotInheritable Class MainPage
         Dim graphics = New Graphics(Me.MyGraphics)
         GraphicsWindow.Graphics = graphics
         Turtle.Graphics = graphics
+        FunBasic.Library.Timer.SetTimer(New Timer())
 
         Dim ffi = New FFI()
         Dim program = Code.Text

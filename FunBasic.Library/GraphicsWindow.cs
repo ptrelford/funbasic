@@ -20,6 +20,18 @@
 
       public static string Title { get; set; }
 
+      public static double Width
+      {
+         get { return _graphics.Width; }
+         set { }
+      }
+
+      public static double Height
+      {
+         get { return _graphics.Height; }
+         set { }
+      }
+
       public static string BackgroundColor 
       {
          get { return Graphics.BackgroundColor; }
@@ -94,6 +106,22 @@
       {
          add { _graphics.KeyDown += value; }
          remove { _graphics.KeyDown -= value; }
+      }
+
+      public static int MouseX
+      {
+         get { return _graphics.MouseX; }
+      }
+
+      public static int MouseY
+      {
+         get { return _graphics.MouseY; }
+      }
+
+      public static event System.EventHandler MouseDown
+      {
+         add { _graphics.MouseDown += value; }
+         remove { _graphics.MouseDown -= value; }
       }
    }
 }

@@ -18,6 +18,11 @@ namespace FunBasic.Library
          return GraphicsWindow.Graphics.AddLine((int)x1,(int)y1,(int)x2,(int)y2);
       }
 
+      public static string AddRectangle(object width, object height)
+      {
+         return GraphicsWindow.Graphics.AddRectangle((int)width, (int)height);
+      }
+
       public static string AddImage(object url)
       {
          return GraphicsWindow.Graphics.AddImage((string)url);
@@ -31,6 +36,11 @@ namespace FunBasic.Library
       public static void SetOpacity(object name, object value)
       {
          GraphicsWindow.Graphics.SetOpacity((string)name, (int)value);
+      }
+
+      public static void SetText(object name, object text)
+      {
+         GraphicsWindow.Graphics.SetText((string)name, text.ToString());
       }
 
       public static void Move(object name, object x, object y)
