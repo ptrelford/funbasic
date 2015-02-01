@@ -36,14 +36,14 @@
          }
          X = x2;
          Y = y2;
-         Graphics.Move("Turtle", ((int)X)-7, ((int)Y)-7);
+         Graphics.Move("Turtle", ((int)X) - 8, ((int)Y) - 8);
       }
 
       public static void MoveTo(int x, int y)
       {
          X = x;
          Y = y;
-         Graphics.Move("Turtle", ((int)X) - 7, ((int)Y) - 7);
+         Graphics.Move("Turtle", ((int)X) - 8, ((int)Y) - 8);
       }
 
       public static void Turn(int angle)

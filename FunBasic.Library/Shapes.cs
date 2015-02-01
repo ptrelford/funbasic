@@ -13,22 +13,22 @@ namespace FunBasic.Library
          return GraphicsWindow.Graphics.AddText(text);
       }
 
-      public static string AddEllipse(int width, int height)
+      public static string AddEllipse(double width, double height)
       {
          return GraphicsWindow.Graphics.AddEllipse(width, height);
       }
 
-      public static string AddLine(int x1, int y1, int x2, int y2)
+      public static string AddLine(double x1, double y1, double x2, double y2)
       {
          return GraphicsWindow.Graphics.AddLine(x1, y1, x2, y2);
       }
 
-      public static string AddTriangle(int x1, int y1, int x2, int y2, int x3, int y3)
+      public static string AddTriangle(double x1, double y1, double x2, double y2, double x3, double y3)
       {
          return GraphicsWindow.Graphics.AddTriangle(x1, x2, y1, y2, x3, y3);
       }
 
-      public static string AddRectangle(int width, int height)
+      public static string AddRectangle(double width, double height)
       {         
          return GraphicsWindow.Graphics.AddRectangle(width, height);
       }
@@ -63,22 +63,22 @@ namespace FunBasic.Library
          GraphicsWindow.Graphics.SetText(name, text);
       }
 
-      public static int GetLeft(string name)
+      public static double GetLeft(string name)
       {
          return GraphicsWindow.Graphics.GetLeft(name);
       }
 
-      public static int GetTop(string name)
+      public static double GetTop(string name)
       {
          return GraphicsWindow.Graphics.GetTop(name);
       }
 
-      public static void Move(string name, int x, int y)
+      public static void Move(string name, double x, double y)
       {
          GraphicsWindow.Graphics.Move(name, x, y);
       }
 
-      public static void Animate(string name, int x, int y, int duration)
+      public static void Animate(string name, double x, double y, int duration)
       {
          GraphicsWindow.Graphics.Animate(name, x, y, duration);
       }

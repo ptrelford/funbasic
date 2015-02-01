@@ -250,7 +250,8 @@ Public Class Graphics
         Return name
     End Function
 
-    Public Function AddEllipse(width As Integer, height As Integer) As String Implements Library.IGraphics.AddEllipse
+    Public Function AddEllipse(width As Double, height As Double) As String _
+        Implements Library.IGraphics.AddEllipse
         Dim name = "Ellipse" + Guid.NewGuid().ToString()
         Dim thickness = PenWidth
         Dim stroke = GetColor(PenColor)
@@ -269,8 +270,8 @@ Public Class Graphics
         Return name
     End Function
 
-    Public Function AddLine(x1 As Integer, y1 As Integer, _
-                            x2 As Integer, y2 As Integer) As String _
+    Public Function AddLine(x1 As Double, y1 As Double, _
+                            x2 As Double, y2 As Double) As String _
         Implements Library.IGraphics.AddLine
         Dim name = "Line" + Guid.NewGuid().ToString()
         Dim color = GetColor(PenColor)
@@ -289,9 +290,9 @@ Public Class Graphics
         Return name
     End Function
 
-    Public Function AddTriangle(x1 As Integer, y1 As Integer, _
-                                x2 As Integer, y2 As Integer, _
-                                x3 As Integer, y3 As Integer) As String _
+    Public Function AddTriangle(x1 As Double, y1 As Double, _
+                                x2 As Double, y2 As Double, _
+                                x3 As Double, y3 As Double) As String _
         Implements Library.IGraphics.AddTriangle
         Dim name = "Triangle" + Guid.NewGuid().ToString()
         Dim thickness = PenWidth
@@ -311,7 +312,7 @@ Public Class Graphics
         Return name
     End Function
 
-    Public Function AddRectangle(width As Integer, height As Integer) As String _
+    Public Function AddRectangle(width As Double, height As Double) As String _
         Implements Library.IGraphics.AddRectangle
         Dim name = "Rectangle" + Guid.NewGuid().ToString()
         Dim thickness = PenWidth
@@ -331,7 +332,7 @@ Public Class Graphics
         Return name
     End Function
 
-    Private Function CreateRectangle(width As Integer, height As Integer) As Rectangle
+    Private Function CreateRectangle(width As Double, height As Double) As Rectangle
         Return New Rectangle With {.Width = width, .Height = height}
     End Function
 
@@ -360,7 +361,7 @@ Public Class Graphics
         Dispatch(Sub() textBlock.Text = text)
     End Sub
 
-    Public Function GetLeft(name As String) As Integer _
+    Public Function GetLeft(name As String) As Double _
         Implements Library.IGraphics.GetLeft
         Dim left = 0
         Dim shape = ShapeLookup(name)
@@ -369,7 +370,8 @@ Public Class Graphics
         Return left
     End Function
 
-    Public Function GetTop(name As String) As Integer Implements Library.IGraphics.GetTop
+    Public Function GetTop(name As String) As Double _
+        Implements Library.IGraphics.GetTop
         Dim top = 0
         Dim shape = ShapeLookup(name)
         MyCanvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, _
@@ -396,7 +398,7 @@ Public Class Graphics
         ShapeLookup.Remove(name)
     End Sub
 
-    Public Sub Move(name As String, x As Integer, y As Integer) _
+    Public Sub Move(name As String, x As Double, y As Double) _
         Implements Library.IGraphics.Move
         Dim shape = ShapeLookup(name)
         Dispatch(Sub()
@@ -405,7 +407,7 @@ Public Class Graphics
                  End Sub)
     End Sub
 
-    Public Sub Animate(name As String, x As Integer, y As Integer, duration As Integer) _
+    Public Sub Animate(name As String, x As Double, y As Double, duration As Integer) _
         Implements Library.IGraphics.Animate
         Dim shape = ShapeLookup(name)
         Dispatch(Sub()
@@ -434,8 +436,8 @@ Public Class Graphics
         Dispatch(Sub()
                      Dim transform As New RotateTransform()
                      Dim el = CType(shape, FrameworkElement)
-                     transform.CenterX = el.ActualWidth / 2
-                     transform.CenterY = el.ActualHeight / 2
+                     transform.CenterX = el.ActualWidth / 2.0
+                     transform.CenterY = el.ActualHeight / 2.0
                      transform.Angle = angle
                      shape.RenderTransform = transform
                  End Sub)

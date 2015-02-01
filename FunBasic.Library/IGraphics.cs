@@ -28,18 +28,18 @@
 
       #region Shapes
       string AddText(string text);
-      string AddEllipse(int width, int height);
-      string AddLine(int x1, int y1, int x2, int y2);
-      string AddTriangle(int x1, int y1, int x2, int y2, int x3, int y3);
-      string AddRectangle(int width, int height);
+      string AddEllipse(double width, double height);
+      string AddLine(double x1, double y1, double x2, double y2);
+      string AddTriangle(double x1, double y1, double x2, double y2, double x3, double y3);
+      string AddRectangle(double width, double height);
       string AddImage(string url);
       void HideShape(string name);
       void ShowShape(string name);
       void Remove(string name);
-      int GetLeft(string name);
-      int GetTop(string name);
-      void Move(string name, int x, int y);
-      void Animate(string name, int x, int y, int duration);
+      double GetLeft(string name);
+      double GetTop(string name);
+      void Move(string name, double x, double y);
+      void Animate(string name, double x, double y, int duration);
       void Rotate(string name, int angle);
       void Zoom(string name, double scaleX, double scaleY);
       void SetOpacity(string name, int opacity);
