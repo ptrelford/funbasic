@@ -15,15 +15,15 @@
 
       #region Render
       void Clear();
-      void DrawEllipse(int x, int y, int width, int height);   
-      void DrawLine(int x1, int y1, int x2, int y2);
-      void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3);
-      void DrawRectangle(int x, int y, int width, int height);
-      void DrawText(int x, int y, string text);      
-      void DrawImage(string url, int x, int y);
-      void FillEllipse(int x, int y, int width, int height);
-      void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3);
-      void FillRectangle(int x, int y, int width, int height);
+      void DrawEllipse(double x, double y, double width, double height);
+      void DrawLine(double x1, double y1, double x2, double y2);
+      void DrawTriangle(double x1, double y1, double x2, double y2, double x3, double y3);
+      void DrawRectangle(double x, double y, double width, double height);
+      void DrawText(double x, double y, string text);
+      void DrawImage(string url, double x, double y);
+      void FillEllipse(double x, double y, double width, double height);
+      void FillTriangle(double x1, double y1, double x2, double y2, double x3, double y3);
+      void FillRectangle(double x, double y, double width, double height);
       #endregion
 
       #region Shapes
@@ -47,8 +47,8 @@
       #endregion
 
       #region Mouse
-      int MouseX { get; }
-      int MouseY { get; }
+      double MouseX { get; }
+      double MouseY { get; }
       event System.EventHandler MouseDown;
       event System.EventHandler MouseUp;
       event System.EventHandler MouseMove;

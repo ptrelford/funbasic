@@ -91,8 +91,8 @@ Public Class Graphics
                  End Sub)
     End Sub
 
-    Public Sub DrawEllipse(x As Integer, y As Integer, _
-                           width As Integer, height As Integer) _
+    Public Sub DrawEllipse(x As Double, y As Double, _
+                           width As Double, height As Double) _
         Implements Library.IGraphics.DrawEllipse
         Dim color = GetColor(PenColor)
         Dim thickness = PenWidth
@@ -105,8 +105,8 @@ Public Class Graphics
                  End Sub)
     End Sub
 
-    Public Sub DrawLine(x1 As Integer, y1 As Integer, _
-                        x2 As Integer, y2 As Integer) _
+    Public Sub DrawLine(x1 As Double, y1 As Double, _
+                        x2 As Double, y2 As Double) _
         Implements Library.IGraphics.DrawLine
         Dim color = GetColor(PenColor)
         Dim thickness = PenWidth
@@ -118,14 +118,14 @@ Public Class Graphics
                  End Sub)
     End Sub
 
-    Private Function CreateLine(x1 As Integer, y1 As Integer, _
-                            x2 As Integer, y2 As Integer)
+    Private Function CreateLine(x1 As Double, y1 As Double, _
+                            x2 As Double, y2 As Double)
         Return New Line With {.X1 = x1, .Y1 = y1, .X2 = x2, .Y2 = y2}
     End Function
 
-    Public Sub DrawTriangle(x1 As Integer, y1 As Integer, _
-                            x2 As Integer, y2 As Integer, _
-                            x3 As Integer, y3 As Integer) _
+    Public Sub DrawTriangle(x1 As Double, y1 As Double, _
+                            x2 As Double, y2 As Double, _
+                            x3 As Double, y3 As Double) _
         Implements Library.IGraphics.DrawTriangle
         Dim color = GetColor(PenColor)
         Dim thickness = PenWidth
@@ -137,9 +137,9 @@ Public Class Graphics
                  End Sub)
     End Sub
 
-    Function CreateTriangle(x1 As Integer, y1 As Integer, _
-                            x2 As Integer, y2 As Integer, _
-                            x3 As Integer, y3 As Integer) As Polygon
+    Function CreateTriangle(x1 As Double, y1 As Double, _
+                            x2 As Double, y2 As Double, _
+                            x3 As Double, y3 As Double) As Polygon
         Dim poly = New Polygon()
         poly.Points.Add(New Point(x1, y1))
         poly.Points.Add(New Point(x2, y2))
@@ -147,8 +147,8 @@ Public Class Graphics
         Return poly
     End Function
 
-    Public Sub DrawRectangle(x As Integer, y As Integer, _
-                             width As Integer, height As Integer) _
+    Public Sub DrawRectangle(x As Double, y As Double, _
+                             width As Double, height As Double) _
         Implements Library.IGraphics.DrawRectangle
         Dim color = GetColor(PenColor)
         Dim thickness = PenWidth
@@ -160,7 +160,7 @@ Public Class Graphics
                  End Sub)
     End Sub
 
-    Public Sub DrawImage(url As String, x As Integer, y As Integer) _
+    Public Sub DrawImage(url As String, x As Double, y As Double) _
         Implements Library.IGraphics.DrawImage
         Dispatch(Sub()
                      Dim image = CreateImage(url)
@@ -174,7 +174,7 @@ Public Class Graphics
         Return New Image With {.Source = bitmap}
     End Function
 
-    Public Sub DrawText(x As Integer, y As Integer, _
+    Public Sub DrawText(x As Double, y As Double, _
                         text As String) _
     Implements Library.IGraphics.DrawText
         Dim foreground = GetColor(BrushColor)
@@ -194,9 +194,9 @@ Public Class Graphics
         Return New TextBlock With {.Text = text}
     End Function
 
-    Public Sub FillTriangle(x1 As Integer, y1 As Integer, _
-                        x2 As Integer, y2 As Integer, _
-                        x3 As Integer, y3 As Integer) _
+    Public Sub FillTriangle(x1 As Double, y1 As Double, _
+                        x2 As Double, y2 As Double, _
+                        x3 As Double, y3 As Double) _
     Implements Library.IGraphics.FillTriangle
         Dim color = GetColor(BrushColor)
         Dispatch(Sub()
@@ -206,8 +206,8 @@ Public Class Graphics
                  End Sub)
     End Sub
 
-    Public Sub FillRectangle(x As Integer, y As Integer, _
-                             width As Integer, height As Integer) _
+    Public Sub FillRectangle(x As Double, y As Double, _
+                             width As Double, height As Double) _
         Implements Library.IGraphics.FillRectangle
         Dim color = GetColor(BrushColor)
         Dispatch(Sub()
@@ -217,8 +217,8 @@ Public Class Graphics
                  End Sub)
     End Sub
 
-    Public Sub FillEllipse(x As Integer, y As Integer, _
-                           width As Integer, height As Integer) _
+    Public Sub FillEllipse(x As Double, y As Double, _
+                           width As Double, height As Double) _
         Implements Library.IGraphics.FillEllipse
         Dim color = GetColor(BrushColor)
         Dispatch(Sub()
@@ -229,7 +229,7 @@ Public Class Graphics
                  End Sub)
     End Sub
 
-    Function CreateEllipse(width As Integer, height As Integer) As Ellipse
+    Function CreateEllipse(width As Double, height As Double) As Ellipse
         Return New Ellipse With {.Width = width, .Height = height}
     End Function
 #End Region
@@ -477,13 +477,15 @@ Public Class Graphics
     Public Event MouseMove(sender As Object, e As EventArgs) Implements Library.IGraphics.MouseMove
     Public Event MouseUp(sender As Object, e As EventArgs) Implements Library.IGraphics.MouseUp
 
-    Public ReadOnly Property MouseX As Integer Implements Library.IGraphics.MouseX
+    Public ReadOnly Property MouseX As Double _
+        Implements Library.IGraphics.MouseX
         Get
             Return PointerX
         End Get
     End Property
 
-    Public ReadOnly Property MouseY As Integer Implements Library.IGraphics.MouseY
+    Public ReadOnly Property MouseY As Double _
+        Implements Library.IGraphics.MouseY
         Get
             Return PointerY
         End Get

@@ -80,49 +80,49 @@
       }
 
       #region Draw
-      public static void DrawText(int x, int y, string text)
+      public static void DrawText(double x, double y, string text)
       {
          Graphics.DrawText(x, y, text);
       }
-      
-      public static void DrawLine(int x1, int y1, int x2, int y2)
+
+      public static void DrawLine(double x1, double y1, double x2, double y2)
       {
          Graphics.DrawLine(x1, y1, x2, y2);
       }
 
-      public static void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3)
+      public static void DrawTriangle(double x1, double y1, double x2, double y2, double x3, double y3)
       {
          Graphics.DrawTriangle(x1, y1, x2, y2, x3, y3);
       }
 
-      public static void DrawRectangle(int x, int y, int width, int height)
+      public static void DrawRectangle(double x, double y, double width, double height)
       {
          Graphics.DrawRectangle(x, y, width, height);
       }
 
-      public static void DrawImage(string imageName, int x, int y)
+      public static void DrawImage(string imageName, double x, double y)
       {
          Graphics.DrawImage(imageName, x, y);
       }
 
-      public static void SetPixel(int x, int y, string color)
+      public static void SetPixel(double x, double y, string color)
       {
          Graphics.DrawLine(x, y, x + 2, y);
       }
       #endregion
 
       #region Fill
-      public static void FillEllipse(int x1, int y1, int width, int height)
+      public static void FillEllipse(double x1, double y1, double width, double height)
       {
          Graphics.FillEllipse(x1, y1, width, height);
       }
 
-      public static void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3)
+      public static void FillTriangle(double x1, double y1, double x2, double y2, double x3, double y3)
       {
          Graphics.FillTriangle(x1, y1, x2, y2, x3, y3);
       }
 
-      public static void FillRectangle(int x1, int y1, int width, int height)
+      public static void FillRectangle(double x1, double y1, double width, double height)
       {
          Graphics.FillRectangle(x1, y1, width, height);
       }
@@ -142,12 +142,12 @@
       #endregion
 
       #region Mouse
-      public static int MouseX
+      public static double MouseX
       {
          get { return _graphics.MouseX; }
       }
 
-      public static int MouseY
+      public static double MouseY
       {
          get { return _graphics.MouseY; }
       }

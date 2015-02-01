@@ -32,18 +32,18 @@
          var y2 = Y + n * System.Math.Sin(radians);
          if (_isPenDown)
          {
-            Graphics.DrawLine((int)X, (int)Y, (int)x2, (int)y2);
+            Graphics.DrawLine(X, Y, x2, y2);
          }
          X = x2;
          Y = y2;
-         Graphics.Move("Turtle", ((int)X) - 8, ((int)Y) - 8);
+         Graphics.Move("Turtle", X - 8.0, Y - 8.0);
       }
 
       public static void MoveTo(int x, int y)
       {
          X = x;
          Y = y;
-         Graphics.Move("Turtle", ((int)X) - 8, ((int)Y) - 8);
+         Graphics.Move("Turtle", X - 8.0, Y - 8.0);
       }
 
       public static void Turn(int angle)
