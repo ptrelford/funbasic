@@ -8,89 +8,89 @@ namespace FunBasic.Library
 {
    public static class Shapes
    {
-      public static string AddText(object text)
+      public static string AddText(string text)
       {
-         return GraphicsWindow.Graphics.AddText((string)text);
+         return GraphicsWindow.Graphics.AddText(text);
       }
 
-      public static string AddEllipse(object width, object height)
+      public static string AddEllipse(int width, int height)
       {
-         return GraphicsWindow.Graphics.AddEllipse((int)width, (int)height);
+         return GraphicsWindow.Graphics.AddEllipse(width, height);
       }
 
-      public static string AddLine(object x1, object y1, object x2, object y2)
+      public static string AddLine(int x1, int y1, int x2, int y2)
       {
-         return GraphicsWindow.Graphics.AddLine((int)x1,(int)y1,(int)x2,(int)y2);
+         return GraphicsWindow.Graphics.AddLine(x1, y1, x2, y2);
       }
 
-      public static string AddTriangle(object x1, object y1, object x2, object y2, object x3, object y3)
+      public static string AddTriangle(int x1, int y1, int x2, int y2, int x3, int y3)
       {
-         return GraphicsWindow.Graphics.AddTriangle((int)x1, (int)x2, (int)y1, (int)y2, (int)x3, (int)y3);
+         return GraphicsWindow.Graphics.AddTriangle(x1, x2, y1, y2, x3, y3);
       }
 
-      public static string AddRectangle(object width, object height)
+      public static string AddRectangle(int width, int height)
       {         
-         return GraphicsWindow.Graphics.AddRectangle((int)width, (int)height);
+         return GraphicsWindow.Graphics.AddRectangle(width, height);
       }
 
-      public static string AddImage(object url)
+      public static string AddImage(string url)
       {
-         return GraphicsWindow.Graphics.AddImage((string)url);
+         return GraphicsWindow.Graphics.AddImage(url);
       }
 
-      public static void HideShape(object name)
+      public static void HideShape(string name)
       {
-         GraphicsWindow.Graphics.HideShape((string)name);
+         GraphicsWindow.Graphics.HideShape(name);
       }
 
-      public static void ShowShape(object name)
+      public static void ShowShape(string name)
       {
-         GraphicsWindow.Graphics.ShowShape((string)name);
+         GraphicsWindow.Graphics.ShowShape(name);
       }
 
-      public static void Remove(object name)
+      public static void Remove(string name)
       {
-         GraphicsWindow.Graphics.Remove((string)name);
+         GraphicsWindow.Graphics.Remove(name);
       }
 
-      public static void SetOpacity(object name, object value)
+      public static void SetOpacity(string name, int value)
       {
-         GraphicsWindow.Graphics.SetOpacity((string)name, (int)value);
+         GraphicsWindow.Graphics.SetOpacity(name, value);
       }
 
-      public static void SetText(object name, object text)
+      public static void SetText(string name, string text)
       {
-         GraphicsWindow.Graphics.SetText((string)name, text.ToString());
+         GraphicsWindow.Graphics.SetText(name, text);
       }
 
-      public static int GetLeft(object name)
+      public static int GetLeft(string name)
       {
-         return GraphicsWindow.Graphics.GetLeft((string)name);
+         return GraphicsWindow.Graphics.GetLeft(name);
       }
 
-      public static int GetTop(object name)
+      public static int GetTop(string name)
       {
-         return GraphicsWindow.Graphics.GetTop((string)name);
+         return GraphicsWindow.Graphics.GetTop(name);
       }
 
-      public static void Move(object name, object x, object y)
+      public static void Move(string name, int x, int y)
       {
-         GraphicsWindow.Graphics.Move((string)name, (int)x, (int)y);
+         GraphicsWindow.Graphics.Move(name, x, y);
       }
 
-      public static void Animate(object name, object x, object y, object duration)
+      public static void Animate(string name, int x, int y, int duration)
       {
-         GraphicsWindow.Graphics.Animate((string)name, (int)x, (int)y, (int)duration);
+         GraphicsWindow.Graphics.Animate(name, x, y, duration);
       }
 
-      public static void Rotate(object name, object angle)
+      public static void Rotate(string name, int angle)
       {
-         GraphicsWindow.Graphics.Rotate((string)name, (int)angle);
+         GraphicsWindow.Graphics.Rotate(name, angle);
       }
 
-      public static void Zoom(object name, object scaleX, object scaleY)
+      public static void Zoom(string name, double scaleX, double scaleY)
       {
-         GraphicsWindow.Graphics.Zoom((string)name,(double)scaleX, (double)scaleY);
+         GraphicsWindow.Graphics.Zoom(name, scaleX, scaleY);
       }
    }
 }

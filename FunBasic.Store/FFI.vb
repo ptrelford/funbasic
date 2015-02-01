@@ -5,6 +5,7 @@ Public Class FFI
     Implements IFFI
 
     Dim ass As Assembly
+    Dim typeLookup As New Dictionary(Of String, Dictionary(Of String, MethodInfo))()
 
     Sub New()
         ass = GetType(FunBasic.Library.TextWindow).GetTypeInfo().Assembly
@@ -12,15 +13,41 @@ Public Class FFI
 
     Public Function MethodInvoke(ns As String, name As String, args() As Object) As Object _
         Implements IFFI.MethodInvoke
-        Dim ty = ass.GetType("FunBasic.Library." + ns)
-        If ty Is Nothing Then Throw New InvalidOperationException(ns + " not defined")
-        Dim ps(args.Length - 1) As Type
+        Dim mi = GetMethodInfo(ns, name)
+        Dim ps = mi.GetParameters()
+        Dim typedArgs(args.Length - 1) As Object
         For i = 0 To args.Length - 1
-            ps(i) = GetType(Object)
+            Dim ty = ps(i).ParameterType        
+            typedArgs(i) = ConvertArg(args(i), ty)
         Next
-        Dim mi = ty.GetRuntimeMethod(name, ps)
-        If mi Is Nothing Then Throw New InvalidOperationException(name + " not defined")
-        Return mi.Invoke(Nothing, args)
+        Return mi.Invoke(Nothing, typedArgs)
+    End Function
+
+    Function GetMethodInfo(ns As String, name As String) As MethodInfo
+        Dim methodLookup As Dictionary(Of String, MethodInfo) = Nothing
+        If Not typeLookup.TryGetValue(ns, methodLookup) Then
+            Dim ty = ass.GetType("FunBasic.Library." + ns)
+            If ty Is Nothing Then Throw New InvalidOperationException(ns + " not defined")
+            methodLookup = ty.GetRuntimeMethods().ToDictionary(Function(m) m.Name)
+            typeLookup.Add(ns, methodLookup)
+        End If
+        Dim mi As MethodInfo = Nothing
+        If Not methodLookup.TryGetValue(name, mi) Then
+            Throw New InvalidOperationException(name + " not defined")
+        End If
+        Return mi
+    End Function
+
+    Function ConvertArg(arg As Object, ty As Type) As Object
+        If ty Is GetType(String) Then
+            Return Convert.ToString(arg)
+        ElseIf ty Is GetType(Integer) Then
+            Return Convert.ToInt32(arg)
+        ElseIf ty Is GetType(Double) Then
+            Return Convert.ToDouble(arg)
+        Else
+            Return arg
+        End If
     End Function
 
     Public Function PropertyGet(ns As String, name As String) As Object _

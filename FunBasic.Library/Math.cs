@@ -4,38 +4,38 @@
    {
       private static System.Random _random;
 
-      public static int GetRandomNumber(object maxNumber)
+      public static int GetRandomNumber(int maxNumber)
       {
          if (_random == null)
          {
             _random = new System.Random((int)System.DateTime.Now.Ticks);
          }
-         return Math._random.Next((int)maxNumber) + 1;
+         return Math._random.Next(maxNumber) + 1;
       }
 
-      public static int Remainder(object dividend, object divisor)
+      public static int Remainder(int dividend, int divisor)
       {
-         return (int)dividend % (int)divisor;
+         return dividend % divisor;
       }
 
-      public static double Power(object baseNumber, object exponent)
+      public static double Power(double baseNumber, double exponent)
       {
-         return System.Math.Pow((double)baseNumber, (double)exponent);
+         return System.Math.Pow(baseNumber, exponent);
       }
 
-      public static double SquareRoot(object number)
+      public static double SquareRoot(double number)
       {
-         return System.Math.Sqrt((double)number);
+         return System.Math.Sqrt(number);
       }
 
-      public static double Floor(object number)
+      public static double Floor(double number)
       {
-         return System.Math.Floor((double)number);
+         return System.Math.Floor(number);
       }
 
-      public static double Ceiling(object number)
+      public static double Ceiling(double number)
       {
-         return System.Math.Ceiling((double)number);
+         return System.Math.Ceiling(number);
       }
 
    }
