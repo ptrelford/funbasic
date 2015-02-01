@@ -24,9 +24,9 @@
       public static double Y { get; set; }
       public static int Speed { get; set; }
 
-      public static void Move(object distance)
+      public static void Move(int distance)
       {
-         int n = (int)distance;
+         int n = distance;
          var radians = (Angle-90) * System.Math.PI / 180;
          var x2 = X + n * System.Math.Cos(radians);
          var y2 = Y + n * System.Math.Sin(radians);
@@ -39,17 +39,17 @@
          Graphics.Move("Turtle", ((int)X)-7, ((int)Y)-7);
       }
 
-      public static void MoveTo(object x, object y)
+      public static void MoveTo(int x, int y)
       {
-         X = (int)x;
-         Y = (int)y;
+         X = x;
+         Y = y;
          Graphics.Move("Turtle", ((int)X) - 7, ((int)Y) - 7);
       }
 
-      public static void Turn(object angle)
+      public static void Turn(int angle)
       {
-         Angle += ((int)angle)%360;
-         Graphics.Rotate("Turtle", (int)(Angle));
+         Angle += angle%360;
+         Graphics.Rotate("Turtle", Angle);
       }
 
       public static void TurnLeft()

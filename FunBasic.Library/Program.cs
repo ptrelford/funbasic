@@ -2,9 +2,9 @@
 {
    public static class Program
    {
-      public static void Delay(object time)
+      public static void Delay(int time)
       {
-         System.Threading.Tasks.Task.Delay((int) time).Wait();
+         System.Threading.Tasks.Task.Delay(time).Wait();
       }
    }
 }

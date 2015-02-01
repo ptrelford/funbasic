@@ -74,57 +74,57 @@
          Graphics.Clear();
       }
 
-      public static void ShowMessage(object text, object title)
+      public static void ShowMessage(string text, string title)
       {
 
       }
 
       #region Draw
-      public static void DrawText(object x, object y, object text)
+      public static void DrawText(int x, int y, string text)
       {
-         Graphics.DrawText((int)x, (int)y, (string)text);
+         Graphics.DrawText(x, y, text);
       }
       
-      public static void DrawLine(object x1, object y1, object x2, object y2)
+      public static void DrawLine(int x1, int y1, int x2, int y2)
       {
-         Graphics.DrawLine((int)x1,(int)y1,(int)x2,(int)y2);
+         Graphics.DrawLine(x1, y1, x2, y2);
       }
 
-      public static void DrawTriangle(object x1, object y1, object x2, object y2, object x3, object y3)
+      public static void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3)
       {
-         Graphics.DrawTriangle((int)x1, (int)y1, (int)x2, (int)y2, (int)x3, (int)y3);
+         Graphics.DrawTriangle(x1, y1, x2, y2, x3, y3);
       }
 
-      public static void DrawRectangle(object x,object y, object width, object height)
+      public static void DrawRectangle(int x, int y, int width, int height)
       {
-         Graphics.DrawRectangle((int)x, (int)y, (int)width, (int)height);
+         Graphics.DrawRectangle(x, y, width, height);
       }
 
-      public static void DrawImage(object imageName, object x, object y)
+      public static void DrawImage(string imageName, int x, int y)
       {
-         Graphics.DrawImage((string)imageName, (int)x, (int)y);
+         Graphics.DrawImage(imageName, x, y);
       }
 
-      public static void SetPixel(object x, object y, object color)
+      public static void SetPixel(int x, int y, string color)
       {
-         Graphics.DrawLine((int)x, (int)y, ((int)x) + 2, ((int)y));
+         Graphics.DrawLine(x, y, x + 2, y);
       }
       #endregion
 
       #region Fill
-      public static void FillEllipse(object x1, object y1, object width, object height)
+      public static void FillEllipse(int x1, int y1, int width, int height)
       {
-         Graphics.FillEllipse((int)x1,(int)y1,(int)width,(int)height);
+         Graphics.FillEllipse(x1, y1, width, height);
       }
 
-      public static void FillTriangle(object x1, object y1, object x2, object y2, object x3, object y3)
+      public static void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3)
       {
-         Graphics.FillTriangle((int)x1, (int)y1, (int)x2, (int)y2, (int)x3, (int)y3);
+         Graphics.FillTriangle(x1, y1, x2, y2, x3, y3);
       }
 
-      public static void FillRectangle(object x1, object y1, object width, object height)
+      public static void FillRectangle(int x1, int y1, int width, int height)
       {
-         Graphics.FillRectangle((int)x1, (int)y1, (int)width, (int)height);
+         Graphics.FillRectangle(x1, y1, width, height);
       }
       #endregion
 
