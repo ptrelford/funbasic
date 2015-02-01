@@ -11,7 +11,7 @@
          {
             _graphics = value;
             PenWidth = 2.0;
-            BrushColor = "black";
+            BrushColor = "purple";
             PenColor = "black";
             FontSize = 12;
             FontName = "Tahoma";
@@ -73,7 +73,13 @@
       {
          Graphics.Clear();
       }
-      
+
+      public static void ShowMessage(object text, object title)
+      {
+
+      }
+
+      #region Draw
       public static void DrawText(object x, object y, object text)
       {
          Graphics.DrawText((int)x, (int)y, (string)text);
@@ -94,11 +100,6 @@
          Graphics.DrawRectangle((int)x, (int)y, (int)width, (int)height);
       }
 
-      public static void FillEllipse(object x1, object y1, object width, object height)
-      {
-         Graphics.FillEllipse((int)x1,(int)y1,(int)width,(int)height);
-      }
-      
       public static void DrawImage(object imageName, object x, object y)
       {
          Graphics.DrawImage((string)imageName, (int)x, (int)y);
@@ -108,7 +109,26 @@
       {
          Graphics.DrawLine((int)x, (int)y, ((int)x) + 2, ((int)y));
       }
+      #endregion
 
+      #region Fill
+      public static void FillEllipse(object x1, object y1, object width, object height)
+      {
+         Graphics.FillEllipse((int)x1,(int)y1,(int)width,(int)height);
+      }
+
+      public static void FillTriangle(object x1, object y1, object x2, object y2, object x3, object y3)
+      {
+         Graphics.FillTriangle((int)x1, (int)y1, (int)x2, (int)y2, (int)x3, (int)y3);
+      }
+
+      public static void FillRectangle(object x1, object y1, object width, object height)
+      {
+         Graphics.FillRectangle((int)x1, (int)y1, (int)width, (int)height);
+      }
+      #endregion
+
+      #region Keyboard
       public static string LastKey
       {
          get { return _graphics.LastKey; }
@@ -119,7 +139,9 @@
          add { _graphics.KeyDown += value; }
          remove { _graphics.KeyDown -= value; }
       }
+      #endregion
 
+      #region Mouse
       public static int MouseX
       {
          get { return _graphics.MouseX; }
@@ -147,6 +169,6 @@
          add { _graphics.MouseMove += value; }
          remove { _graphics.MouseMove -= value; }
       }
-
+      #endregion
    }
 }

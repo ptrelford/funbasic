@@ -115,6 +115,7 @@
     <Compile Include="Shapes.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Sound.cs" />
     <Compile Include="Stack.cs" />
     <Compile Include="TextWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

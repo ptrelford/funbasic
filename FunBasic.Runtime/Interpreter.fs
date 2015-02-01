@@ -132,6 +132,7 @@ and arithmetic lhs op rhs =
     | Add, (String l, String r) -> String(l + r)
     | Add, (String(AsInt l), Int r) -> Int(l + r)
     | Add, (Int l, String(AsInt r)) -> Int(l + r)
+    | Add, (String l, Int r) -> String(l + r.ToString())
     | Subtract, (Int l,Int r) -> Int(l - r)
     | Subtract, AsDoubles (l,r) -> Double(l - r)
     | Multiply, (Int l,Int r) -> Int(l * r)

@@ -29,7 +29,7 @@ namespace FunBasic.Library
       }
 
       public static string AddRectangle(object width, object height)
-      {
+      {         
          return GraphicsWindow.Graphics.AddRectangle((int)width, (int)height);
       }
 
@@ -61,6 +61,16 @@ namespace FunBasic.Library
       public static void SetText(object name, object text)
       {
          GraphicsWindow.Graphics.SetText((string)name, text.ToString());
+      }
+
+      public static int GetLeft(object name)
+      {
+         return GraphicsWindow.Graphics.GetLeft((string)name);
+      }
+
+      public static int GetTop(object name)
+      {
+         return GraphicsWindow.Graphics.GetTop((string)name);
       }
 
       public static void Move(object name, object x, object y)

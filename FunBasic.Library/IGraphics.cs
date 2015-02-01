@@ -21,7 +21,9 @@
       void DrawRectangle(int x, int y, int width, int height);
       void DrawText(int x, int y, string text);      
       void DrawImage(string url, int x, int y);
-      void FillEllipse(int x, int y, int width, int height);   
+      void FillEllipse(int x, int y, int width, int height);
+      void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3);
+      void FillRectangle(int x, int y, int width, int height);
       #endregion
 
       #region Shapes
@@ -34,6 +36,8 @@
       void HideShape(string name);
       void ShowShape(string name);
       void Remove(string name);
+      int GetLeft(string name);
+      int GetTop(string name);
       void Move(string name, int x, int y);
       void Animate(string name, int x, int y, int duration);
       void Rotate(string name, int angle);
