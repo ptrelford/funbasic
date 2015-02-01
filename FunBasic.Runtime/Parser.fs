@@ -48,11 +48,11 @@ let term = (patom .>> ws) <|> between (str_ws "(") (str_ws ")") pterm
 opp.TermParser <- term
 opp.AddOperator(InfixOperator("And", ws, 1, Assoc.Left, fun x y -> Logical(x,And,y)))
 opp.AddOperator(InfixOperator("Or", ws, 1, Assoc.Left, fun x y -> Logical(x,Or,y)))
-opp.AddOperator(InfixOperator("+", ws, 2, Assoc.Left, fun x y -> Arithmetic(x, Add, y)))
-opp.AddOperator(InfixOperator("-", ws, 2, Assoc.Left, fun x y -> Arithmetic(x, Subtract, y)))
-opp.AddOperator(InfixOperator("*", ws, 3, Assoc.Left, fun x y -> Arithmetic(x, Multiply, y)))
-opp.AddOperator(InfixOperator("/", ws, 3, Assoc.Left, fun x y -> Arithmetic(x, Divide, y)))
-opp.AddOperator(PrefixOperator("-", ws, 2, true, fun x -> Neg(x)))
+opp.AddOperator(InfixOperator("+", ws, 3, Assoc.Left, fun x y -> Arithmetic(x, Add, y)))
+opp.AddOperator(InfixOperator("-", ws, 3, Assoc.Left, fun x y -> Arithmetic(x, Subtract, y)))
+opp.AddOperator(InfixOperator("*", ws, 4, Assoc.Left, fun x y -> Arithmetic(x, Multiply, y)))
+opp.AddOperator(InfixOperator("/", ws, 4, Assoc.Left, fun x y -> Arithmetic(x, Divide, y)))
+opp.AddOperator(PrefixOperator("-", ws, 3, true, fun x -> Neg(x)))
 let comparisons = ["=",Eq; "<>",Ne; "<=",Le; ">=",Ge; "<",Lt; ">",Gt]
 for s,op in comparisons do
     opp.AddOperator(InfixOperator(s, ws, 2, Assoc.Left, fun x y -> Comparison(x, op, y)))
