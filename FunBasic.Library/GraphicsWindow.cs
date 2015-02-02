@@ -74,9 +74,9 @@
          Graphics.Clear();
       }
 
-      public static void ShowMessage(string text, string title)
+      public static void ShowMessage(string content, string title)
       {
-
+         Graphics.ShowMessage(content, title);
       }
 
       #region Draw

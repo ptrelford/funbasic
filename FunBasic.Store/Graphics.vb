@@ -3,6 +3,7 @@ Imports Windows.UI, Windows.UI.Xaml.Shapes
 Imports Windows.UI.Core
 Imports Windows.System
 Imports Windows.UI.Xaml.Media.Animation
+Imports Windows.UI.Popups
 
 Public Class Graphics
     Implements FunBasic.Library.IGraphics
@@ -88,6 +89,13 @@ Public Class Graphics
                      Dim myTurtle = ShapeLookup("Turtle")
                      MyCanvas.Children.Clear()
                      MyCanvas.Children.Add(myTurtle)
+                 End Sub)
+    End Sub
+
+    Public Sub ShowMessage(content As String, title As String) Implements Library.IGraphics.ShowMessage
+        Dispatch(Sub()
+                     Dim message = New MessageDialog(content, title)
+                     Dim task = message.ShowAsync()
                  End Sub)
     End Sub
 
@@ -341,7 +349,7 @@ Public Class Graphics
         Dim name = "Text" + Guid.NewGuid().ToString()
         Dim foreground = GetColor(BrushColor)
         Dim size = FontSize
-        Dim family = FontName 
+        Dim family = FontName
         MyCanvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, _
             Sub()
                 Dim textBlock = CreateTextBlock(text)

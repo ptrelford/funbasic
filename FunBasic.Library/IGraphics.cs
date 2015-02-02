@@ -24,6 +24,7 @@
       void FillEllipse(double x, double y, double width, double height);
       void FillTriangle(double x1, double y1, double x2, double y2, double x3, double y3);
       void FillRectangle(double x, double y, double width, double height);
+      void ShowMessage(string content, string title);
       #endregion
 
       #region Shapes
