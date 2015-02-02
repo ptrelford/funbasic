@@ -53,6 +53,11 @@ namespace FunBasic.Library
          GraphicsWindow.Graphics.Remove(name);
       }
 
+      public static int GetOpacity(string name)
+      {
+         return GraphicsWindow.Graphics.GetOpacity(name);
+      }
+
       public static void SetOpacity(string name, int value)
       {
          GraphicsWindow.Graphics.SetOpacity(name, value);

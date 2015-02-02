@@ -465,6 +465,17 @@ Public Class Graphics
                  End Sub)
     End Sub
 
+    Public Function GetOpacity(name As String) As Integer _
+        Implements Library.IGraphics.GetOpacity
+        Dim shape = ShapeLookup(name)
+        Dim opacity = 0
+        MyCanvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, _
+            Sub()
+                opacity = shape.Opacity * 100.0
+            End Sub).AsTask().Wait()
+        Return opacity
+    End Function
+
     Public Sub SetOpacity(name As String, value As Integer) _
         Implements Library.IGraphics.SetOpacity
         Dim shape = ShapeLookup(name)
