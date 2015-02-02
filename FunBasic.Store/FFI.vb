@@ -6,6 +6,7 @@ Public Class FFI
 
     Dim ass As Assembly
     Dim typeLookup As New Dictionary(Of String, Dictionary(Of String, MethodInfo))()
+    Dim unhooks As New List(Of Action)()
 
     Sub New()
         ass = GetType(FunBasic.Library.TextWindow).GetTypeInfo().Assembly
@@ -71,6 +72,16 @@ Public Class FFI
         Dim ty = ass.GetType("FunBasic.Library." + ns)
         Dim ev = ty.GetRuntimeEvent(name)
         ev.AddMethod.Invoke(Nothing, New Object() {handler})
+        unhooks.Add(Sub()
+                        ev.RemoveMethod.Invoke(Nothing, New Object() {handler})
+                    End Sub)
+    End Sub
+
+    Public Sub Unhook()
+        For Each action In unhooks
+            action.Invoke()
+        Next
+        unhooks.Clear()
     End Sub
 
 End Class
