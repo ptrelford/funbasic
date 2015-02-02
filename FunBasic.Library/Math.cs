@@ -18,6 +18,11 @@
          return dividend % divisor;
       }
 
+      public static double Abs(double number)
+      {
+         return System.Math.Abs(number);
+      }
+
       public static double Power(double baseNumber, double exponent)
       {
          return System.Math.Pow(baseNumber, exponent);
@@ -36,6 +41,21 @@
       public static double Ceiling(double number)
       {
          return System.Math.Ceiling(number);
+      }
+
+      public static double Round(double number)
+      {
+         return System.Math.Round(number);
+      }
+
+      public static double Max(double number1, double number2)
+      {
+         return System.Math.Max(number1, number2);
+      }
+
+      public static double Min(double number1, double number2)
+      {
+         return System.Math.Min(number1, number2);
       }
 
    }
