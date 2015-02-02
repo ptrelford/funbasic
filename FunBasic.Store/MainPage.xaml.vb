@@ -22,9 +22,9 @@ Public NotInheritable Class MainPage
                      Try
                          Runtime.Run(program, ffi)
                      Catch ex As Exception
-                         TextWindow.Console.WriteLine(ex.Message)                        
+                         TextWindow.Console.WriteLine(ex.Message)
                      End Try
-                 End Sub)        
+                 End Sub)
     End Sub
 
 End Class
