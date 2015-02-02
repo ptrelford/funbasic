@@ -453,7 +453,16 @@ Public Class Graphics
 
     Public Sub Zoom(name As String, scaleX As Double, scaleY As Double) _
         Implements Library.IGraphics.Zoom
-        Throw New NotImplementedException()
+        Dim shape = ShapeLookup(name)
+        Dispatch(Sub()
+                     Dim transform As New ScaleTransform()
+                     Dim el = CType(shape, FrameworkElement)
+                     transform.CenterX = el.ActualWidth / 2.0
+                     transform.CenterY = el.ActualHeight / 2.0
+                     transform.ScaleX = scaleX
+                     transform.ScaleY = scaleY
+                     shape.RenderTransform = transform
+                 End Sub)
     End Sub
 
     Public Sub SetOpacity(name As String, value As Integer) _
