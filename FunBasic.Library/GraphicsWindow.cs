@@ -69,6 +69,11 @@
          set { Graphics.FontName = value; }
       }
 
+      public static string GetColorFromRgb(int r, int g, int b)
+      {
+         return string.Format("#{0:X2}{1:X2}{2:X2}",r,g,b);
+      }
+
       public static void Clear()
       {
          Graphics.Clear();

@@ -1,4 +1,5 @@
-﻿Imports System.Reflection
+﻿Imports System.Globalization
+Imports System.Reflection
 Imports Windows.UI, Windows.UI.Xaml.Shapes
 Imports Windows.UI.Core
 Imports Windows.System
@@ -11,11 +12,23 @@ Public Class Graphics
     Dim MyCanvas As Canvas
     Dim MyWidth As Double
     Dim MyHeight As Double
-    Dim ColorLookup As New Dictionary(Of String, Color)()
+    Dim ColorDict As New Dictionary(Of String, Color)()
     Dim ShapeLookup As New Dictionary(Of String, UIElement)()
     Dim MyLastKey As VirtualKey
     Dim PointerX As Double
     Dim PointerY As Double
+
+    Function ColorLookup(name As String) As Color
+        If name.StartsWith("#") Then
+            Dim n = Integer.Parse(name.Substring(1), NumberStyles.HexNumber)
+            Dim r = (n And &HFF0000) >> 16
+            Dim g = (n And &HFF00) >> 8
+            Dim b = (n And &HFF)
+            Return Color.FromArgb(255, r, g, b)
+        Else
+            Return ColorDict(name)
+        End If
+    End Function
 
     Public Sub New(canvas As Canvas, turtle As UIElement)
         Me.MyCanvas = canvas
@@ -47,7 +60,7 @@ Public Class Graphics
         Dim colors = ti.GetRuntimeProperties()
         For Each pi In colors
             Dim color = pi.GetMethod().Invoke(Nothing, New Object() {})
-            ColorLookup.Add(pi.Name.ToLower(), color)
+            ColorDict.Add(pi.Name.ToLower(), color)
         Next
     End Sub
 
