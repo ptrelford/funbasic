@@ -28,22 +28,24 @@
       {
          int n = distance;
          var radians = (Angle-90) * System.Math.PI / 180;
-         var x2 = X + n * System.Math.Cos(radians);
-         var y2 = Y + n * System.Math.Sin(radians);
-         if (_isPenDown)
-         {
-            Graphics.DrawLine(X, Y, x2, y2);
-         }
+         var x1 = X;
+         var y1 = Y;
+         var x2 = x1 + n * System.Math.Cos(radians);
+         var y2 = y1 + n * System.Math.Sin(radians);
          X = x2;
          Y = y2;
-         Graphics.Move("Turtle", X - 8.0, Y - 8.0);
+         if (_isPenDown)
+         {
+            Graphics.DrawLine(x1, y1, x2, y2);
+         }
+         Graphics.Move("Turtle", x2 - 8.0, y2 - 8.0);
       }
 
       public static void MoveTo(int x, int y)
       {
          X = x;
          Y = y;
-         Graphics.Move("Turtle", X - 8.0, Y - 8.0);
+         Graphics.Move("Turtle", x - 8.0, y - 8.0);
       }
 
       public static void Turn(int angle)

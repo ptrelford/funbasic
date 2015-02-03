@@ -2,6 +2,11 @@
 
 open AST
 
+type CancelToken() =
+   let cancelled = ref false
+   member __.IsCancelled = !cancelled
+   member __.Cancel() = cancelled := true
+
 /// Foreign Function Interface
 type IFFI =
    abstract MethodInvoke : ns:string * name:string * value:obj[] -> obj
@@ -156,8 +161,10 @@ and invoke state invoke =
     | PropertyGet(ns,name) ->
         ffi.PropertyGet(ns,name) |> fromObj       
 
+open System.Threading
+
 /// Runs program
-let rec runWith (ffi:IFFI) (program:instruction[]) pc vars =
+let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (countdown:CountdownEvent) =
     /// Global Variable lookup   
     let variables = vars
     
@@ -231,8 +238,17 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars =
             match expr with
             | Identifier s when not(variables.ContainsKey(s)) ->
                let index = findSub s
-               let handler _ _ =                                     
-                  runWith ffi program (index+1) vars
+               let handler _ _ =
+                  countdown.TryAddCount() |> ignore
+                  try                 
+                     try     
+                        runWith ffi program (index+1) vars token countdown
+                     with e ->
+                        System.Diagnostics.Debug.WriteLine(e.Message)
+                        token.Cancel()                        
+                  finally
+                     try countdown.Signal() |> ignore
+                     with e -> System.Diagnostics.Debug.WriteLine(e.Message)
                ffi.EventAdd(ns,name, System.EventHandler(handler))
             | _ ->
                ffi.PropertySet(ns,name,eval expr |> toObj)       
@@ -301,9 +317,15 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars =
         | EndFunction -> raise (System.NotSupportedException())
         | Select(e) -> raise (System.NotSupportedException())
         | Case(clauses) -> raise (System.NotSupportedException())
-        | EndSelect -> raise (System.NotSupportedException())
-    while !pi < program.Length do step (); incr pi
+        | EndSelect -> raise (System.NotSupportedException())    
+    while not token.IsCancelled && !pi < program.Length do step (); incr pi
 
-let run ffi program =
+let run ffi program token =
    let vars = VarLookup()
-   runWith ffi program 0 vars
+   let lines, program = program |> Array.unzip
+   let countdown = new CountdownEvent(1)  
+   let cancelled = runWith ffi program 0 vars token countdown
+   countdown.Signal() |> ignore
+   countdown.Wait(1000) |> ignore
+   
+

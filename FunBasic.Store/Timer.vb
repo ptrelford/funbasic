@@ -29,7 +29,10 @@ Public Class Timer
     Public Event Tick(sender As Object, e As EventArgs) Implements Library.ITimer.Tick
 
     Public Sub Pause() Implements Library.ITimer.Pause
-        MyTimer.Cancel()
+        If MyTimer IsNot Nothing Then
+            MyTimer.Cancel()
+            MyTimer = Nothing
+        End If    
     End Sub
 
     Public Sub [Resume]() Implements Library.ITimer.Resume

@@ -1,35 +1,64 @@
 ﻿Imports System.Text
 Imports System.Reflection
 Imports FunBasic.Library
+Imports System.Threading
+Imports FunBasic.Interpreter
+Imports Windows.UI
 
 Public NotInheritable Class MainPage
     Inherits Page
 
     Dim ffi As New FFI()
     Dim timer As New Timer()
+    Dim cancelToken As New CancelToken()
+    Dim done As ManualResetEvent = Nothing
 
     Private Sub Button_Click(sender As Object, e As RoutedEventArgs)
         ffi.Unhook()
+        timer.Pause()
 
-        Dim output = New StringBuilder()
-        TextWindow.Console = New Console(Me.MyConsole)
+        ' Stop interpreter
+        cancelToken.Cancel()
+        cancelToken = New CancelToken()
+
+        Dim program = Code.Text
+
+        Task.Run(Sub() Run(program))
+    End Sub
+
+    Private Sub InitLibrary()
+        Dim c = New Console(Me.MyConsole)
+        TextWindow.Console = c
         Dim theTurtle = Me.MyTurtle
         Me.MyGraphics.Children.Clear()
+        Me.MyGraphics.Background = New SolidColorBrush(Colors.White)
         Me.MyGraphics.Children.Add(theTurtle)
         Dim graphics = New Graphics(Me.MyGraphics, Me.MyTurtle)
         GraphicsWindow.Graphics = graphics
         Turtle.Graphics = graphics
         timer.Interval = -1
         FunBasic.Library.Timer.SetTimer(timer)
+    End Sub
 
-        Dim program = Code.Text
-        Task.Run(Sub()
-                     Try
-                         Runtime.Run(program, ffi)
-                     Catch ex As Exception
-                         TextWindow.Console.WriteLine(ex.Message)
-                     End Try
-                 End Sub)
+    Private Sub Run(program As String)
+        If done IsNot Nothing Then
+            Dim success = done.WaitOne()
+            done.Reset()
+        Else
+            done = New ManualResetEvent(False)
+        End If
+
+        Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, _
+                            Sub() InitLibrary()).AsTask().Wait()
+
+        Try
+            Runtime.Run(Program, ffi, cancelToken)
+        Catch ex As Exception
+            TextWindow.Console.WriteLine(ex.Message)
+        Finally
+            done.Set()
+        End Try
+
     End Sub
 
 End Class
