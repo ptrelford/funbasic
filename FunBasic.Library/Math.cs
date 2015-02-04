@@ -4,6 +4,11 @@
    {
       private static System.Random _random;
 
+      public static double Pi
+      {
+         get { return 3.14159265358979; }
+      }
+
       public static int GetRandomNumber(int maxNumber)
       {
          if (_random == null)
@@ -56,6 +61,21 @@
       public static double Min(double number1, double number2)
       {
          return System.Math.Min(number1, number2);
+      }
+
+      public static double ArcTan(double number)
+      {
+         return System.Math.Atan(number);
+      }
+
+      public static double Cos(double number)
+      {
+         return System.Math.Cos(number);
+      }
+
+      public static double Sin(double number)
+      {
+         return System.Math.Sin(number);
       }
 
    }
