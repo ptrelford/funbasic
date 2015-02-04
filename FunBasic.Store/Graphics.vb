@@ -413,13 +413,13 @@ Public Class Graphics
     Public Sub HideShape(name As String) _
         Implements Library.IGraphics.HideShape
         Dim shape = ShapeLookup(name)
-        shape.Visibility = Visibility.Collapsed
+        Dispatch(Sub() shape.Visibility = Visibility.Collapsed)
     End Sub
 
     Public Sub ShowShape(name As String) _
         Implements Library.IGraphics.ShowShape
         Dim shape = ShapeLookup(name)
-        shape.Visibility = Visibility.Visible
+        Dispatch(Sub() shape.Visibility = Visibility.Visible)
     End Sub
 
     Public Sub Remove(name As String) _
