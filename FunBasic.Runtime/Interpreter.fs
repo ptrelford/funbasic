@@ -34,6 +34,7 @@ let toObj = function
 let toInt = function
     | Int x -> x
     | Double x -> int x
+    | String "" -> 0
     | String x -> int x
     | Bool _ | Array _ -> raise (new System.NotSupportedException())
 /// Converts value to bool
@@ -59,6 +60,8 @@ let compare lhs rhs =
     | Int l, Int r -> l.CompareTo(r)
     | AsDoubles (l,r) -> l.CompareTo(r)
     | String l, String r -> l.CompareTo(r)
+    | String(AsInt l), Int r -> l.CompareTo(r)
+    | Int l, String(AsInt r) -> l.CompareTo(r)
     | _ -> raise (new System.NotSupportedException(sprintf "%A %A" lhs rhs))
 
 open System.Collections.Generic
@@ -66,9 +69,17 @@ open System.Collections.Generic
 type VarLookup = Dictionary<identifier,value>
 type ArrayLookup = Dictionary<identifier,Dictionary<value,value>>
 
+let comparer =
+   { new IEqualityComparer<value> with
+      member __.Equals(a,b) =
+         compare a b = 0
+      member __.GetHashCode(x) =
+         (x |> toObj).ToString().GetHashCode()
+   }
+
 /// Converts string literal to array
 let toArray (s:string) =   
-   let xs = HashTable()
+   let xs = HashTable(comparer)
    let rec parse startIndex index =
       if index < s.Length then readKey startIndex index
    and readKey startIndex index =
@@ -90,6 +101,16 @@ let toArray (s:string) =
    parse 0 0
    xs
 
+/// Obtains array for specified identifier
+let obtainArray (variables:HashTable<_,_>) identifier =
+   match variables.TryGetValue(identifier) with
+   | true, Array array -> array
+   | true, String s -> toArray s
+   | _, _ -> 
+      let array = HashTable(comparer)
+      variables.Add(identifier,Array array)
+      array
+
 /// Evaluates expressions
 let rec eval state (expr:expr) =
     let (vars:VarLookup), _, _ = state
@@ -103,13 +124,16 @@ let rec eval state (expr:expr) =
        let rec getAt (array:HashTable<_,_>) = function
           | x::[] ->
               let index = eval state x
-              array.[index]
+              match array.TryGetValue(index) with
+              | true, value -> value
+              | false, _ -> String ""
           | x::xs ->
               let index = eval state x
-              match array.[index] with
-              | Array array -> getAt array xs
-              | String s -> getAt (toArray s) xs                 
-              | _ -> invalidOp "Expecting array"
+              match array.TryGetValue(index) with
+              | true, Array array -> getAt array xs
+              | true, String s -> getAt (toArray s) xs                 
+              | true, _ -> invalidOp "Expecting array"
+              | false, _ -> String ""
           | _ -> invalidOp "Expecting array index"
        let array = 
          match vars.TryGetValue identifier with
@@ -151,9 +175,24 @@ and logical lhs op rhs =
     | Or, Bool l, Bool r -> Bool(l || r)
     | _, _, _ -> raise (System.NotImplementedException())
 and invoke state invoke =
-    let _, gosub,(ffi:IFFI) = state
+    let vars,gosub,(ffi:IFFI) = state
     match invoke with
     | Call(name,args) -> gosub (name(*,args*)) |> fromObj
+    | Method("Array","GetValue", [name; index]) ->
+        let name = eval state name
+        match name with
+        | String name ->
+            eval state (GetAt(Location(name, [index])))
+        | _ -> invalidOp "Expecting array name"
+    | Method("Array","SetValue",[name;index;value]) ->
+        let name = eval state name
+        match name with
+        | String name ->
+            let array = obtainArray vars name
+            let index = eval state index
+            array.[index] <- eval state value        
+            String ""
+         | _ -> invalidOp "Expecting array name"
     | Method(ns,name,args) ->
         let args = args |> List.map (eval state >> toObj)
         ffi.MethodInvoke(ns,name,args |> List.toArray)
@@ -167,7 +206,6 @@ open System.Threading
 let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (countdown:CountdownEvent) =
     /// Global Variable lookup   
     let variables = vars
-    
     /// Program index
     let pi = ref pc
     /// For from EndFor lookup
@@ -210,22 +248,13 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
     /// Assigns result of expression to variable
     let assign (Set(identifier,expr)) =
         variables.[identifier] <- eval expr
-    /// Obtains array for specified identifier
-    let obtainArray identifier =
-        match variables.TryGetValue(identifier) with
-        | true, Array array -> array
-        | true, String s -> toArray s
-        | _, _ -> 
-            let array = Dictionary<value,value>()
-            variables.Add(identifier,Array array)
-            array
     /// Obtains sub array from specified array
     let obtainSubArray (array:HashTable<_,_>) key =
         match array.TryGetValue(key) with
         | true, Array array -> array
         | true, String s -> toArray s
         | _, _ ->
-           let newArray = HashTable()
+           let newArray = HashTable(comparer)
            array.[key] <- Array newArray
            newArray
     /// Instruction step
@@ -260,7 +289,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
                   let array = obtainSubArray array key
                   setAt array xs
                | [] -> invalidOp "Expecting array index"
-            let array = obtainArray identifier            
+            let array = obtainArray vars identifier            
             setAt array indices
         | Action(call) -> invoke state call |> ignore
         | If(condition) ->
