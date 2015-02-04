@@ -44,9 +44,11 @@ let toBool = function
     | String "True" -> true
     | x -> raise (new System.NotSupportedException())
 let (|AsInt|_|) s =
-    match System.Int32.TryParse(s) with
-    | true, n -> Some n
-    | false,_ -> None
+    if s = "" then Some 0
+    else
+       match System.Int32.TryParse(s) with
+       | true, n -> Some n
+       | false,_ -> None
 /// Coerces a tuple of numeric values to double
 let (|AsDoubles|_|) = function
     | Double l, Double r -> Some(l,r)
