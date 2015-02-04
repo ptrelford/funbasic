@@ -25,7 +25,7 @@
       public static double Width
       {
          get { return _graphics.Width; }
-         set { }
+         set { _graphics.Width = value; }
       }
 
       public static double Height
@@ -102,6 +102,11 @@
       public static void DrawText(double x, double y, string text)
       {
          Graphics.DrawText(x, y, text);
+      }
+
+      public static void DrawBoundText(double x, double y, double width, string text)
+      {
+         Graphics.DrawBoundText(x, y, width, text);
       }
 
       public static void DrawLine(double x1, double y1, double x2, double y2)

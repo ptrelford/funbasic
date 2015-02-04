@@ -3,7 +3,7 @@
    public interface IGraphics
    {
       #region Properties
-      double Width { get; }
+      double Width { get; set; }
       double Height { get; }
       string BackgroundColor { get; set; }
       double PenWidth { get; set; }
@@ -21,6 +21,7 @@
       void DrawTriangle(double x1, double y1, double x2, double y2, double x3, double y3);
       void DrawRectangle(double x, double y, double width, double height);
       void DrawText(double x, double y, string text);
+      void DrawBoundText(double x, double y, double width, string text);
       void DrawImage(string url, double x, double y);
       void FillEllipse(double x, double y, double width, double height);
       void FillTriangle(double x1, double y1, double x2, double y2, double x3, double y3);

@@ -222,6 +222,23 @@ Public Class Graphics
                  End Sub)
     End Sub
 
+    Public Sub DrawBoundText(x As Double, y As Double, width As Double, text As String) _
+        Implements Library.IGraphics.DrawBoundText
+        Dim foreground = GetColor(BrushColor)
+        Dim size = FontSize
+        Dim family = FontName
+        Dispatch(Sub()
+                     Dim textBlock = CreateTextBlock(text)
+                     textBlock.Foreground = New SolidColorBrush(foreground)
+                     textBlock.FontSize = size
+                     textBlock.FontFamily = New FontFamily(family)
+                     textBlock.FontStyle = If(Me.FontItalic, FontStyle.Italic, FontStyle.Normal)
+                     textBlock.Margin = New Thickness(x, y, 0, 0)
+                     textBlock.MaxWidth = width
+                     MyCanvas.Children.Add(textBlock)
+                 End Sub)
+    End Sub
+
     Private Function CreateTextBlock(text As String) As TextBlock
         Return New TextBlock With {.Text = text}
     End Function
