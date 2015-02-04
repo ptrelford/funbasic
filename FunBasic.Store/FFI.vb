@@ -46,6 +46,8 @@ Public Class FFI
             Return Convert.ToInt32(arg)
         ElseIf ty Is GetType(Double) Then
             Return Convert.ToDouble(arg)
+        ElseIf ty Is GetType(Boolean) Then
+            Return Convert.ToBoolean(arg)
         Else
             Return arg
         End If
@@ -64,7 +66,8 @@ Public Class FFI
         If ty Is Nothing Then Throw New InvalidOperationException(ns + " not defined")
         Dim pi = ty.GetRuntimeProperty(name)
         If pi Is Nothing Then Throw New InvalidOperationException(name + " not defined")
-        pi.SetMethod().Invoke(Nothing, New Object() {value})
+        Dim typedArg = ConvertArg(value, pi.PropertyType)
+        pi.SetMethod().Invoke(Nothing, New Object() {typedArg})
     End Sub
 
     Public Sub EventAdd(ns As String, name As String, handler As EventHandler) _
