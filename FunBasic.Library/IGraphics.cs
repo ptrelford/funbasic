@@ -11,6 +11,7 @@
       string BrushColor { get; set; }
       double FontSize { get; set; }
       string FontName { get; set; }
+      bool FontItalic { get; set; }
       #endregion
 
       #region Render

@@ -5,33 +5,24 @@ Imports Windows.UI.Core
 Imports Windows.System
 Imports Windows.UI.Xaml.Media.Animation
 Imports Windows.UI.Popups
+Imports Windows.UI.Text
 
 Public Class Graphics
     Implements FunBasic.Library.IGraphics
 
     Dim MyCanvas As Canvas
+    Dim MyBackgroundColor As String
     Dim MyWidth As Double
     Dim MyHeight As Double
-    Dim ColorDict As New Dictionary(Of String, Color)()
+    Dim ColorLookup As New Dictionary(Of String, Color)()
     Dim ShapeLookup As New Dictionary(Of String, UIElement)()
     Dim MyLastKey As VirtualKey
     Dim PointerX As Double
     Dim PointerY As Double
 
-    Function ColorLookup(name As String) As Color
-        If name.StartsWith("#") Then
-            Dim n = Integer.Parse(name.Substring(1), NumberStyles.HexNumber)
-            Dim r = (n And &HFF0000) >> 16
-            Dim g = (n And &HFF00) >> 8
-            Dim b = (n And &HFF)
-            Return Color.FromArgb(255, r, g, b)
-        Else
-            Return ColorDict(name)
-        End If
-    End Function
-
     Public Sub New(canvas As Canvas, turtle As UIElement)
         Me.MyCanvas = canvas
+        Me.MyBackgroundColor = "White"
         Me.MyWidth = canvas.Width
         Me.MyHeight = canvas.Height
         PrepareColors()
@@ -52,7 +43,15 @@ Public Class Graphics
     End Sub
 
     Function GetColor(name As String) As Color
-        Return ColorLookup(name.ToLower())
+        If name.StartsWith("#") Then
+            Dim n = Integer.Parse(name.Substring(1), NumberStyles.HexNumber)
+            Dim r = (n And &HFF0000) >> 16
+            Dim g = (n And &HFF00) >> 8
+            Dim b = (n And &HFF)
+            Return Color.FromArgb(255, r, g, b)
+        Else
+            Return ColorLookup(name.ToLower())
+        End If
     End Function
 
     Sub PrepareColors()
@@ -60,7 +59,7 @@ Public Class Graphics
         Dim colors = ti.GetRuntimeProperties()
         For Each pi In colors
             Dim color = pi.GetMethod().Invoke(Nothing, New Object() {})
-            ColorDict.Add(pi.Name.ToLower(), color)
+            ColorLookup.Add(pi.Name.ToLower(), color)
         Next
     End Sub
 
@@ -82,16 +81,20 @@ Public Class Graphics
     Public Property BackgroundColor As String _
         Implements Library.IGraphics.BackgroundColor
         Get
-            Throw New NotImplementedException()
+            Return MyBackgroundColor
         End Get
         Set(value As String)
-            Dispatch(Sub() MyCanvas.Background = New SolidColorBrush(GetColor(value)))
+            Dispatch(Sub()
+                         MyBackgroundColor = value
+                         MyCanvas.Background = New SolidColorBrush(GetColor(value))
+                     End Sub)
         End Set
     End Property
 
     Public Property BrushColor As String Implements Library.IGraphics.BrushColor
     Public Property FontName As String Implements Library.IGraphics.FontName
     Public Property FontSize As Double Implements Library.IGraphics.FontSize
+    Public Property FontItalic As Boolean Implements Library.IGraphics.FontItalic
     Public Property PenColor As String Implements Library.IGraphics.PenColor
     Public Property PenWidth As Double Implements Library.IGraphics.PenWidth
 #End Region
@@ -206,6 +209,7 @@ Public Class Graphics
                      textBlock.Foreground = New SolidColorBrush(foreground)
                      textBlock.FontSize = size
                      textBlock.FontFamily = New FontFamily(family)
+                     textBlock.FontStyle = If(Me.FontItalic, FontStyle.Italic, FontStyle.Normal)
                      textBlock.Margin = New Thickness(x, y, 0, 0)
                      MyCanvas.Children.Add(textBlock)
                  End Sub)
