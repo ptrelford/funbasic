@@ -56,7 +56,9 @@ Public Class FFI
     Public Function PropertyGet(ns As String, name As String) As Object _
         Implements IFFI.PropertyGet
         Dim ty = ass.GetType("FunBasic.Library." + ns)
+        If ty Is Nothing Then Throw New InvalidOperationException(ns + " not defined")
         Dim pi = ty.GetRuntimeProperty(name)
+        If pi Is Nothing Then Throw New InvalidOperationException(name + " not defined")
         Return pi.GetMethod().Invoke(Nothing, New Object() {})
     End Function
 
