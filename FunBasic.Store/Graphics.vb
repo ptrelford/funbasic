@@ -180,6 +180,7 @@ Public Class Graphics
                      Dim rectangle = CreateRectangle(width, height)
                      rectangle.StrokeThickness = thickness
                      rectangle.Stroke = New SolidColorBrush(color)
+                     rectangle.Margin = New Thickness(x, y, 0, 0)
                      MyCanvas.Children.Add(rectangle)
                  End Sub)
     End Sub
@@ -238,6 +239,7 @@ Public Class Graphics
         Dispatch(Sub()
                      Dim rectangle = CreateRectangle(width, height)
                      rectangle.Fill = New SolidColorBrush(color)
+                     rectangle.Margin = New Thickness(x, y, 0, 0)
                      MyCanvas.Children.Add(rectangle)
                  End Sub)
     End Sub
