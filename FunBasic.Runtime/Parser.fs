@@ -12,8 +12,8 @@ let pnumvalue: Parser<value, unit> =
             else Double(float nl.String)
 
 let ws = skipManySatisfy (fun c -> c = ' ' || c = '\t' || c='\r') // spaces
-let str_ws s = pstring s .>> ws
-let str_ws1 s = pstring s .>> spaces1
+let str_ws s = pstringCI s .>> ws
+let str_ws1 s = pstringCI s .>> spaces1
 
 let pstringvalue = 
     between (pstring "\"") (pstring "\"") (manySatisfy (fun x -> x <> '"')) 
