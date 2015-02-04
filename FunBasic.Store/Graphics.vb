@@ -391,18 +391,22 @@ Public Class Graphics
     Public Function GetLeft(name As String) As Double _
         Implements Library.IGraphics.GetLeft
         Dim left = 0
-        Dim shape = ShapeLookup(name)
-        MyCanvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, _
-                                     Sub() left = Canvas.GetLeft(shape)).AsTask().Wait()
+        Dim shape As UIElement = Nothing
+        If ShapeLookup.TryGetValue(name, shape) Then
+            MyCanvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, _
+                                         Sub() left = Canvas.GetLeft(shape)).AsTask().Wait()
+        End If
         Return left
     End Function
 
     Public Function GetTop(name As String) As Double _
         Implements Library.IGraphics.GetTop
         Dim top = 0
-        Dim shape = ShapeLookup(name)
-        MyCanvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, _
-                                     Sub() top = Canvas.GetTop(shape)).AsTask().Wait()
+        Dim shape As UIElement = Nothing
+        If ShapeLookup.TryGetValue(name, shape) Then
+            MyCanvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, _
+                                         Sub() top = Canvas.GetTop(shape)).AsTask().Wait()
+        End If
         Return top
     End Function
 
@@ -427,11 +431,13 @@ Public Class Graphics
 
     Public Sub Move(name As String, x As Double, y As Double) _
         Implements Library.IGraphics.Move
-        Dim shape = ShapeLookup(name)
-        Dispatch(Sub()
-                     Canvas.SetLeft(shape, x)
-                     Canvas.SetTop(shape, y)
-                 End Sub)
+        Dim shape As UIElement = Nothing
+        If ShapeLookup.TryGetValue(name, shape) Then
+            Dispatch(Sub()
+                         Canvas.SetLeft(shape, x)
+                         Canvas.SetTop(shape, y)
+                     End Sub)
+        End If
     End Sub
 
     Public Sub Animate(name As String, x As Double, y As Double, duration As Integer) _
