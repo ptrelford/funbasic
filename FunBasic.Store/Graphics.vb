@@ -64,11 +64,17 @@ Public Class Graphics
     End Sub
 
 #Region "Properties"
-    Public ReadOnly Property Width As Double _
+    Public Property Width As Double _
         Implements Library.IGraphics.Width
         Get
             Return MyWidth
         End Get
+        Set(value As Double)
+            Dispatch(Sub()
+                         MyWidth = value
+                         MyCanvas.Width = value
+                     End Sub)
+        End Set
     End Property
 
     Public ReadOnly Property Height As Double _
