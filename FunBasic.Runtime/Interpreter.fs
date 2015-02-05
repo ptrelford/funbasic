@@ -54,6 +54,8 @@ let (|AsDoubles|_|) = function
     | Double l, Double r -> Some(l,r)
     | Int l, Double r -> Some(double l,r)
     | Double l, Int r -> Some(l,double r)
+    | String(AsInt l), Double r -> Some(double l,r)
+    | Double l, String(AsInt r) -> Some(l, double r)
     | _, _ -> None
 /// Compares values
 let compare lhs rhs =
@@ -107,7 +109,10 @@ let toArray (s:string) =
 let obtainArray (variables:HashTable<_,_>) identifier =
    match variables.TryGetValue(identifier) with
    | true, Array array -> array
-   | true, String s -> toArray s
+   | true, String s -> 
+      let array = toArray s
+      variables.[identifier] <- Array array
+      array
    | _, _ -> 
       let array = HashTable(comparer)
       variables.Add(identifier,Array array)
@@ -166,11 +171,17 @@ and arithmetic lhs op rhs =
     | Add, (String l, Int r) -> String(l + r.ToString())
     | Subtract, (Int l,Int r) -> Int(l - r)
     | Subtract, AsDoubles (l,r) -> Double(l - r)
+    | Subtract, (String(AsInt l), Int r) -> Int(l - r)
+    | Subtract, (Int l, String(AsInt r)) -> Int(l - r)
     | Multiply, (Int l,Int r) -> Int(l * r)
     | Multiply, AsDoubles (l,r) -> Double(l * r)
+    | Multiply, (String(AsInt l), Int r) -> Int(l * r)
+    | Multiply, (Int l, String(AsInt r)) -> Int(l * r)
     | Divide, (Int l,Int r) -> Int(l / r)
     | Divide, AsDoubles (l,r) -> Double(l / r)
-    | _ -> raise (System.NotImplementedException())
+    | Divide, (String(AsInt l), Int r) -> Int(l / r)
+    | Divide, (Int l, String(AsInt r)) -> Int(l / r)
+    | _ -> raise (System.NotImplementedException(sprintf "%A %A %A" lhs op rhs))
 and logical lhs op rhs =
     match op, lhs, rhs with
     | And, Bool l, Bool r -> Bool(l && r)
