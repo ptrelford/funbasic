@@ -8,7 +8,15 @@ Public Class Timer
     Dim MyInterval As Integer
 
     Private Sub Start()
+        [Stop]()
         MyTimer = ThreadPoolTimer.CreatePeriodicTimer(AddressOf TimerElapsed, TimeSpan.FromMilliseconds(Interval))
+    End Sub
+
+    Private Sub [Stop]()
+        If MyTimer IsNot Nothing Then
+            MyTimer.Cancel()
+            MyTimer = Nothing
+        End If
     End Sub
 
     Private Sub TimerElapsed()
@@ -29,10 +37,7 @@ Public Class Timer
     Public Event Tick(sender As Object, e As EventArgs) Implements Library.ITimer.Tick
 
     Public Sub Pause() Implements Library.ITimer.Pause
-        If MyTimer IsNot Nothing Then
-            MyTimer.Cancel()
-            MyTimer = Nothing
-        End If    
+        [Stop]()
     End Sub
 
     Public Sub [Resume]() Implements Library.ITimer.Resume
