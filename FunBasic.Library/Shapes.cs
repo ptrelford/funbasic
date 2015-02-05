@@ -25,7 +25,7 @@ namespace FunBasic.Library
 
       public static string AddTriangle(double x1, double y1, double x2, double y2, double x3, double y3)
       {
-         return GraphicsWindow.Graphics.AddTriangle(x1, x2, y1, y2, x3, y3);
+         return GraphicsWindow.Graphics.AddTriangle(x1, y1, x2, y2, x3, y3);
       }
 
       public static string AddRectangle(double width, double height)
