@@ -6,7 +6,7 @@ Public Class FFI
 
     Dim ass As Assembly
     Dim typeLookup As New Dictionary(Of String, Dictionary(Of String, MethodInfo))()
-    Dim unhooks As New List(Of Action)()
+    Dim unhooks As New Dictionary(Of EventInfo, Action)()
 
     Sub New()
         ass = GetType(FunBasic.Library.TextWindow).GetTypeInfo().Assembly
@@ -43,9 +43,17 @@ Public Class FFI
         If ty Is GetType(String) Then
             Return Convert.ToString(arg)
         ElseIf ty Is GetType(Integer) Then
-            Return Convert.ToInt32(arg)
+            If arg.GetType() Is GetType(String) AndAlso arg = "" Then
+                Return 0
+            Else
+                Return Convert.ToInt32(arg)
+            End If
         ElseIf ty Is GetType(Double) Then
-            Return Convert.ToDouble(arg)
+            If arg.GetType() Is GetType(String) AndAlso arg = "" Then
+                Return 0
+            Else
+                Return Convert.ToDouble(arg)
+            End If
         ElseIf ty Is GetType(Boolean) Then
             Return Convert.ToBoolean(arg)
         Else
@@ -76,14 +84,19 @@ Public Class FFI
         Implements IFFI.EventAdd
         Dim ty = ass.GetType("FunBasic.Library." + ns)
         Dim ev = ty.GetRuntimeEvent(name)
+        Dim action As Action = Nothing
+        If unhooks.TryGetValue(ev, action) Then
+            action.Invoke()
+            unhooks.Remove(ev)
+        End If
         ev.AddMethod.Invoke(Nothing, New Object() {handler})
-        unhooks.Add(Sub()
-                        ev.RemoveMethod.Invoke(Nothing, New Object() {handler})
-                    End Sub)
+        unhooks.Add(ev, Sub()
+                            ev.RemoveMethod.Invoke(Nothing, New Object() {handler})
+                        End Sub)
     End Sub
 
     Public Sub Unhook()
-        For Each action In unhooks
+        For Each action In unhooks.Values
             action.Invoke()
         Next
         unhooks.Clear()
