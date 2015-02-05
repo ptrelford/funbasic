@@ -78,5 +78,10 @@
          return System.Math.Sin(number);
       }
 
+      public static double GetRadians(double angle)
+      {
+         return (angle % 360) * Pi / 180.0;
+      }
+
    }
 }
