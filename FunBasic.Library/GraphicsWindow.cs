@@ -79,6 +79,12 @@
          set { Graphics.FontItalic = value;  }
       }
 
+      public static bool FontBold
+      {
+         get { return Graphics.FontBold; }
+         set { Graphics.FontBold = value; }
+      }
+
       public static string GetColorFromRGB(int r, int g, int b)
       {
          return string.Format("#{0:X2}{1:X2}{2:X2}",r,g,b);

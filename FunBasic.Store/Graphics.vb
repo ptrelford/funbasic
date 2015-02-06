@@ -101,6 +101,7 @@ Public Class Graphics
     Public Property FontName As String Implements Library.IGraphics.FontName
     Public Property FontSize As Double Implements Library.IGraphics.FontSize
     Public Property FontItalic As Boolean Implements Library.IGraphics.FontItalic
+    Public Property FontBold As Boolean Implements Library.IGraphics.FontBold
     Public Property PenColor As String Implements Library.IGraphics.PenColor
     Public Property PenWidth As Double Implements Library.IGraphics.PenWidth
 #End Region
@@ -222,6 +223,7 @@ Public Class Graphics
                      textBlock.FontSize = size
                      textBlock.FontFamily = New FontFamily(family)
                      textBlock.FontStyle = If(Me.FontItalic, FontStyle.Italic, FontStyle.Normal)
+                     textBlock.FontWeight = If(Me.FontBold, FontWeights.Bold, FontWeights.Normal)
                      textBlock.Margin = New Thickness(x, y, 0, 0)
                      MyCanvas.Children.Add(textBlock)
                  End Sub)
@@ -238,6 +240,7 @@ Public Class Graphics
                      textBlock.FontSize = size
                      textBlock.FontFamily = New FontFamily(family)
                      textBlock.FontStyle = If(Me.FontItalic, FontStyle.Italic, FontStyle.Normal)
+                     textBlock.FontWeight = If(Me.FontBold, FontWeights.Bold, FontWeights.Normal)
                      textBlock.Margin = New Thickness(x, y, 0, 0)
                      textBlock.MaxWidth = width
                      MyCanvas.Children.Add(textBlock)
@@ -399,6 +402,8 @@ Public Class Graphics
                 textBlock.Foreground = New SolidColorBrush(foreground)
                 textBlock.FontSize = size
                 textBlock.FontFamily = New FontFamily(family)
+                textBlock.FontStyle = If(Me.FontItalic, FontStyle.Italic, FontStyle.Normal)
+                textBlock.FontWeight = If(Me.FontBold, FontWeights.Bold, FontWeights.Normal)
                 textBlock.Name = name
                 MyCanvas.Children.Add(textBlock)
                 ShapeLookup.Add(name, textBlock)

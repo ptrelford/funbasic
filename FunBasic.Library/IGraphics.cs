@@ -12,6 +12,7 @@
       double FontSize { get; set; }
       string FontName { get; set; }
       bool FontItalic { get; set; }
+      bool FontBold { get; set; }
       #endregion
 
       #region Render
