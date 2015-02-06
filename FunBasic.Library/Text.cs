@@ -15,7 +15,14 @@ namespace FunBasic.Library
 
       public static string GetSubText(string text, int index, int length)
       {
-         return text.Substring(index, length);
+         if (index > 0)
+         {
+            var startIndex = (int)Math.Min(text.Length + 1, index);
+            var len = Math.Min(length, text.Length - startIndex + 1);
+            return text.Substring(startIndex - 1, (int)len);
+         }
+         else
+            return "";
       }
    }
 }
