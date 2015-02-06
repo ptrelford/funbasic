@@ -387,7 +387,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
     while not token.IsCancelled && !pi < program.Length do step (); incr pi
 
 let run ffi program token =
-   let vars = VarLookup()
+   let vars = VarLookup(System.StringComparer.OrdinalIgnoreCase)
    let lines, program = program |> Array.unzip
    let countdown = new CountdownEvent(1)  
    let cancelled = runWith ffi program 0 vars token countdown
