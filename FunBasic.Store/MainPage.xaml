@@ -29,13 +29,18 @@ EndFor
                 <!--Button Content="Step" HorizontalAlignment="Center" Width="64" Height="64" VerticalAlignment="Center" Click="Button_Click"/-->
                 <!--Button Content="Stop" HorizontalAlignment="Center" Width="64" Height="64" VerticalAlignment="Bottom" /-->                
             </StackPanel>
-            <Canvas Name="MyGraphics" Grid.Column="2" Background="White" HorizontalAlignment="Right" VerticalAlignment="Center" Width="600" MinWidth="256" MaxWidth="720" Height="600">
+            <Canvas Name="MyGraphics" Grid.Column="2" Background="White" HorizontalAlignment="Right" VerticalAlignment="Center" Width="720" MinWidth="256" MaxWidth="720" Height="600">
                 <Canvas.Clip>
                     <RectangleGeometry Rect="0 0 720 600"/>
                 </Canvas.Clip>                
-                <Image Name="MyTurtle" Source="Images/turtle.png" Visibility="Visible" Canvas.Left="300" Canvas.Top="300"/>
             </Canvas>
-            <TextBox Name="MyConsole" Grid.Column="2" Background="Transparent" IsEnabled="False" IsReadOnly="True" HorizontalAlignment="Right" AcceptsReturn="True" VerticalAlignment="Center" Height="600">
+            <Canvas Name="MyShapes" Grid.Column="2" Background="Transparent" HorizontalAlignment="Right" VerticalAlignment="Center" Width="720" MinWidth="256" MaxWidth="720" Height="600">
+                <Canvas.Clip>
+                    <RectangleGeometry Rect="0 0 720 600"/>
+                </Canvas.Clip>
+                <Image Name="MyTurtle" Source="Images/turtle.png" Visibility="Visible" Canvas.Left="320" Canvas.Top="300"/>
+            </Canvas>
+            <TextBox Name="MyConsole" Grid.Column="2" Foreground="Pink" Background="Transparent" IsEnabled="False" IsReadOnly="True" HorizontalAlignment="Right" AcceptsReturn="True" VerticalAlignment="Center" Height="600">
                 <TextBox.Width>
                     <Binding ElementName="MyGraphics" Path="Width"/>
                 </TextBox.Width>

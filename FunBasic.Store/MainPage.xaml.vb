@@ -32,8 +32,9 @@ Public NotInheritable Class MainPage
         Dim theTurtle = Me.MyTurtle
         Me.MyGraphics.Children.Clear()
         Me.MyGraphics.Background = New SolidColorBrush(Colors.White)
-        Me.MyGraphics.Children.Add(theTurtle)
-        Dim graphics = New Graphics(Me.MyGraphics, Me.MyTurtle)
+        Me.MyShapes.Children.Clear()
+        Me.MyShapes.Children.Add(theTurtle)
+        Dim graphics = New Graphics(Me.MyGraphics, Me.MyShapes, Me.MyTurtle)
         GraphicsWindow.Graphics = graphics
         Turtle.Graphics = graphics
         timer.Interval = -1
@@ -54,6 +55,7 @@ Public NotInheritable Class MainPage
         Try
             Runtime.Run(Program, ffi, cancelToken)
         Catch ex As Exception
+            System.Diagnostics.Debug.WriteLine(ex)
             TextWindow.Console.WriteLine(ex.Message)
         Finally
             done.Set()

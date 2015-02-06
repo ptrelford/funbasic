@@ -11,6 +11,7 @@ Public Class Graphics
     Implements FunBasic.Library.IGraphics
 
     Dim MyCanvas As Canvas
+    Dim MyShapesCanvas As Canvas
     Dim MyBackgroundColor As String
     Dim MyWidth As Double
     Dim MyHeight As Double
@@ -20,8 +21,9 @@ Public Class Graphics
     Dim PointerX As Double
     Dim PointerY As Double
 
-    Public Sub New(canvas As Canvas, turtle As UIElement)
+    Public Sub New(canvas As Canvas, shapesCanvas As Canvas, turtle As UIElement)
         Me.MyCanvas = canvas
+        Me.MyShapesCanvas = shapesCanvas
         Me.MyBackgroundColor = "White"
         Me.MyWidth = canvas.Width
         Me.MyHeight = canvas.Height
@@ -72,7 +74,7 @@ Public Class Graphics
         Set(value As Double)
             Dispatch(Sub()
                          MyWidth = value
-                         MyCanvas.Width = value
+                         'MyCanvas.Width = value
                      End Sub)
         End Set
     End Property
@@ -111,7 +113,9 @@ Public Class Graphics
         Dispatch(Sub()
                      Dim myTurtle = ShapeLookup("Turtle")
                      MyCanvas.Children.Clear()
-                     MyCanvas.Children.Add(myTurtle)
+                     MyShapesCanvas.Children.Clear()
+                     MyShapesCanvas.Children.Add(myTurtle)
+                     MyShapesCanvas.Resources.Clear()
                  End Sub)
     End Sub
 
@@ -302,7 +306,7 @@ Public Class Graphics
             Sub()
                 Dim image = CreateImage(url)
                 image.Name = name
-                MyCanvas.Children.Add(image)
+                MyShapesCanvas.Children.Add(image)
                 ShapeLookup.Add(name, image)
             End Sub).AsTask().Wait()
         Return name
@@ -321,7 +325,7 @@ Public Class Graphics
                 ellipse.Stroke = New SolidColorBrush(stroke)
                 ellipse.Fill = New SolidColorBrush(fill)
                 ellipse.Name = name
-                MyCanvas.Children.Add(ellipse)
+                MyShapesCanvas.Children.Add(ellipse)
                 ShapeLookup.Add(name, ellipse)
             End Sub)
         Return name
@@ -340,7 +344,7 @@ Public Class Graphics
                 line.StrokeThickness = thickness
                 line.Stroke = New SolidColorBrush(color)
                 line.Name = name
-                MyCanvas.Children.Add(line)
+                MyShapesCanvas.Children.Add(line)
                 ShapeLookup.Add(name, line)
             End Sub)
         Return name
@@ -361,7 +365,7 @@ Public Class Graphics
                 poly.Stroke = New SolidColorBrush(stroke)
                 poly.Fill = New SolidColorBrush(fill)
                 poly.Name = name
-                MyCanvas.Children.Add(poly)
+                MyShapesCanvas.Children.Add(poly)
                 ShapeLookup.Add(name, poly)
             End Sub)
         Return name
@@ -380,7 +384,7 @@ Public Class Graphics
                 rectangle.Stroke = New SolidColorBrush(stroke)
                 rectangle.Fill = New SolidColorBrush(fill)
                 rectangle.Name = name
-                MyCanvas.Children.Add(rectangle)
+                MyShapesCanvas.Children.Add(rectangle)
                 ShapeLookup.Add(name, rectangle)
             End Sub)
         Return name
@@ -405,7 +409,7 @@ Public Class Graphics
                 textBlock.FontStyle = If(Me.FontItalic, FontStyle.Italic, FontStyle.Normal)
                 textBlock.FontWeight = If(Me.FontBold, FontWeights.Bold, FontWeights.Normal)
                 textBlock.Name = name
-                MyCanvas.Children.Add(textBlock)
+                MyShapesCanvas.Children.Add(textBlock)
                 ShapeLookup.Add(name, textBlock)
             End Sub)
         Return name
@@ -462,7 +466,7 @@ Public Class Graphics
         Dispatch(Sub()
                      Dim shape As UIElement = Nothing
                      If ShapeLookup.TryGetValue(name, shape) Then
-                         MyCanvas.Children.Remove(shape)
+                         MyShapesCanvas.Children.Remove(shape)
                          ShapeLookup.Remove(name)
                      End If
                  End Sub)
@@ -497,7 +501,7 @@ Public Class Graphics
                      story.SetValue(Storyboard.TargetNameProperty, name)
                      story.Children.Add(top)
 
-                     MyCanvas.Resources.Add(CType(Guid.NewGuid().ToString(), Object), story)
+                     MyShapesCanvas.Resources.Add(CType(Guid.NewGuid().ToString(), Object), story)
                      story.Begin()
                  End Sub)
     End Sub
