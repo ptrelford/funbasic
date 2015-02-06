@@ -47,7 +47,9 @@ let pterm = opp.ExpressionParser
 let term = (patom .>> ws) <|> between (str_ws "(") (str_ws ")") pterm
 opp.TermParser <- term
 opp.AddOperator(InfixOperator("And", ws, 1, Assoc.Left, fun x y -> Logical(x,And,y)))
+opp.AddOperator(InfixOperator("and", ws, 1, Assoc.Left, fun x y -> Logical(x,And,y)))
 opp.AddOperator(InfixOperator("Or", ws, 1, Assoc.Left, fun x y -> Logical(x,Or,y)))
+opp.AddOperator(InfixOperator("or", ws, 1, Assoc.Left, fun x y -> Logical(x,Or,y)))
 opp.AddOperator(InfixOperator("+", ws, 3, Assoc.Left, fun x y -> Arithmetic(x, Add, y)))
 opp.AddOperator(InfixOperator("-", ws, 3, Assoc.Left, fun x y -> Arithmetic(x, Subtract, y)))
 opp.AddOperator(InfixOperator("*", ws, 4, Assoc.Left, fun x y -> Arithmetic(x, Multiply, y)))
