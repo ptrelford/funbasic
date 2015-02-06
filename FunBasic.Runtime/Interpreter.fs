@@ -126,7 +126,7 @@ let rec eval state (expr:expr) =
     | Identifier identifier -> 
        match vars.TryGetValue(identifier) with
        | true, value -> value
-       | false, _ -> invalidOp (identifier+" not defined")
+       | false, _ -> String ""
     | GetAt(Location(identifier,indices)) ->
        let rec getAt (array:HashTable<_,_>) = function
           | x::[] ->
@@ -146,7 +146,8 @@ let rec eval state (expr:expr) =
          match vars.TryGetValue identifier with
          | true, Array array -> array
          | true, String s -> toArray s
-         | _, _ -> invalidOp "Not found"
+         | true, _ -> invalidOp "Expecting array"
+         | false, _ -> toArray ""
        getAt array indices       
     | Func(call) -> invoke state call
     | Neg x -> arithmetic (eval state x) Multiply (Int(-1))
@@ -168,7 +169,7 @@ and arithmetic lhs op rhs =
     | Add, (String l, String r) -> String(l + r)
     | Add, (String(AsInt l), Int r) -> Int(l + r)
     | Add, (Int l, String(AsInt r)) -> Int(l + r)
-    | Add, (String l, Int r) -> String(l + r.ToString())
+    | Add, (String l, r) -> String(l + (r |> toObj).ToString())
     | Subtract, (Int l,Int r) -> Int(l - r)
     | Subtract, AsDoubles (l,r) -> Double(l - r)
     | Subtract, (String(AsInt l), Int r) -> Int(l - r)
@@ -195,17 +196,25 @@ and invoke state invoke =
         let name = eval state name
         match name with
         | String name ->
-            eval state (GetAt(Location(name, [index])))
+            eval state (GetAt(Location("Array."+name, [index])))
         | _ -> invalidOp "Expecting array name"
     | Method("Array","SetValue",[name;index;value]) ->
         let name = eval state name
-        match name with
-        | String name ->
-            let array = obtainArray vars name
-            let index = eval state index
-            array.[index] <- eval state value        
-            String ""
-         | _ -> invalidOp "Expecting array name"
+        let array =
+            match name with
+            | String name -> obtainArray vars ("Array."+name)
+            | _ -> invalidOp "Expecting array name"
+        let index = eval state index
+        array.[index] <- eval state value
+        String ""
+    | Method("Array","RemoveValue",[name;index]) ->
+        let name = eval state name
+        let array =
+            match name with
+            | String name -> obtainArray vars ("Array." + name)
+            | _ -> invalidOp "Expecting array name"
+        array.Remove(eval state index) |> ignore
+        String ""
     | Method(ns,name,args) ->
         let args = args |> List.map (eval state >> toObj)
         ffi.MethodInvoke(ns,name,args |> List.toArray)
