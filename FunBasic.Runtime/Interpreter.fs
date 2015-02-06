@@ -257,7 +257,11 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
     let isEndWhile = (=) EndWhile
     let isFalse _ = false
     let findSub (identifier) =
-        findIndex 0 (isFalse, isFalse) (Sub(identifier,[]))
+        let ignoreCase = System.StringComparison.OrdinalIgnoreCase
+        let condition = function
+           | Sub(name,[]) when System.String.Compare(name,identifier,ignoreCase) = 0 -> true
+           | _ -> false
+        findFirstIndex 0 (isFalse, isFalse) condition
     let gosub (identifier) : obj =
         let index = findSub identifier
         callStack.Push(!pi)
