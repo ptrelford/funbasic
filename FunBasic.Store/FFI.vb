@@ -5,7 +5,7 @@ Public Class FFI
     Implements IFFI
 
     Dim ass As Assembly
-    Dim typeLookup As New Dictionary(Of String, Dictionary(Of String, MethodInfo))()
+    Dim typeLookup As New Dictionary(Of String, Dictionary(Of String, MethodInfo))(StringComparer.OrdinalIgnoreCase)
     Dim unhooks As New Dictionary(Of EventInfo, Action)()
 
     Sub New()
@@ -29,7 +29,7 @@ Public Class FFI
         If Not typeLookup.TryGetValue(ns, methodLookup) Then
             Dim ty = ass.GetType("FunBasic.Library." + ns)
             If ty Is Nothing Then Throw New InvalidOperationException(ns + " not defined")
-            methodLookup = ty.GetRuntimeMethods().ToDictionary(Function(m) m.Name)
+            methodLookup = ty.GetRuntimeMethods().ToDictionary(Function(m) m.Name, StringComparer.OrdinalIgnoreCase)
             typeLookup.Add(ns, methodLookup)
         End If
         Dim mi As MethodInfo = Nothing
