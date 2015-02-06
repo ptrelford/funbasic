@@ -50,6 +50,12 @@
       void SetText(string name, string text);      
       #endregion
 
+      #region ImageList
+      string LoadImage(string url);
+      int GetImageWidth(string name);
+      int GetImageHeight(string name);
+      #endregion
+
       #region Mouse
       double MouseX { get; }
       double MouseY { get; }

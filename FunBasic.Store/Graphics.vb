@@ -201,8 +201,13 @@ Public Class Graphics
     End Sub
 
     Private Function CreateImage(url As String) As Image
-        Dim bitmap = New BitmapImage With {.UriSource = New Uri(url)}
-        Return New Image With {.Source = bitmap}
+        Dim image As Image = Nothing
+        If ImageList.TryGetValue(url, image) Then
+            Return New Image With {.Source = image.Source}
+        Else
+            Dim bitmap = New BitmapImage With {.UriSource = New Uri(url)}
+            Return New Image With {.Source = bitmap}
+        End If
     End Function
 
     Public Sub DrawText(x As Double, y As Double, _
@@ -306,8 +311,7 @@ Public Class Graphics
         Dim thickness = PenWidth
         Dim stroke = GetColor(PenColor)
         Dim fill = GetColor(BrushColor)
-        MyCanvas.Dispatcher.RunAsync( _
-            CoreDispatcherPriority.Normal, _
+        Dispatch(
             Sub()
                 Dim ellipse = CreateEllipse(width, height)
                 ellipse.StrokeThickness = thickness
@@ -316,7 +320,7 @@ Public Class Graphics
                 ellipse.Name = name
                 MyCanvas.Children.Add(ellipse)
                 ShapeLookup.Add(name, ellipse)
-            End Sub).AsTask().Wait()
+            End Sub)
         Return name
     End Function
 
@@ -327,8 +331,7 @@ Public Class Graphics
         Dim color = GetColor(PenColor)
         Dim thickness = PenWidth
         Dim line As Line = Nothing
-        MyCanvas.Dispatcher.RunAsync( _
-            CoreDispatcherPriority.Normal, _
+        Dispatch(
             Sub()
                 line = CreateLine(x1, y1, x2, y2)
                 line.StrokeThickness = thickness
@@ -336,7 +339,7 @@ Public Class Graphics
                 line.Name = name
                 MyCanvas.Children.Add(line)
                 ShapeLookup.Add(name, line)
-            End Sub).AsTask().Wait()
+            End Sub)
         Return name
     End Function
 
@@ -348,8 +351,7 @@ Public Class Graphics
         Dim thickness = PenWidth
         Dim stroke = GetColor(PenColor)
         Dim fill = GetColor(BrushColor)
-        MyCanvas.Dispatcher.RunAsync( _
-            CoreDispatcherPriority.Normal, _
+        Dispatch(
             Sub()
                 Dim poly = CreateTriangle(x1, y1, x2, y2, x3, y3)
                 poly.StrokeThickness = thickness
@@ -358,7 +360,7 @@ Public Class Graphics
                 poly.Name = name
                 MyCanvas.Children.Add(poly)
                 ShapeLookup.Add(name, poly)
-            End Sub).AsTask().Wait()
+            End Sub)
         Return name
     End Function
 
@@ -368,8 +370,7 @@ Public Class Graphics
         Dim thickness = PenWidth
         Dim stroke = GetColor(PenColor)
         Dim fill = GetColor(BrushColor)
-        MyCanvas.Dispatcher.RunAsync( _
-            CoreDispatcherPriority.Normal, _
+        Dispatch(
             Sub()
                 Dim rectangle = CreateRectangle(width, height)
                 rectangle.StrokeThickness = thickness
@@ -378,7 +379,7 @@ Public Class Graphics
                 rectangle.Name = name
                 MyCanvas.Children.Add(rectangle)
                 ShapeLookup.Add(name, rectangle)
-            End Sub).AsTask().Wait()
+            End Sub)
         Return name
     End Function
 
@@ -392,7 +393,7 @@ Public Class Graphics
         Dim foreground = GetColor(BrushColor)
         Dim size = FontSize
         Dim family = FontName
-        MyCanvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, _
+        Dispatch(
             Sub()
                 Dim textBlock = CreateTextBlock(text)
                 textBlock.Foreground = New SolidColorBrush(foreground)
@@ -401,14 +402,16 @@ Public Class Graphics
                 textBlock.Name = name
                 MyCanvas.Children.Add(textBlock)
                 ShapeLookup.Add(name, textBlock)
-            End Sub).AsTask().Wait()
+            End Sub)
         Return name
     End Function
 
     Public Sub SetText(name As String, text As String) _
         Implements Library.IGraphics.SetText
-        Dim textBlock = CType(ShapeLookup(name), TextBlock)
-        Dispatch(Sub() textBlock.Text = text)
+        Dispatch(Sub()
+                     Dim textBlock = CType(ShapeLookup(name), TextBlock)
+                     textBlock.Text = text
+                 End Sub)
     End Sub
 
     Public Function GetLeft(name As String) As Double _
@@ -447,20 +450,22 @@ Public Class Graphics
 
     Public Sub Remove(name As String) _
         Implements Library.IGraphics.Remove
-        Dim shape = ShapeLookup(name)
-        Dispatch(Sub() MyCanvas.Children.Remove(shape))
-        ShapeLookup.Remove(name)
+        Dim shape As UIElement = Nothing
+        If ShapeLookup.TryGetValue(name, shape) Then
+            Dispatch(Sub() MyCanvas.Children.Remove(shape))
+            ShapeLookup.Remove(name)
+        End If
     End Sub
 
     Public Sub Move(name As String, x As Double, y As Double) _
         Implements Library.IGraphics.Move
         Dim shape As UIElement = Nothing
-        If ShapeLookup.TryGetValue(name, shape) Then
-            Dispatch(Sub()
+        Dispatch(Sub()
+                     If ShapeLookup.TryGetValue(name, shape) Then
                          Canvas.SetLeft(shape, x)
                          Canvas.SetTop(shape, y)
-                     End Sub)
-        End If
+                     End If
+                 End Sub)        
     End Sub
 
     Public Sub Animate(name As String, x As Double, y As Double, duration As Integer) _
@@ -529,6 +534,42 @@ Public Class Graphics
         Dim shape = ShapeLookup(name)
         Dispatch(Sub() shape.Opacity = CType(value, Double) / 100.0)
     End Sub
+
+#End Region
+
+#Region "Image List"
+
+    Dim ImageList As New Dictionary(Of String, Image)()
+
+    Public Function GetImageWidth(name As String) As Integer Implements Library.IGraphics.GetImageWidth
+        Dim image As Image = Nothing
+        If ImageList.TryGetValue(name, image) Then
+            Return image.Width
+        Else
+            Return 0
+        End If
+    End Function
+
+    Public Function GetImageHeight(name As String) As Integer Implements Library.IGraphics.GetImageHeight
+        Dim image As Image = Nothing
+        If ImageList.TryGetValue(name, image) Then
+            Return image.Height
+        Else
+            Return 0
+        End If
+    End Function
+
+    Public Function LoadImage(url As String) As String Implements Library.IGraphics.LoadImage
+        Dim name = "ImageList" + Guid.NewGuid.ToString()
+        MyCanvas.Dispatcher.RunAsync( _
+            CoreDispatcherPriority.Normal, _
+            Sub()
+                Dim image = CreateImage(url)
+                image.Name = name
+                ImageList.Add(name, image)
+            End Sub).AsTask().Wait()
+        Return name
+    End Function
 
 #End Region
 

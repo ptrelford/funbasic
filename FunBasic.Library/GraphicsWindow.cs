@@ -20,8 +20,6 @@
 
       public static string Title { get; set; }
 
-      public static bool CanResize { get { return false; } }
-
       public static double Width
       {
          get { return _graphics.Width; }
@@ -31,6 +29,12 @@
       public static double Height
       {
          get { return _graphics.Height; }
+         set { }
+      }
+
+      public static bool CanResize
+      {
+         get { return true; }
          set { }
       }
 
