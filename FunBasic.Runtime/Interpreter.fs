@@ -215,6 +215,14 @@ and invoke state invoke =
             | _ -> invalidOp "Expecting array name"
         array.Remove(eval state index) |> ignore
         String ""
+    | Method("Array", "GetItemCount", [name]) ->
+        let name = eval state name
+        let array =
+            match name with
+            | String name -> obtainArray vars ("Array." + name)
+            | Array array -> array
+            | _ -> invalidOp "Expecting array name"
+        Int array.Count        
     | Method(ns,name,args) ->
         let args = args |> List.map (eval state >> toObj)
         ffi.MethodInvoke(ns,name,args |> List.toArray)
