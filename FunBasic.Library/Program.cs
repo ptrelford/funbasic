@@ -6,5 +6,10 @@
       {
          System.Threading.Tasks.Task.Delay(time).Wait();
       }
+
+      public static string Directory
+      {
+         get { return ""; }
+      }
    }
 }
