@@ -438,40 +438,46 @@ Public Class Graphics
 
     Public Sub HideShape(name As String) _
         Implements Library.IGraphics.HideShape
-        Dim shape = ShapeLookup(name)
-        Dispatch(Sub() shape.Visibility = Visibility.Collapsed)
+        Dispatch(Sub()
+                     Dim shape = ShapeLookup(name)
+                     shape.Visibility = Visibility.Collapsed
+                 End Sub)
     End Sub
 
     Public Sub ShowShape(name As String) _
         Implements Library.IGraphics.ShowShape
-        Dim shape = ShapeLookup(name)
-        Dispatch(Sub() shape.Visibility = Visibility.Visible)
+        Dispatch(Sub()
+                     Dim shape = ShapeLookup(name)
+                     shape.Visibility = Visibility.Visible
+                 End Sub)
     End Sub
 
     Public Sub Remove(name As String) _
         Implements Library.IGraphics.Remove
-        Dim shape As UIElement = Nothing
-        If ShapeLookup.TryGetValue(name, shape) Then
-            Dispatch(Sub() MyCanvas.Children.Remove(shape))
-            ShapeLookup.Remove(name)
-        End If
+        Dispatch(Sub()
+                     Dim shape As UIElement = Nothing
+                     If ShapeLookup.TryGetValue(name, shape) Then
+                         MyCanvas.Children.Remove(shape)
+                         ShapeLookup.Remove(name)
+                     End If
+                 End Sub)
     End Sub
 
     Public Sub Move(name As String, x As Double, y As Double) _
         Implements Library.IGraphics.Move
-        Dim shape As UIElement = Nothing
         Dispatch(Sub()
+                     Dim shape As UIElement = Nothing
                      If ShapeLookup.TryGetValue(name, shape) Then
                          Canvas.SetLeft(shape, x)
                          Canvas.SetTop(shape, y)
                      End If
-                 End Sub)        
+                 End Sub)
     End Sub
 
     Public Sub Animate(name As String, x As Double, y As Double, duration As Integer) _
         Implements Library.IGraphics.Animate
-        Dim shape = ShapeLookup(name)
         Dispatch(Sub()
+                     Dim shape = ShapeLookup(name)
                      Dim story = New Storyboard()
                      story.Duration = TimeSpan.FromMilliseconds(duration)
 
@@ -493,8 +499,8 @@ Public Class Graphics
 
     Public Sub Rotate(name As String, angle As Integer) _
         Implements Library.IGraphics.Rotate
-        Dim shape = ShapeLookup(name)
         Dispatch(Sub()
+                     Dim shape = ShapeLookup(name)
                      Dim transform As New RotateTransform()
                      Dim el = CType(shape, FrameworkElement)
                      transform.CenterX = el.ActualWidth / 2.0
@@ -506,8 +512,8 @@ Public Class Graphics
 
     Public Sub Zoom(name As String, scaleX As Double, scaleY As Double) _
         Implements Library.IGraphics.Zoom
-        Dim shape = ShapeLookup(name)
         Dispatch(Sub()
+                     Dim shape = ShapeLookup(name)
                      Dim transform As New ScaleTransform()
                      Dim el = CType(shape, FrameworkElement)
                      transform.CenterX = el.ActualWidth / 2.0
@@ -520,10 +526,10 @@ Public Class Graphics
 
     Public Function GetOpacity(name As String) As Integer _
         Implements Library.IGraphics.GetOpacity
-        Dim shape = ShapeLookup(name)
         Dim opacity = 0
         MyCanvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, _
             Sub()
+                Dim shape = ShapeLookup(name)
                 opacity = shape.Opacity * 100.0
             End Sub).AsTask().Wait()
         Return opacity
@@ -531,8 +537,10 @@ Public Class Graphics
 
     Public Sub SetOpacity(name As String, value As Integer) _
         Implements Library.IGraphics.SetOpacity
-        Dim shape = ShapeLookup(name)
-        Dispatch(Sub() shape.Opacity = CType(value, Double) / 100.0)
+        Dispatch(Sub()
+                     Dim shape = ShapeLookup(name)
+                     shape.Opacity = CType(value, Double) / 100.0
+                 End Sub)
     End Sub
 
 #End Region
