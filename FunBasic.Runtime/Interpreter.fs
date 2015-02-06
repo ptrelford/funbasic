@@ -279,6 +279,20 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
            let newArray = HashTable(comparer)
            array.[key] <- Array newArray
            newArray
+    /// Creates event handler for specified sub name
+    let toEventHandler name =
+       let index = findSub name
+       fun _ _ ->
+           countdown.TryAddCount() |> ignore
+           try                 
+              try     
+                 runWith ffi program (index+1) vars token countdown
+              with e ->
+                  System.Diagnostics.Debug.WriteLine(e.Message)
+                  token.Cancel()                        
+           finally
+               try countdown.Signal() |> ignore
+               with e -> System.Diagnostics.Debug.WriteLine(e.Message)
     /// Instruction step
     let step () =
         let instruction = program.[!pi]
@@ -287,19 +301,8 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
             assign set
         | PropertySet(ns,name,expr) ->
             match expr with
-            | Identifier s when not(variables.ContainsKey(s)) ->
-               let index = findSub s
-               let handler _ _ =
-                  countdown.TryAddCount() |> ignore
-                  try                 
-                     try     
-                        runWith ffi program (index+1) vars token countdown
-                     with e ->
-                        System.Diagnostics.Debug.WriteLine(e.Message)
-                        token.Cancel()                        
-                  finally
-                     try countdown.Signal() |> ignore
-                     with e -> System.Diagnostics.Debug.WriteLine(e.Message)
+            | Identifier sub when not(variables.ContainsKey(sub)) ->
+               let handler = toEventHandler sub
                ffi.EventAdd(ns,name, System.EventHandler(handler))
             | _ ->
                ffi.PropertySet(ns,name,eval expr |> toObj)       
