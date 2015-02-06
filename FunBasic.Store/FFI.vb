@@ -28,10 +28,18 @@ Public Class FFI
         Dim methodLookup As Dictionary(Of String, MethodInfo) = Nothing
         If Not typeLookup.TryGetValue(ns, methodLookup) Then
             Dim ty = ass.GetType("FunBasic.Library." + ns)
-            If ty Is Nothing Then Throw New InvalidOperationException(ns + " not defined")
+            If ty Is Nothing Then
+                Dim ti = ass.DefinedTypes().FirstOrDefault(Function(t) String.Compare(t.Name, ns, StringComparison.OrdinalIgnoreCase) = 0)
+                If ti Is Nothing Then
+                    Throw New InvalidOperationException(ns + " not defined")
+                Else                    
+                    ty = ass.GetType("FunBasic.Library." + ti.Name)
+                End If
+            End If
             methodLookup = ty.GetRuntimeMethods().ToDictionary(Function(m) m.Name, StringComparer.OrdinalIgnoreCase)
             typeLookup.Add(ns, methodLookup)
         End If
+
         Dim mi As MethodInfo = Nothing
         If Not methodLookup.TryGetValue(name, mi) Then
             Throw New InvalidOperationException(name + " not defined")
