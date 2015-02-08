@@ -10,13 +10,27 @@ Imports Windows.UI.Text
 Public Class Graphics
     Implements FunBasic.Library.IGraphics
 
+    Class ShapeInfo
+        Public Property Element As UIElement
+        Public Property Left As Double
+        Public Property Top As Double
+        Public Property Opacity As Integer
+
+        Public Sub New()
+            Me.Element = Nothing
+            Me.Left = 0.0
+            Me.Top = 0.0
+            Me.Opacity = 0
+        End Sub
+    End Class
+
     Dim MyCanvas As Canvas
     Dim MyShapesCanvas As Canvas
     Dim MyBackgroundColor As String
     Dim MyWidth As Double
     Dim MyHeight As Double
     Dim ColorLookup As New Dictionary(Of String, Color)()
-    Dim ShapeLookup As New Dictionary(Of String, UIElement)()
+    Dim ShapeLookup As New Dictionary(Of String, ShapeInfo)()
     Dim MyLastKey As VirtualKey
     Dim PointerX As Double
     Dim PointerY As Double
@@ -36,7 +50,8 @@ Public Class Graphics
         Dim window = CoreWindow.GetForCurrentThread()
         AddHandler window.KeyDown, AddressOf OnKeyDown
 
-        ShapeLookup.Add("Turtle", turtle)
+        Dim myTurtle = New ShapeInfo With {.Element = turtle}
+        ShapeLookup.Add("Turtle", myTurtle)
     End Sub
 
     Sub Dispatch(action As DispatchedHandler)
@@ -63,6 +78,7 @@ Public Class Graphics
             Dim color = pi.GetMethod().Invoke(Nothing, New Object() {})
             ColorLookup.Add(pi.Name.ToLower(), color)
         Next
+        ColorLookup.Add("grey", ColorLookup("gray"))
     End Sub
 
 #Region "Properties"
@@ -114,7 +130,7 @@ Public Class Graphics
                      Dim myTurtle = ShapeLookup("Turtle")
                      MyCanvas.Children.Clear()
                      MyShapesCanvas.Children.Clear()
-                     MyShapesCanvas.Children.Add(myTurtle)
+                     MyShapesCanvas.Children.Add(myTurtle.Element)
                      MyShapesCanvas.Resources.Clear()
                  End Sub)
     End Sub
@@ -301,20 +317,23 @@ Public Class Graphics
     Public Function AddImage(url As String) As String _
         Implements Library.IGraphics.AddImage
         Dim name = "Image" + Guid.NewGuid().ToString()
-        MyCanvas.Dispatcher.RunAsync( _
-            CoreDispatcherPriority.Normal, _
+        Dim shape = New ShapeInfo()
+        ShapeLookup.Add(name, shape)
+        Dispatch(
             Sub()
-                Dim image = CreateImage(url)
-                image.Name = name
-                MyShapesCanvas.Children.Add(image)
-                ShapeLookup.Add(name, image)
-            End Sub).AsTask().Wait()
+                    Dim image = CreateImage(url)
+                    image.Name = name
+                    shape.Element = image
+                    MyShapesCanvas.Children.Add(image)
+                End Sub)
         Return name
     End Function
 
     Public Function AddEllipse(width As Double, height As Double) As String _
         Implements Library.IGraphics.AddEllipse
         Dim name = "Ellipse" + Guid.NewGuid().ToString()
+        Dim shape = New ShapeInfo()
+        ShapeLookup.Add(name, shape)
         Dim thickness = PenWidth
         Dim stroke = GetColor(PenColor)
         Dim fill = GetColor(BrushColor)
@@ -325,8 +344,8 @@ Public Class Graphics
                 ellipse.Stroke = New SolidColorBrush(stroke)
                 ellipse.Fill = New SolidColorBrush(fill)
                 ellipse.Name = name
+                shape.Element = ellipse
                 MyShapesCanvas.Children.Add(ellipse)
-                ShapeLookup.Add(name, ellipse)
             End Sub)
         Return name
     End Function
@@ -335,6 +354,8 @@ Public Class Graphics
                             x2 As Double, y2 As Double) As String _
         Implements Library.IGraphics.AddLine
         Dim name = "Line" + Guid.NewGuid().ToString()
+        Dim shape = New ShapeInfo()
+        ShapeLookup.Add(name, shape)
         Dim color = GetColor(PenColor)
         Dim thickness = PenWidth
         Dim line As Line = Nothing
@@ -344,8 +365,8 @@ Public Class Graphics
                 line.StrokeThickness = thickness
                 line.Stroke = New SolidColorBrush(color)
                 line.Name = name
+                shape.Element = line
                 MyShapesCanvas.Children.Add(line)
-                ShapeLookup.Add(name, line)
             End Sub)
         Return name
     End Function
@@ -355,6 +376,8 @@ Public Class Graphics
                                 x3 As Double, y3 As Double) As String _
         Implements Library.IGraphics.AddTriangle
         Dim name = "Triangle" + Guid.NewGuid().ToString()
+        Dim shape = New ShapeInfo()
+        ShapeLookup.Add(name, shape)
         Dim thickness = PenWidth
         Dim stroke = GetColor(PenColor)
         Dim fill = GetColor(BrushColor)
@@ -365,8 +388,8 @@ Public Class Graphics
                 poly.Stroke = New SolidColorBrush(stroke)
                 poly.Fill = New SolidColorBrush(fill)
                 poly.Name = name
+                shape.Element = poly
                 MyShapesCanvas.Children.Add(poly)
-                ShapeLookup.Add(name, poly)
             End Sub)
         Return name
     End Function
@@ -374,6 +397,8 @@ Public Class Graphics
     Public Function AddRectangle(width As Double, height As Double) As String _
         Implements Library.IGraphics.AddRectangle
         Dim name = "Rectangle" + Guid.NewGuid().ToString()
+        Dim shape = New ShapeInfo()
+        ShapeLookup.Add(name, shape)
         Dim thickness = PenWidth
         Dim stroke = GetColor(PenColor)
         Dim fill = GetColor(BrushColor)
@@ -384,8 +409,8 @@ Public Class Graphics
                 rectangle.Stroke = New SolidColorBrush(stroke)
                 rectangle.Fill = New SolidColorBrush(fill)
                 rectangle.Name = name
+                shape.Element = rectangle
                 MyShapesCanvas.Children.Add(rectangle)
-                ShapeLookup.Add(name, rectangle)
             End Sub)
         Return name
     End Function
@@ -397,6 +422,8 @@ Public Class Graphics
     Public Function AddText(text As String) As String _
         Implements Library.IGraphics.AddText
         Dim name = "Text" + Guid.NewGuid().ToString()
+        Dim shape = New ShapeInfo()
+        ShapeLookup.Add(name, shape)
         Dim foreground = GetColor(BrushColor)
         Dim size = FontSize
         Dim family = FontName
@@ -409,8 +436,8 @@ Public Class Graphics
                 textBlock.FontStyle = If(Me.FontItalic, FontStyle.Italic, FontStyle.Normal)
                 textBlock.FontWeight = If(Me.FontBold, FontWeights.Bold, FontWeights.Normal)
                 textBlock.Name = name
+                shape.Element = textBlock
                 MyShapesCanvas.Children.Add(textBlock)
-                ShapeLookup.Add(name, textBlock)
             End Sub)
         Return name
     End Function
@@ -418,7 +445,7 @@ Public Class Graphics
     Public Sub SetText(name As String, text As String) _
         Implements Library.IGraphics.SetText
         Dispatch(Sub()
-                     Dim textBlock = CType(ShapeLookup(name), TextBlock)
+                     Dim textBlock = CType(ShapeLookup(name).Element, TextBlock)
                      textBlock.Text = text
                  End Sub)
     End Sub
@@ -426,10 +453,9 @@ Public Class Graphics
     Public Function GetLeft(name As String) As Double _
         Implements Library.IGraphics.GetLeft
         Dim left = 0
-        Dim shape As UIElement = Nothing
+        Dim shape As ShapeInfo = Nothing
         If ShapeLookup.TryGetValue(name, shape) Then
-            MyCanvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, _
-                                         Sub() left = Canvas.GetLeft(shape)).AsTask().Wait()
+            left = shape.Left
         End If
         Return left
     End Function
@@ -437,10 +463,9 @@ Public Class Graphics
     Public Function GetTop(name As String) As Double _
         Implements Library.IGraphics.GetTop
         Dim top = 0
-        Dim shape As UIElement = Nothing
+        Dim shape As ShapeInfo = Nothing
         If ShapeLookup.TryGetValue(name, shape) Then
-            MyCanvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, _
-                                         Sub() top = Canvas.GetTop(shape)).AsTask().Wait()
+            top = shape.Top
         End If
         Return top
     End Function
@@ -449,7 +474,7 @@ Public Class Graphics
         Implements Library.IGraphics.HideShape
         Dispatch(Sub()
                      Dim shape = ShapeLookup(name)
-                     shape.Visibility = Visibility.Collapsed
+                     shape.Element.Visibility = Visibility.Collapsed
                  End Sub)
     End Sub
 
@@ -457,16 +482,16 @@ Public Class Graphics
         Implements Library.IGraphics.ShowShape
         Dispatch(Sub()
                      Dim shape = ShapeLookup(name)
-                     shape.Visibility = Visibility.Visible
+                     shape.Element.Visibility = Visibility.Visible
                  End Sub)
     End Sub
 
     Public Sub Remove(name As String) _
         Implements Library.IGraphics.Remove
         Dispatch(Sub()
-                     Dim shape As UIElement = Nothing
+                     Dim shape As ShapeInfo = Nothing
                      If ShapeLookup.TryGetValue(name, shape) Then
-                         MyShapesCanvas.Children.Remove(shape)
+                         MyShapesCanvas.Children.Remove(shape.Element)
                          ShapeLookup.Remove(name)
                      End If
                  End Sub)
@@ -474,19 +499,20 @@ Public Class Graphics
 
     Public Sub Move(name As String, x As Double, y As Double) _
         Implements Library.IGraphics.Move
-        Dispatch(Sub()
-                     Dim shape As UIElement = Nothing
-                     If ShapeLookup.TryGetValue(name, shape) Then
-                         Canvas.SetLeft(shape, x)
-                         Canvas.SetTop(shape, y)
-                     End If
-                 End Sub)
+        Dim shape As ShapeInfo = Nothing
+        If ShapeLookup.TryGetValue(name, shape) Then
+            shape.Left = x
+            shape.Top = y
+            Dispatch(Sub()
+                         Canvas.SetLeft(shape.Element, x)
+                         Canvas.SetTop(shape.Element, y)
+                     End Sub)
+        End If
     End Sub
 
     Public Sub Animate(name As String, x As Double, y As Double, duration As Integer) _
         Implements Library.IGraphics.Animate
         Dispatch(Sub()
-                     Dim shape = ShapeLookup(name)
                      Dim story = New Storyboard()
                      story.Duration = TimeSpan.FromMilliseconds(duration)
 
@@ -511,11 +537,11 @@ Public Class Graphics
         Dispatch(Sub()
                      Dim shape = ShapeLookup(name)
                      Dim transform As New RotateTransform()
-                     Dim el = CType(shape, FrameworkElement)
+                     Dim el = CType(shape.Element, FrameworkElement)
                      transform.CenterX = el.ActualWidth / 2.0
                      transform.CenterY = el.ActualHeight / 2.0
                      transform.Angle = angle
-                     shape.RenderTransform = transform
+                     shape.Element.RenderTransform = transform
                  End Sub)
     End Sub
 
@@ -524,23 +550,20 @@ Public Class Graphics
         Dispatch(Sub()
                      Dim shape = ShapeLookup(name)
                      Dim transform As New ScaleTransform()
-                     Dim el = CType(shape, FrameworkElement)
+                     Dim el = CType(shape.Element, FrameworkElement)
                      transform.CenterX = el.ActualWidth / 2.0
                      transform.CenterY = el.ActualHeight / 2.0
                      transform.ScaleX = scaleX
                      transform.ScaleY = scaleY
-                     shape.RenderTransform = transform
+                     shape.Element.RenderTransform = transform
                  End Sub)
     End Sub
 
     Public Function GetOpacity(name As String) As Integer _
         Implements Library.IGraphics.GetOpacity
         Dim opacity = 0
-        MyCanvas.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, _
-            Sub()
-                Dim shape = ShapeLookup(name)
-                opacity = shape.Opacity * 100.0
-            End Sub).AsTask().Wait()
+        Dim shape = ShapeLookup(name)
+        opacity = shape.Opacity * 100.0
         Return opacity
     End Function
 
@@ -548,7 +571,8 @@ Public Class Graphics
         Implements Library.IGraphics.SetOpacity
         Dispatch(Sub()
                      Dim shape = ShapeLookup(name)
-                     shape.Opacity = CType(value, Double) / 100.0
+                     shape.Opacity = value
+                     shape.Element.Opacity = CType(value, Double) / 100.0
                  End Sub)
     End Sub
 
@@ -581,10 +605,10 @@ Public Class Graphics
         MyCanvas.Dispatcher.RunAsync( _
             CoreDispatcherPriority.Normal, _
             Sub()
-                Dim image = CreateImage(url)
-                image.Name = name
-                ImageList.Add(name, image)
-            End Sub).AsTask().Wait()
+                    Dim image = CreateImage(url)
+                    image.Name = name
+                    ImageList.Add(name, image)
+                End Sub).AsTask().Wait()
         Return name
     End Function
 
@@ -641,6 +665,8 @@ Public Class Graphics
         Dim position = e.GetCurrentPoint(MyCanvas).Position
         PointerX = position.X
         PointerY = position.Y
+        FunBasic.Library.Mouse.MouseX = position.X
+        FunBasic.Library.Mouse.MouseY = position.Y
         FunBasic.Library.Mouse.IsLeftButtonDown = True
         RaiseEvent MouseDown(Me, New EventArgs())
     End Sub
