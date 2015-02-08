@@ -11,31 +11,29 @@ Public NotInheritable Class MainPage
     Dim ffi As New FFI()
     Dim timer As New Timer()
     Dim cancelToken As New CancelToken()
-    Dim done As ManualResetEvent = Nothing
+    Dim done As ManualResetEvent = New ManualResetEvent(False)
 
-    Private Sub StartButton_Click(sender As Object, e As RoutedEventArgs) _
+    Private Async Sub StartButton_Click(sender As Object, e As RoutedEventArgs) _
         Handles StartButton.Click
         StartButton.IsEnabled = False
         StopButton.IsEnabled = True
 
-        ffi.Unhook()
-        timer.Pause()
-
-        ' Stop interpreter
-        cancelToken.Cancel()
         cancelToken = New CancelToken()
 
         Dim program = Code.Text
-
-        Task.Run(Sub() Run(program))
+        Await Task.Run(Sub() Start(program))
     End Sub
 
-    Private Sub StopButton_Click(sender As Object, e As RoutedEventArgs) _
+    Private Async Sub StopButton_Click(sender As Object, e As RoutedEventArgs) _
         Handles StopButton.Click
-        StartButton.IsEnabled = True
         StopButton.IsEnabled = False
-    End Sub
 
+        ffi.Unhook()
+        timer.Pause()
+        cancelToken.Cancel()
+
+        Await Task.Run(Sub() [Stop]())
+    End Sub
 
     Private Sub InitLibrary()
         Dim c = New Console(Me.MyConsole)
@@ -52,27 +50,29 @@ Public NotInheritable Class MainPage
         FunBasic.Library.Timer.SetTimer(timer)
     End Sub
 
-    Private Sub Run(program As String)
-        If done IsNot Nothing Then
-            Dim success = done.WaitOne()
-            done.Reset()
-        Else
-            done = New ManualResetEvent(False)
-        End If
-
-        Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, _
-                            Sub() InitLibrary()).AsTask().Wait()
+    Private Async Sub Start(program As String)
+        Await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, _
+                            Sub() InitLibrary())
 
         Try
-            Runtime.Run(Program, ffi, cancelToken)
+            Runtime.Run(program, ffi, cancelToken)
         Catch ex As Exception
             System.Diagnostics.Debug.WriteLine(ex)
             TextWindow.Console.WriteLine(ex.Message)
         Finally
             done.Set()
         End Try
-
     End Sub
 
+    Private Async Sub [Stop]()
+        If done IsNot Nothing Then
+            Dim success = done.WaitOne()
+            done.Reset()
+        End If
+        Await Dispatcher.RunAsync(Core.CoreDispatcherPriority.Normal,
+                            Sub()
+                                StartButton.IsEnabled = True
+                            End Sub)
+    End Sub
 
 End Class
