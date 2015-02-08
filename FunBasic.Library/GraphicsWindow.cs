@@ -32,6 +32,18 @@
          set { }
       }
 
+      public static double Top
+      {
+         get { return 0; }
+         set { }
+      }
+
+      public static double Left
+      {
+         get { return 0; }
+         set { }
+      }
+
       public static bool CanResize
       {
          get { return true; }
