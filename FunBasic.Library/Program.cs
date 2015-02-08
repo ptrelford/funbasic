@@ -11,5 +11,9 @@
       {
          get { return ""; }
       }
+
+      public static void End()
+      {
+      }
    }
 }
