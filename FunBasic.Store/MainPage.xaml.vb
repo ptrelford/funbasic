@@ -13,7 +13,11 @@ Public NotInheritable Class MainPage
     Dim cancelToken As New CancelToken()
     Dim done As ManualResetEvent = Nothing
 
-    Private Sub Button_Click(sender As Object, e As RoutedEventArgs)
+    Private Sub StartButton_Click(sender As Object, e As RoutedEventArgs) _
+        Handles StartButton.Click
+        StartButton.IsEnabled = False
+        StopButton.IsEnabled = True
+
         ffi.Unhook()
         timer.Pause()
 
@@ -25,6 +29,13 @@ Public NotInheritable Class MainPage
 
         Task.Run(Sub() Run(program))
     End Sub
+
+    Private Sub StopButton_Click(sender As Object, e As RoutedEventArgs) _
+        Handles StopButton.Click
+        StartButton.IsEnabled = True
+        StopButton.IsEnabled = False
+    End Sub
+
 
     Private Sub InitLibrary()
         Dim c = New Console(Me.MyConsole)
@@ -62,5 +73,6 @@ Public NotInheritable Class MainPage
         End Try
 
     End Sub
+
 
 End Class
