@@ -59,9 +59,13 @@ Public NotInheritable Class MainPage
         Catch ex As Exception
             System.Diagnostics.Debug.WriteLine(ex)
             TextWindow.Console.WriteLine(ex.Message)
-        Finally
+        Finally        
             done.Set()
         End Try
+        If Not ffi.IsHooked Then
+            timer.Pause()
+            Await EnableStartButton()
+        End If
     End Sub
 
     Private Async Sub [Stop]()
@@ -69,10 +73,15 @@ Public NotInheritable Class MainPage
             Dim success = done.WaitOne()
             done.Reset()
         End If
-        Await Dispatcher.RunAsync(Core.CoreDispatcherPriority.Normal,
-                            Sub()
-                                StartButton.IsEnabled = True
-                            End Sub)
+        Await EnableStartButton()
     End Sub
+
+    Private Async Function EnableStartButton() As Task
+        Await Dispatcher.RunAsync(Core.CoreDispatcherPriority.Normal,
+                    Sub()
+                        StartButton.IsEnabled = True
+                        StopButton.IsEnabled = False
+                    End Sub)
+    End Function
 
 End Class

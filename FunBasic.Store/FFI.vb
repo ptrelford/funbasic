@@ -110,4 +110,11 @@ Public Class FFI
         unhooks.Clear()
     End Sub
 
+    Public ReadOnly Property IsHooked As Boolean
+        Get
+            Return unhooks.Count > 0
+        End Get
+    End Property
+
+
 End Class
