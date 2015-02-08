@@ -42,7 +42,7 @@ Public Class FFI
 
         Dim mi As MethodInfo = Nothing
         If Not methodLookup.TryGetValue(name, mi) Then
-            Throw New InvalidOperationException(name + " not defined")
+            Throw New InvalidOperationException(ns + "." + name + " not defined")
         End If
         Return mi
     End Function
@@ -74,7 +74,7 @@ Public Class FFI
         Dim ty = ass.GetType("FunBasic.Library." + ns)
         If ty Is Nothing Then Throw New InvalidOperationException(ns + " not defined")
         Dim pi = ty.GetRuntimeProperty(name)
-        If pi Is Nothing Then Throw New InvalidOperationException(name + " not defined")
+        If pi Is Nothing Then Throw New InvalidOperationException(ns + "." + name + " not defined")
         Return pi.GetMethod().Invoke(Nothing, New Object() {})
     End Function
 
@@ -83,7 +83,7 @@ Public Class FFI
         Dim ty = ass.GetType("FunBasic.Library." + ns)
         If ty Is Nothing Then Throw New InvalidOperationException(ns + " not defined")
         Dim pi = ty.GetRuntimeProperty(name)
-        If pi Is Nothing Then Throw New InvalidOperationException(name + " not defined")
+        If pi Is Nothing Then Throw New InvalidOperationException(ns + "." + name + " not defined")
         Dim typedArg = ConvertArg(value, pi.PropertyType)
         pi.SetMethod().Invoke(Nothing, New Object() {typedArg})
     End Sub
