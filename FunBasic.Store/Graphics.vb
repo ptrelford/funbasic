@@ -547,33 +547,42 @@ Public Class Graphics
 
     Public Sub Zoom(name As String, scaleX As Double, scaleY As Double) _
         Implements Library.IGraphics.Zoom
-        Dispatch(Sub()
-                     Dim shape = ShapeLookup(name)
-                     Dim transform As New ScaleTransform()
-                     Dim el = CType(shape.Element, FrameworkElement)
-                     transform.CenterX = el.ActualWidth / 2.0
-                     transform.CenterY = el.ActualHeight / 2.0
-                     transform.ScaleX = scaleX
-                     transform.ScaleY = scaleY
-                     shape.Element.RenderTransform = transform
-                 End Sub)
+        Dispatch(
+            Sub()
+                Dim shape = ShapeLookup(name)
+                Dim transform As New ScaleTransform()
+                Dim el = CType(shape.Element, FrameworkElement)
+                Dim centerX = CreateDivideBy2Binding(name, "ActualWidth")
+                BindingOperations.SetBinding(transform, ScaleTransform.CenterXProperty, centerX)
+                Dim centerY = CreateDivideBy2Binding(name, "ActualHeight")
+                BindingOperations.SetBinding(transform, ScaleTransform.CenterYProperty, centerY)
+                transform.ScaleX = scaleX
+                transform.ScaleY = scaleY
+                shape.Element.RenderTransform = transform
+            End Sub)
     End Sub
+
+    Private Function CreateDivideBy2Binding(elementName As String, propertyName As String) As Binding
+        Dim binding = New Binding()
+        binding.ElementName = elementName
+        binding.Path = New PropertyPath(propertyName)
+        binding.Converter = New DivideByTwoConverter()
+        Return binding
+    End Function
 
     Public Function GetOpacity(name As String) As Integer _
         Implements Library.IGraphics.GetOpacity
         Dim opacity = 0
         Dim shape = ShapeLookup(name)
-        opacity = shape.Opacity * 100.0
+        opacity = shape.Opacity
         Return opacity
     End Function
 
     Public Sub SetOpacity(name As String, value As Integer) _
         Implements Library.IGraphics.SetOpacity
-        Dispatch(Sub()
-                     Dim shape = ShapeLookup(name)
-                     shape.Opacity = value
-                     shape.Element.Opacity = CType(value, Double) / 100.0
-                 End Sub)
+        Dim shape = ShapeLookup(name)
+        shape.Opacity = value
+        Dispatch(Sub() shape.Element.Opacity = CType(value, Double) / 100.0)        
     End Sub
 
 #End Region
