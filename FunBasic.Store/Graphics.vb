@@ -472,29 +472,27 @@ Public Class Graphics
 
     Public Sub HideShape(name As String) _
         Implements Library.IGraphics.HideShape
-        Dispatch(Sub()
-                     Dim shape = ShapeLookup(name)
-                     shape.Element.Visibility = Visibility.Collapsed
-                 End Sub)
+        Dim shape As ShapeInfo = Nothing
+        If ShapeLookup.TryGetValue(name, shape) Then
+            Dispatch(Sub() shape.Element.Visibility = Visibility.Collapsed)
+        End If
     End Sub
 
     Public Sub ShowShape(name As String) _
         Implements Library.IGraphics.ShowShape
-        Dispatch(Sub()
-                     Dim shape = ShapeLookup(name)
-                     shape.Element.Visibility = Visibility.Visible
-                 End Sub)
+        Dim shape As ShapeInfo = Nothing
+        If ShapeLookup.TryGetValue(name, Shape) Then
+            Dispatch(Sub() shape.Element.Visibility = Visibility.Visible)
+        End If
     End Sub
 
     Public Sub Remove(name As String) _
         Implements Library.IGraphics.Remove
-        Dispatch(Sub()
-                     Dim shape As ShapeInfo = Nothing
-                     If ShapeLookup.TryGetValue(name, shape) Then
-                         MyShapesCanvas.Children.Remove(shape.Element)
-                         ShapeLookup.Remove(name)
-                     End If
-                 End Sub)
+        Dim shape As ShapeInfo = Nothing
+        If ShapeLookup.TryGetValue(name, shape) Then
+            ShapeLookup.Remove(name)
+            Dispatch(Sub() MyShapesCanvas.Children.Remove(shape.Element))
+        End If
     End Sub
 
     Public Sub Move(name As String, x As Double, y As Double) _
@@ -512,54 +510,60 @@ Public Class Graphics
 
     Public Sub Animate(name As String, x As Double, y As Double, duration As Integer) _
         Implements Library.IGraphics.Animate
-        Dispatch(Sub()
-                     Dim story = New Storyboard()
-                     story.Duration = TimeSpan.FromMilliseconds(duration)
+        Dispatch(
+            Sub()
+                Dim story = New Storyboard()
+                story.Duration = TimeSpan.FromMilliseconds(duration)
 
-                     Dim left = New DoubleAnimation()
-                     left.To = x
-                     left.SetValue(Storyboard.TargetPropertyProperty, "(Canvas.Left)")
-                     story.Children.Add(left)
+                Dim left = New DoubleAnimation()
+                left.To = x
+                left.SetValue(Storyboard.TargetPropertyProperty, "(Canvas.Left)")
+                story.Children.Add(left)
 
-                     Dim top = New DoubleAnimation()
-                     top.To = y
-                     top.SetValue(Storyboard.TargetPropertyProperty, "(Canvas.Top)")
-                     story.SetValue(Storyboard.TargetNameProperty, name)
-                     story.Children.Add(top)
+                Dim top = New DoubleAnimation()
+                top.To = y
+                top.SetValue(Storyboard.TargetPropertyProperty, "(Canvas.Top)")
+                story.SetValue(Storyboard.TargetNameProperty, name)
+                story.Children.Add(top)
 
-                     MyShapesCanvas.Resources.Add(CType(Guid.NewGuid().ToString(), Object), story)
-                     story.Begin()
-                 End Sub)
+                MyShapesCanvas.Resources.Add(CType(Guid.NewGuid().ToString(), Object), story)
+                story.Begin()
+            End Sub)
     End Sub
 
     Public Sub Rotate(name As String, angle As Integer) _
         Implements Library.IGraphics.Rotate
-        Dispatch(Sub()
-                     Dim shape = ShapeLookup(name)
-                     Dim transform As New RotateTransform()
-                     Dim el = CType(shape.Element, FrameworkElement)
-                     transform.CenterX = el.ActualWidth / 2.0
-                     transform.CenterY = el.ActualHeight / 2.0
-                     transform.Angle = angle
-                     shape.Element.RenderTransform = transform
-                 End Sub)
+        Dim shape As ShapeInfo = Nothing
+        If ShapeLookup.TryGetValue(name, shape) Then
+            Dispatch(
+                Sub()
+                    Dim transform As New RotateTransform()
+                    Dim el = CType(shape.Element, FrameworkElement)
+                    transform.CenterX = el.ActualWidth / 2.0
+                    transform.CenterY = el.ActualHeight / 2.0
+                    transform.Angle = angle
+                    shape.Element.RenderTransform = transform
+                End Sub)
+        End If
     End Sub
 
     Public Sub Zoom(name As String, scaleX As Double, scaleY As Double) _
         Implements Library.IGraphics.Zoom
-        Dispatch(
-            Sub()
-                Dim shape = ShapeLookup(name)
-                Dim transform As New ScaleTransform()
-                Dim el = CType(shape.Element, FrameworkElement)
-                Dim centerX = CreateDivideBy2Binding(name, "ActualWidth")
-                BindingOperations.SetBinding(transform, ScaleTransform.CenterXProperty, centerX)
-                Dim centerY = CreateDivideBy2Binding(name, "ActualHeight")
-                BindingOperations.SetBinding(transform, ScaleTransform.CenterYProperty, centerY)
-                transform.ScaleX = scaleX
-                transform.ScaleY = scaleY
-                shape.Element.RenderTransform = transform
-            End Sub)
+        Dim shape As ShapeInfo = Nothing
+        If ShapeLookup.TryGetValue(name, shape) Then
+            Dispatch(
+                Sub()
+                    Dim transform As New ScaleTransform()
+                    shape.Element.RenderTransform = transform
+                    Dim el = CType(shape.Element, FrameworkElement)
+                    Dim centerX = CreateDivideBy2Binding(name, "ActualWidth")
+                    BindingOperations.SetBinding(transform, ScaleTransform.CenterXProperty, centerX)
+                    Dim centerY = CreateDivideBy2Binding(name, "ActualHeight")
+                    BindingOperations.SetBinding(transform, ScaleTransform.CenterYProperty, centerY)
+                    transform.ScaleX = scaleX
+                    transform.ScaleY = scaleY
+                End Sub)
+        End If
     End Sub
 
     Private Function CreateDivideBy2Binding(elementName As String, propertyName As String) As Binding
