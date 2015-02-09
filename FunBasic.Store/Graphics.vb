@@ -218,6 +218,7 @@ Public Class Graphics
                      Dim image = CreateImage(url)
                      Canvas.SetLeft(image, x)
                      Canvas.SetTop(image, y)
+                     MyCanvas.Children.Add(image)
                  End Sub)
     End Sub
 
@@ -321,11 +322,11 @@ Public Class Graphics
         ShapeLookup.Add(name, shape)
         Dispatch(
             Sub()
-                    Dim image = CreateImage(url)
-                    image.Name = name
-                    shape.Element = image
-                    MyShapesCanvas.Children.Add(image)
-                End Sub)
+                Dim image = CreateImage(url)
+                image.Name = name
+                shape.Element = image
+                MyShapesCanvas.Children.Add(image)
+            End Sub)
         Return name
     End Function
 
