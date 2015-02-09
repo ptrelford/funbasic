@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
 
-  <Identity Name="cc578416-291b-4ea3-8e31-c67b3824b690"
+  <Identity Name="2a0b3dd4-3888-483e-aaac-25e06a9c00ce"
             Publisher="CN=ptrelford"
             Version="1.0.0.0" />
 
   <Properties>
-    <DisplayName>FunBasic.Store</DisplayName>
+    <DisplayName>FunBasic.Shell</DisplayName>
     <PublisherDisplayName>ptrelford</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -23,12 +23,12 @@
   <Applications>
     <Application Id="App"
         Executable="$targetnametoken$.exe"
-        EntryPoint="FunBasic.Store.App">
+        EntryPoint="FunBasic.Shell.App">
         <m2:VisualElements
-            DisplayName="FunBasic.Store"
+            DisplayName="FunBasic.Shell"
             Square150x150Logo="Assets\Logo.png"
             Square30x30Logo="Assets\SmallLogo.png"
-            Description="FunBasic.Store"
+            Description="FunBasic.Shell"
             ForegroundText="light"
             BackgroundColor="#464646">
             <m2:SplashScreen Image="Assets\SplashScreen.png" />

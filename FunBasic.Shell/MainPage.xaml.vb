@@ -1,22 +1,19 @@
-﻿Imports System.Text
-Imports System.Reflection
-Imports FunBasic.Library
-Imports System.Threading
-Imports FunBasic.Interpreter
+﻿Imports System.Text, System.Reflection, System.Threading
+Imports FunBasic.Interpreter, FunBasic.Library, FunBasic.Store
 Imports Windows.UI
 
 Public NotInheritable Class MainPage
     Inherits Page
 
     Dim ffi As New FFI()
-    Dim timer As New Timer()
+    Dim timer As New FunBasic.Store.Timer()
     Dim cancelToken As New CancelToken()
     Dim done As ManualResetEvent = New ManualResetEvent(False)
 
     Private Async Sub StartButton_Click(sender As Object, e As RoutedEventArgs) _
         Handles StartButton.Click
         StartButton.IsEnabled = False
-        StopButton.IsEnabled = True                
+        StopButton.IsEnabled = True
         Code.IsEnabled = False
 
         cancelToken = New CancelToken()
@@ -60,7 +57,7 @@ Public NotInheritable Class MainPage
         Catch ex As Exception
             System.Diagnostics.Debug.WriteLine(ex)
             TextWindow.Console.WriteLine(ex.Message)
-        Finally        
+        Finally
             done.Set()
         End Try
         If Not ffi.IsHooked Then

@@ -113,7 +113,9 @@ let obtainArray (variables:HashTable<_,_>) identifier =
       let array = toArray s
       variables.[identifier] <- Array array
       array
-   | _, _ -> 
+   | true, _ ->
+      invalidOp "Expecting array"
+   | false, _ -> 
       let array = HashTable(comparer)
       variables.Add(identifier,Array array)
       array
@@ -196,13 +198,14 @@ and invoke state invoke =
         let name = eval state name
         match name with
         | String name ->
-            eval state (GetAt(Location("Array."+name, [index])))
+            eval state (GetAt(Location("Array."+name, [index])))        
         | _ -> invalidOp "Expecting array name"
     | Method("Array","SetValue",[name;index;value]) ->
         let name = eval state name
         let array =
             match name with
             | String name -> obtainArray vars ("Array."+name)
+            | Array array -> array
             | _ -> invalidOp "Expecting array name"
         let index = eval state index
         array.[index] <- eval state value
@@ -212,6 +215,7 @@ and invoke state invoke =
         let array =
             match name with
             | String name -> obtainArray vars ("Array." + name)
+            | Array array -> array
             | _ -> invalidOp "Expecting array name"
         array.Remove(eval state index) |> ignore
         String ""
