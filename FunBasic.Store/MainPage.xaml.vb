@@ -16,7 +16,8 @@ Public NotInheritable Class MainPage
     Private Async Sub StartButton_Click(sender As Object, e As RoutedEventArgs) _
         Handles StartButton.Click
         StartButton.IsEnabled = False
-        StopButton.IsEnabled = True
+        StopButton.IsEnabled = True                
+        Code.IsEnabled = False
 
         cancelToken = New CancelToken()
 
@@ -81,6 +82,7 @@ Public NotInheritable Class MainPage
                     Sub()
                         StartButton.IsEnabled = True
                         StopButton.IsEnabled = False
+                        Me.Code.IsEnabled = True
                     End Sub)
     End Function
 
