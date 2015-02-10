@@ -40,8 +40,8 @@ let toInt = function
 /// Converts value to bool
 let toBool = function
     | Bool x -> x
-    | String "False" -> false
-    | String "True" -> true
+    | String "False" | String "false" -> false
+    | String "True" | String "true" -> true
     | x -> raise (new System.NotSupportedException())
 let (|AsInt|_|) s =
     if s = "" then Some 0
