@@ -198,6 +198,7 @@ and invoke state invoke =
     match invoke with
     | Call(name,args) ->
          call (name,[for arg in args -> eval state arg])
+         String ""
     | Method("Array","GetValue", [name; index]) ->
         let name = eval state name
         match name with
@@ -281,7 +282,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
                when System.String.Compare(name,identifier,ignoreCase) = 0 -> true
            | _ -> false
         findFirstIndex 0 (isFalse, isFalse) condition
-    let call (identifier, args:value list) : value =
+    let call (identifier, args:value list) : unit =
         callStack.Push(!pi, VarLookup(!locals))
         let index = findSubIndex identifier
         let ps =
@@ -292,7 +293,6 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
         for (p,arg) in xs do
             (!locals).[p] <- arg
         pi := index
-        String ""
     /// Current state
     let state () = variables, !locals, call, ffi
     /// Evaluates expression with variables
@@ -346,6 +346,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
                | [] -> invalidOp "Expecting array index"
             let array = obtainArray vars identifier            
             setAt array indices
+        | Action(Call(name,args)) -> call (name, [for arg in args -> eval arg])            
         | Action(call) -> invoke (state()) call |> ignore
         | If(condition) ->
             let rec check condition =
