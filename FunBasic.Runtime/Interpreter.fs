@@ -193,7 +193,7 @@ and logical lhs op rhs =
 and invoke state invoke =
     let vars,gosub,(ffi:IFFI) = state
     match invoke with
-    | Call(name,args) -> gosub (name(*,args*)) |> fromObj
+    | Call(name,args) -> gosub (name(*,args*))
     | Method("Array","GetValue", [name; index]) ->
         let name = eval state name
         match name with
@@ -271,14 +271,15 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
     let findSub (identifier) =
         let ignoreCase = System.StringComparison.OrdinalIgnoreCase
         let condition = function
-           | Sub(name,[]) when System.String.Compare(name,identifier,ignoreCase) = 0 -> true
+           | Sub(name,[]) | Function(name,[])
+               when System.String.Compare(name,identifier,ignoreCase) = 0 -> true
            | _ -> false
         findFirstIndex 0 (isFalse, isFalse) condition
-    let gosub (identifier) : obj =
+    let gosub (identifier) : value =
         let index = findSub identifier
         callStack.Push(!pi)
         pi := index
-        null
+        String ""
     /// Current state
     let state = variables, gosub, ffi
     /// Evaluates expression with variables
@@ -374,7 +375,9 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
             pi := whileLoops.[!pi] - 1
         | Sub(identifier, ps) ->
             pi := findIndex (!pi+1) (isFalse, isFalse) EndSub
-        | EndSub ->
+        | Function(name,ps) ->
+            pi := findIndex (!pi+1) (isFalse, isFalse) EndFunction
+        | EndSub | EndFunction ->
             pi := 
                if callStack.Count > 0 
                then callStack.Pop() 
@@ -382,9 +385,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
         | Label(label) -> ()
         | Goto(label) -> pi := findIndex 0 (isFalse,isFalse) (Label(label))
         // Language Extensions
-        | Deconstruct(pattern, e) -> raise (System.NotSupportedException())        
-        | Function(name,ps) -> raise (System.NotSupportedException())
-        | EndFunction -> raise (System.NotSupportedException())
+        | Deconstruct(pattern, e) -> raise (System.NotSupportedException())
         | Select(e) -> raise (System.NotSupportedException())
         | Case(clauses) -> raise (System.NotSupportedException())
         | EndSelect -> raise (System.NotSupportedException())    
