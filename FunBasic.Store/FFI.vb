@@ -24,18 +24,23 @@ Public Class FFI
         Return mi.Invoke(Nothing, typedArgs)
     End Function
 
+    Function GetTypeFromName(ns As String) As Type
+        Dim ty = ass.GetType("FunBasic.Library." + ns)
+        If ty Is Nothing Then
+            Dim ti = ass.DefinedTypes().FirstOrDefault(Function(t) String.Compare(t.Name, ns, StringComparison.OrdinalIgnoreCase) = 0)
+            If ti Is Nothing Then
+                Throw New InvalidOperationException(ns + " not defined")
+            Else
+                ty = ass.GetType("FunBasic.Library." + ti.Name)
+            End If
+        End If
+        Return ty
+    End Function
+
     Function GetMethodInfo(ns As String, name As String) As MethodInfo
         Dim methodLookup As Dictionary(Of String, MethodInfo) = Nothing
         If Not typeLookup.TryGetValue(ns, methodLookup) Then
-            Dim ty = ass.GetType("FunBasic.Library." + ns)
-            If ty Is Nothing Then
-                Dim ti = ass.DefinedTypes().FirstOrDefault(Function(t) String.Compare(t.Name, ns, StringComparison.OrdinalIgnoreCase) = 0)
-                If ti Is Nothing Then
-                    Throw New InvalidOperationException(ns + " not defined")
-                Else                    
-                    ty = ass.GetType("FunBasic.Library." + ti.Name)
-                End If
-            End If
+            Dim ty = GetTypeFromName(ns)
             methodLookup = ty.GetRuntimeMethods().ToDictionary(Function(m) m.Name, StringComparer.OrdinalIgnoreCase)
             typeLookup.Add(ns, methodLookup)
         End If
@@ -71,7 +76,7 @@ Public Class FFI
 
     Public Function PropertyGet(ns As String, name As String) As Object _
         Implements IFFI.PropertyGet
-        Dim ty = ass.GetType("FunBasic.Library." + ns)
+        Dim ty = GetTypeFromName(ns)
         If ty Is Nothing Then Throw New InvalidOperationException(ns + " not defined")
         Dim pi = ty.GetRuntimeProperty(name)
         If pi Is Nothing Then Throw New InvalidOperationException(ns + "." + name + " not defined")
@@ -80,7 +85,7 @@ Public Class FFI
 
     Public Sub PropertySet(ns As String, name As String, value As Object) _
         Implements IFFI.PropertySet
-        Dim ty = ass.GetType("FunBasic.Library." + ns)
+        Dim ty = GetTypeFromName(ns)
         If ty Is Nothing Then Throw New InvalidOperationException(ns + " not defined")
         Dim pi = ty.GetRuntimeProperty(name)
         If pi Is Nothing Then Throw New InvalidOperationException(ns + "." + name + " not defined")
@@ -90,7 +95,7 @@ Public Class FFI
 
     Public Sub EventAdd(ns As String, name As String, handler As EventHandler) _
         Implements IFFI.EventAdd
-        Dim ty = ass.GetType("FunBasic.Library." + ns)
+        Dim ty = GetTypeFromName(ns)
         Dim ev = ty.GetRuntimeEvent(name)
         Dim action As Action = Nothing
         If unhooks.TryGetValue(ev, action) Then
