@@ -100,10 +100,14 @@ let pfor =
     pipe3 pfrom pto (opt pstep) (fun f t s -> For(f, t, toStep s))
 let pendfor = str_ws "EndFor" |>> (fun _ -> EndFor)
 
-let pwhile = str_ws1 "While" >>. pexpr |>> (fun e -> While(e))
+let pwhile = (attempt (str_ws1 "While" >>. pexpr)) <|> 
+             (str_ws "While" >>. (between (str_ws "(") (str_ws ")") pexpr))
+             |>> (fun e -> While(e))
 let pendwhile = str_ws "EndWhile" |>> (fun _ -> EndWhile)
 
-let pif = str_ws1 "If" >>. pexpr .>> str_ws "Then" |>> (fun e -> If(e))
+let pif = (attempt (str_ws1 "If" >>. pexpr)) <|> 
+          (str_ws "If" >>. (between (str_ws "(") (str_ws ")") pexpr)) 
+          .>> str_ws "Then" |>> (fun e -> If(e))
 let pelseif = str_ws1 "ElseIf" >>. pexpr .>> str_ws "Then" |>> (fun e -> ElseIf(e))
 let pelse = str_ws "Else" |>> (fun _ -> Else)
 let pendif = str_ws "EndIf" |>> (fun _ -> EndIf)
