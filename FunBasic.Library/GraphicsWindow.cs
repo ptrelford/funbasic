@@ -3,6 +3,7 @@
    public static class GraphicsWindow
    {
       private static IGraphics _graphics;
+      private static System.Random _random = new System.Random();
 
       public static IGraphics Graphics
       {
@@ -100,6 +101,15 @@
       public static string GetColorFromRGB(int r, int g, int b)
       {
          return string.Format("#{0:X2}{1:X2}{2:X2}",r,g,b);
+      }
+
+      public static string GetRandomColor()
+      {
+         return 
+            string.Format("#{0:X2}{1:X2}{2:X2}", 
+               _random.Next(256), 
+               _random.Next(256), 
+               _random.Next(256));
       }
 
       public static void Show()
