@@ -81,7 +81,10 @@ Public NotInheritable Class ItemDetailPage
         _navigationHelper.OnNavigatedTo(e)
     End Sub
 
-    Protected Overrides Sub OnNavigatedFrom(e As NavigationEventArgs)
+    Protected Overrides Async Sub OnNavigatedFrom(e As NavigationEventArgs)
+        If StopButton.IsEnabled Then
+            Await Task.Run(Sub() [Stop]())
+        End If
         _navigationHelper.OnNavigatedFrom(e)
     End Sub
 #End Region
@@ -96,10 +99,7 @@ Public NotInheritable Class ItemDetailPage
         StartButton.IsEnabled = False
         StopButton.IsEnabled = True
         backButton.IsTabStop = False
-
         Code.IsEnabled = False    
-
-        cancelToken = New CancelToken()
 
         Dim program = Code.Text
         Await Task.Run(Sub() Start(program))
@@ -108,10 +108,6 @@ Public NotInheritable Class ItemDetailPage
     Private Async Sub StopButton_Click(sender As Object, e As RoutedEventArgs) _
         Handles StopButton.Click
         StopButton.IsEnabled = False
-
-        ffi.Unhook()
-        timer.Pause()
-        cancelToken.Cancel()
 
         Await Task.Run(Sub() [Stop]())
     End Sub
@@ -132,6 +128,7 @@ Public NotInheritable Class ItemDetailPage
     End Sub
 
     Private Async Sub Start(program As String)
+        cancelToken = New CancelToken()
         Await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, _
                             Sub() InitLibrary())
 
@@ -150,6 +147,9 @@ Public NotInheritable Class ItemDetailPage
     End Sub
 
     Private Async Sub [Stop]()
+        ffi.Unhook()
+        timer.Pause()
+        cancelToken.Cancel()
         If done IsNot Nothing Then
             Dim success = done.WaitOne()
             done.Reset()
