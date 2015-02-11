@@ -411,8 +411,9 @@ let run ffi program token =
    let vars = VarLookup(System.StringComparer.OrdinalIgnoreCase)
    let lines, program = program |> Array.unzip
    let countdown = new CountdownEvent(1)  
-   let cancelled = runWith ffi program 0 vars token countdown
-   countdown.Signal() |> ignore
-   countdown.Wait(1000) |> ignore
+   runWith ffi program 0 vars token countdown
+   if token.IsCancelled then
+      countdown.Signal() |> ignore
+      countdown.Wait(1000) |> ignore
    
 
