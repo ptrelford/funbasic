@@ -95,7 +95,9 @@ Public NotInheritable Class ItemDetailPage
         Handles StartButton.Click
         StartButton.IsEnabled = False
         StopButton.IsEnabled = True
-        Code.IsEnabled = False
+        backButton.IsTabStop = False
+
+        Code.IsEnabled = False    
 
         cancelToken = New CancelToken()
 
@@ -160,6 +162,7 @@ Public NotInheritable Class ItemDetailPage
                     Sub()
                         StartButton.IsEnabled = True
                         StopButton.IsEnabled = False
+                        backButton.IsTabStop = True
                         Me.Code.IsEnabled = True
                     End Sub)
     End Function

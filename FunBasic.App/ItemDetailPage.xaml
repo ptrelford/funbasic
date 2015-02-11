@@ -70,7 +70,7 @@ EndFor
                 <StackPanel Orientation="Vertical" Grid.Column="1" VerticalAlignment="Center">
                     <Button Name="StartButton" Content="Start" HorizontalAlignment="Center" Width="64" Height="64" VerticalAlignment="Top" />
                     <!--Button Content="Step" HorizontalAlignment="Center" Width="64" Height="64" VerticalAlignment="Center" Click="Button_Click"/-->
-                    <Button Name="StopButton" Content="Stop" HorizontalAlignment="Center" Width="64" Height="64" VerticalAlignment="Bottom" IsEnabled="False"/>
+                    <Button Name="StopButton" IsTabStop="False" Content="Stop" HorizontalAlignment="Center" Width="64" Height="64" VerticalAlignment="Bottom" IsEnabled="False"/>
                 </StackPanel>
                 <Canvas Name="MyGraphics" Grid.Column="2" Background="White" HorizontalAlignment="Right" VerticalAlignment="Center" Width="640" Height="600">
                     <Canvas.Clip>
