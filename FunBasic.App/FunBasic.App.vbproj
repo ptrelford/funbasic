@@ -158,6 +158,8 @@
     <Content Include="Programs\Asteroids.smallbasic" />
     <Content Include="Programs\1942.smallbasic" />
     <Content Include="Programs\Chomper.smallbasic" />
+    <Content Include="Programs\MulticolorTriangle.sb" />
+    <Content Include="Programs\SpiralLines.sb" />
     <Content Include="Programs\Tetris.smallbasic" />
     <Content Include="Programs\TurtleDodger.smallbasic" />
     <Content Include="Programs\MoveObject.sb" />
@@ -165,6 +167,10 @@
     <Content Include="Programs\PaintProgram.sb" />
     <Content Include="Programs\PolkaDots.sb" />
     <Content Include="Programs\WhileLoop.sb" />
+    <EmbeddedResource Include="LangDef\FunBasic.langdef" />
+    <Content Include="Programs\FractalTree.sb" />
+    <Content Include="Programs\Pattern.sb" />
+    <Content Include="Programs\SpiralCircles.sb" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Logo.scale-100.png" />
@@ -225,7 +231,11 @@
     <Import Include="Windows.UI.Xaml.Media.Imaging" />
     <Import Include="Windows.UI.Xaml.Navigation" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <SDKReference Include="ActiproSoftware.WinRT.Xaml, Version=14.2.0152">
+      <Name>Actipro WinRT XAML Controls %28for Windows%29</Name>
+    </SDKReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>
   </PropertyGroup>

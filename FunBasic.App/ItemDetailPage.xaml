@@ -9,6 +9,8 @@
     xmlns:common="using:FunBasic.App.Common"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:editor="using:ActiproSoftware.UI.Xaml.Controls.SyntaxEditor"
+    xmlns:textImpl="using:ActiproSoftware.Text.Implementation"
     mc:Ignorable="d">
 
     <!--
@@ -34,12 +36,26 @@
                   to show details for the current item
         -->
         <Grid Grid.Row="1" x:Name="contentRegion">
-            <Grid Margin="64,0,64,40">
+            <Grid Margin="40,0,40,40">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="64"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
+                <editor:SyntaxEditor x:Name="Code" IsLineNumberMarginVisible="True" Text="" Width="600" Height="600">
+                    <textImpl:EditorDocument>
+                        <x:String xml:space="preserve">/*
+TextWindow.WriteLine("Hello World!")
+GraphicsWindow.DrawLine(50,50,100,100) 
+GraphicsWindow.PenColor = "red"
+For I = 1 To 1000
+ Turtle.Move(6)
+ Turtle.Turn(I*7)
+EndFor
+</x:String>
+                    </textImpl:EditorDocument>
+                </editor:SyntaxEditor>
+                <!--
                 <TextBox Name="Code" Grid.Column="0" Background="White" HorizontalAlignment="Left" TextWrapping="NoWrap" AcceptsReturn="True" VerticalAlignment="Center" Width="512" Height="600" xml:space="preserve">
                 <TextBox.Text>TextWindow.WriteLine("Hello World!")
 GraphicsWindow.DrawLine(50,50,100,100) 
@@ -49,22 +65,23 @@ For I = 1 To 1000
  Turtle.Turn(I*7)
 EndFor
                 </TextBox.Text>
-            </TextBox>
+                </TextBox>
+                -->
                 <StackPanel Orientation="Vertical" Grid.Column="1" VerticalAlignment="Center">
                     <Button Name="StartButton" Content="Start" HorizontalAlignment="Center" Width="64" Height="64" VerticalAlignment="Top" />
                     <!--Button Content="Step" HorizontalAlignment="Center" Width="64" Height="64" VerticalAlignment="Center" Click="Button_Click"/-->
                     <Button Name="StopButton" Content="Stop" HorizontalAlignment="Center" Width="64" Height="64" VerticalAlignment="Bottom" IsEnabled="False"/>
                 </StackPanel>
-                <Canvas Name="MyGraphics" Grid.Column="2" Background="White" HorizontalAlignment="Right" VerticalAlignment="Center" Width="720" MinWidth="256" MaxWidth="720" Height="600">
+                <Canvas Name="MyGraphics" Grid.Column="2" Background="White" HorizontalAlignment="Right" VerticalAlignment="Center" Width="640" Height="600">
                     <Canvas.Clip>
-                        <RectangleGeometry Rect="0 0 720 600"/>
+                        <RectangleGeometry Rect="0 0 640 600"/>
                     </Canvas.Clip>
                 </Canvas>
-                <Canvas Name="MyShapes" Grid.Column="2" Background="Transparent" IsHitTestVisible="False" HorizontalAlignment="Right" VerticalAlignment="Center" Width="720" MinWidth="256" MaxWidth="720" Height="600">
+                <Canvas Name="MyShapes" Grid.Column="2" Background="Transparent" IsHitTestVisible="False" HorizontalAlignment="Right" VerticalAlignment="Center" Width="640" Height="600">
                     <Canvas.Clip>
-                        <RectangleGeometry Rect="0 0 720 600"/>
+                        <RectangleGeometry Rect="0 0 640 600"/>
                     </Canvas.Clip>
-                    <Image Name="MyTurtle" Source="Images/turtle.png" Visibility="Visible" Canvas.Left="320" Canvas.Top="300"/>
+                    <Image Name="MyTurtle" Source="Images/turtle.png" Visibility="Visible" Canvas.Left="300" Canvas.Top="300"/>
                 </Canvas>
                 <TextBox Name="MyConsole" Grid.Column="2" Foreground="Pink" Background="Transparent" IsEnabled="False" IsReadOnly="True" HorizontalAlignment="Right" AcceptsReturn="True" VerticalAlignment="Center" Height="600">
                     <TextBox.Width>

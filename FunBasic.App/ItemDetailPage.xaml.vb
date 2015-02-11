@@ -1,5 +1,6 @@
 ﻿Imports System.Text, System.Reflection, System.Threading
 Imports FunBasic.Interpreter, FunBasic.Library, FunBasic.Store
+Imports ActiproSoftware.Text, ActiproSoftware.Text.Implementation
 Imports Windows.UI
 
 ' The Item Detail Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234232
@@ -38,6 +39,8 @@ Public NotInheritable Class ItemDetailPage
         Me._navigationHelper = New Common.NavigationHelper(Me)
         AddHandler Me._navigationHelper.LoadState,
             AddressOf NavigationHelper_LoadState
+
+        Code.Document.Language = LoadLanguageDefinitionFromResourceStream("FunBasic.langdef")
     End Sub
 
     ''' <summary>
@@ -159,6 +162,24 @@ Public NotInheritable Class ItemDetailPage
                         StopButton.IsEnabled = False
                         Me.Code.IsEnabled = True
                     End Sub)
+    End Function
+
+    ''' <summary>
+    ''' Loads a language definition (.langdef file) from a resource stream.
+    ''' </summary>
+    ''' <param name="filename">The filename.</param>
+    ''' <returns>The <see cref="ISyntaxLanguage"/> that was loaded.</returns>
+    Public Shared Function LoadLanguageDefinitionFromResourceStream(ByVal filename As String) As ISyntaxLanguage
+        Dim DefinitionPath = "FunBasic.App."
+        Dim path As String = DefinitionPath & filename
+        Using stream As Stream = GetType(App).GetTypeInfo().Assembly.GetManifestResourceStream(path)
+            If stream IsNot Nothing Then
+                Dim serializer As New SyntaxLanguageDefinitionSerializer()
+                Return serializer.LoadFromStream(stream)
+            Else
+                Return SyntaxLanguage.PlainText
+            End If
+        End Using
     End Function
 
 End Class
