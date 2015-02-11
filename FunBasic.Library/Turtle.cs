@@ -21,20 +21,19 @@
          }
       }
 
-      public static int Angle { get; set; }
+      public static double Angle { get; set; }
       public static double X { get; set; }
       public static double Y { get; set; }
       public static int Speed { get; set; }
 
-      public static void Move(int distance)
+      public static void Move(double distance)
       {
          Show();
-         int n = distance;
-         var radians = (Angle-90) * System.Math.PI / 180;
+         var radians = (Angle-90.0) * System.Math.PI / 180;
          var x1 = X;
          var y1 = Y;
-         var x2 = x1 + n * System.Math.Cos(radians);
-         var y2 = y1 + n * System.Math.Sin(radians);
+         var x2 = x1 + distance * System.Math.Cos(radians);
+         var y2 = y1 + distance * System.Math.Sin(radians);
          X = x2;
          Y = y2;
          if (_isPenDown)
@@ -44,7 +43,7 @@
          Graphics.Move("Turtle", x2 - 8.0, y2 - 8.0);
       }
 
-      public static void MoveTo(int x, int y)
+      public static void MoveTo(double x, double y)
       {
          Show();
          X = x;
@@ -52,10 +51,10 @@
          Graphics.Move("Turtle", x - 8.0, y - 8.0);
       }
 
-      public static void Turn(int angle)
+      public static void Turn(double angle)
       {
          Show();
-         Angle += angle%360;
+         Angle += angle%360.0;
          Graphics.Rotate("Turtle", Angle);
       }
 

@@ -224,8 +224,13 @@ Public Class Graphics
 
     Private Function CreateImage(url As String) As Image
         Dim image As Image = Nothing
-        If ImageList.TryGetValue(url, image) Then
-            Return New Image With {.Source = image.Source}
+        If url.StartsWith("ImageList") Then
+            If ImageList.TryGetValue(url, image) Then
+                Return New Image With {.Source = image.Source}
+            Else
+                System.Diagnostics.Debug.WriteLine("Failed to load image")
+                Return New Image()
+            End If
         Else
             Dim bitmap = New BitmapImage With {.UriSource = New Uri(url)}
             Return New Image With {.Source = bitmap}
@@ -532,7 +537,7 @@ Public Class Graphics
             End Sub)
     End Sub
 
-    Public Sub Rotate(name As String, angle As Integer) _
+    Public Sub Rotate(name As String, angle As Double) _
         Implements Library.IGraphics.Rotate
         Dim shape As ShapeInfo = Nothing
         If ShapeLookup.TryGetValue(name, shape) Then

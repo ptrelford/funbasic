@@ -44,7 +44,7 @@
       double GetTop(string name);
       void Move(string name, double x, double y);
       void Animate(string name, double x, double y, int duration);
-      void Rotate(string name, int angle);
+      void Rotate(string name, double angle);
       void Zoom(string name, double scaleX, double scaleY);
       int GetOpacity(string name);
       void SetOpacity(string name, int opacity);
