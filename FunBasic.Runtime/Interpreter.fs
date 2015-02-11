@@ -183,10 +183,10 @@ and arithmetic lhs op rhs =
     | Multiply, AsDoubles (l,r) -> Double(l * r)
     | Multiply, (String(AsInt l), Int r) -> Int(l * r)
     | Multiply, (Int l, String(AsInt r)) -> Int(l * r)
-    | Divide, (Int l,Int r) -> Int(l / r)
+    | Divide, (Int l,Int r) -> Double(double l / double r)
     | Divide, AsDoubles (l,r) -> Double(l / r)
-    | Divide, (String(AsInt l), Int r) -> Int(l / r)
-    | Divide, (Int l, String(AsInt r)) -> Int(l / r)
+    | Divide, (String(AsInt l), Int r) -> Double(double l / double r)
+    | Divide, (Int l, String(AsInt r)) -> Double(double l / double r)
     | _ -> raise (System.NotImplementedException(sprintf "%A %A %A" lhs op rhs))
 and logical lhs op rhs =
     match op, lhs, rhs with
