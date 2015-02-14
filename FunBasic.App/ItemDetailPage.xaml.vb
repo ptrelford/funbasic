@@ -42,6 +42,14 @@ Public NotInheritable Class ItemDetailPage
             AddressOf NavigationHelper_LoadState
 
         Code.Document.Language = LoadLanguageDefinitionFromResourceStream("FunBasic.langdef")
+
+        AddHandler Me.MyGraphics.SizeChanged, AddressOf MyGraphics_SizeChanged
+
+    End Sub
+
+    Private Sub MyGraphics_SizeChanged(sender As Object, e As SizeChangedEventArgs)        
+        Me.MyGraphics.Clip.Rect = New Rect(0, 0, e.NewSize.Width, e.NewSize.Height)
+        Me.MyShapes.Clip.Rect = New Rect(0, 0, e.NewSize.Width, e.NewSize.Height)
     End Sub
 
     Protected Overrides Sub OnKeyDown(e As KeyRoutedEventArgs)
@@ -113,7 +121,7 @@ Public NotInheritable Class ItemDetailPage
         backButton.IsTabStop = False
         'Code.IsEnabled = False 
         Code.IsTabStop = False
-        Code.Document.IsReadOnly = True        
+        Code.Document.IsReadOnly = True
 
         Dim program = Code.Text
         Await Task.Run(Sub() Start(program))
