@@ -52,11 +52,22 @@ Public Class Graphics
 
         Dim myTurtle = New ShapeInfo With {.Element = turtle}
         ShapeLookup.Add("Turtle", myTurtle)
+
+        AddHandler CompositionTarget.Rendering, AddressOf Rendering
+
     End Sub
 
-    Sub Dispatch(action As DispatchedHandler)
-        Dim ignored = _
-            Me.MyCanvas.Dispatcher.RunAsync(Core.CoreDispatcherPriority.Normal, action)
+    Private Sub Rendering(sender As Object, e As Object)
+        Dim action As DispatchedHandler = Nothing
+        While queue.TryDequeue(action)
+            action.Invoke()
+        End While
+    End Sub
+
+    Dim queue As New Concurrent.ConcurrentQueue(Of DispatchedHandler)
+
+    Public Sub Dispatch(action As DispatchedHandler)
+        queue.Enqueue(action)
     End Sub
 
     Function GetColor(name As String) As Color
@@ -139,6 +150,7 @@ Public Class Graphics
         Dispatch(Sub()
                      Dim message = New MessageDialog(content, title)
                      Dim task = message.ShowAsync()
+                     ' Note: there can only be one
                  End Sub)
     End Sub
 
