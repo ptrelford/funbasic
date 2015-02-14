@@ -2,6 +2,7 @@
 Imports FunBasic.Interpreter, FunBasic.Library, FunBasic.Store
 Imports ActiproSoftware.Text, ActiproSoftware.Text.Implementation
 Imports Windows.UI
+Imports Windows.UI.Core
 
 ' The Item Detail Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234232
 
@@ -42,6 +43,17 @@ Public NotInheritable Class ItemDetailPage
 
         Code.Document.Language = LoadLanguageDefinitionFromResourceStream("FunBasic.langdef")
     End Sub
+
+    Protected Overrides Sub OnKeyDown(e As KeyRoutedEventArgs)
+        If e.Key = Windows.System.VirtualKey.F5 Then
+            e.Handled = True
+            If StartButton.IsEnabled Then
+                StartButton_Click(Me, e)
+            End If
+        End If
+        'MyBase.OnKeyDown(e)
+    End Sub
+
 
     ''' <summary>
     ''' Populates the page with content passed during navigation.  Any saved state is also
@@ -99,7 +111,9 @@ Public NotInheritable Class ItemDetailPage
         StartButton.IsEnabled = False
         StopButton.IsEnabled = True
         backButton.IsTabStop = False
-        Code.IsEnabled = False    
+        'Code.IsEnabled = False 
+        Code.IsTabStop = False
+        Code.Document.IsReadOnly = True        
 
         Dim program = Code.Text
         Await Task.Run(Sub() Start(program))
@@ -163,7 +177,9 @@ Public NotInheritable Class ItemDetailPage
                         StartButton.IsEnabled = True
                         StopButton.IsEnabled = False
                         backButton.IsTabStop = True
-                        Me.Code.IsEnabled = True
+                        'Me.Code.IsEnabled = True
+                        Me.Code.Document.IsReadOnly = False
+                        Me.Code.IsTabStop = True
                     End Sub)
     End Function
 
