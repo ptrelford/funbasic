@@ -39,8 +39,8 @@ Public Class Graphics
         Me.MyCanvas = canvas
         Me.MyShapesCanvas = shapesCanvas
         Me.MyBackgroundColor = "White"
-        Me.MyWidth = canvas.Width
-        Me.MyHeight = canvas.Height
+        Me.MyWidth = canvas.ActualWidth
+        Me.MyHeight = canvas.ActualHeight
         PrepareColors()
 
         AddHandler canvas.PointerPressed, AddressOf PointerPressed
@@ -54,11 +54,18 @@ Public Class Graphics
         ShapeLookup.Add("Turtle", myTurtle)
 
         AddHandler CompositionTarget.Rendering, AddressOf Rendering
+        AddHandler MyCanvas.SizeChanged, AddressOf SizeChanged
 
     End Sub
 
     Sub [Stop]()
         RemoveHandler CompositionTarget.Rendering, AddressOf Rendering
+        RemoveHandler MyCanvas.SizeChanged, AddressOf SizeChanged
+    End Sub
+
+    Private Sub SizeChanged(sender As Object, e As SizeChangedEventArgs)
+        MyWidth = e.NewSize.Width
+        MyHeight = e.NewSize.Height
     End Sub
 
     Private Sub Rendering(sender As Object, e As Object)
