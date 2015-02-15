@@ -132,6 +132,7 @@
     <Compile Include="FFI.vb" />
     <Compile Include="Graphics.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="Sounds.vb" />
     <Compile Include="Timer.vb" />
   </ItemGroup>
   <ItemGroup>

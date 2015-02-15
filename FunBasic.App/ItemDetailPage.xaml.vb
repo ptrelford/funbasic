@@ -147,6 +147,7 @@ Public NotInheritable Class ItemDetailPage
         Turtle.Graphics = graphics
         timer.Interval = -1
         FunBasic.Library.Timer.SetTimer(timer)
+        FunBasic.Library.Sound.Sounds = New Sounds(Me.BeepBeep, Me.BellRing, Me.Chime, Me.Click, Me.Pause)
     End Sub
 
     Private Async Sub Start(program As String)
