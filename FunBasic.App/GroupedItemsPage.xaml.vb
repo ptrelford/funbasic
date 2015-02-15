@@ -1,4 +1,6 @@
-﻿' The Grouped Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234231
+﻿Imports Windows.System, Windows.UI.ApplicationSettings
+
+' The Grouped Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234231
 
 ''' <summary>
 ''' A page that displays a grouped collection of items.
@@ -33,6 +35,19 @@ Public NotInheritable Class GroupedItemsPage
         Me._navigationHelper = New Common.NavigationHelper(Me)
         AddHandler Me._navigationHelper.LoadState,
             AddressOf NavigationHelper_LoadState
+
+        AddHandler SettingsPane.GetForCurrentView().CommandsRequested,
+            AddressOf SettingsComandsRequested
+
+    End Sub
+
+    Private Sub SettingsComandsRequested(sender As SettingsPane, args As SettingsPaneCommandsRequestedEventArgs)
+        'use "new Guid()" instead of string "privacy" if you're experiencing an exception
+        Dim privacyStatement = _
+            New SettingsCommand("privacy", "Privacy Statement", _
+                Async Sub(x) Await Launcher.LaunchUriAsync(New Uri("http://w8privacy.azurewebsites.net/privacy?dev=Phillip%20Trelford&app=Fun%20Basic&mail=cHRyZWxmb3JkQGhvdG1haWwuY29t&lng=En")))
+        args.Request.ApplicationCommands.Clear()
+        args.Request.ApplicationCommands.Add(privacyStatement)
     End Sub
 
     ''' <summary>
