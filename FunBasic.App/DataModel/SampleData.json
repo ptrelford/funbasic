@@ -2,7 +2,7 @@
   {
     "UniqueId": "Group-3",
     "Title": "Turtle",
-    "Subtitle": "Group subtitle: 3",
+    "Subtitle": "Draw with the turtle",
     "ImagePath": "Assets/MulticolorTriangle.png",
     "Description" : "Edit and run the fun selection of turtle programs.",
     "Items":
@@ -57,7 +57,7 @@
   {
     "UniqueId": "Group-2",
     "Title": "Shapes",
-    "Subtitle": "Group subtitle: 2",
+    "Subtitle": "Draw multicolor shapes",
     "ImagePath": "Assets/Randomize.png",
     "Description" : "Edit and run the fun selection of shape based programs.",
     "Items":
@@ -112,7 +112,7 @@
   {
     "UniqueId": "Group-1",
     "Title": "Games",
-    "Subtitle": "Group subtitle: 1",
+    "Subtitle": "Edit & play games",
     "ImagePath": "Assets/Asteroids.png",
     "Description" : "Edit and play the fun game selection.",
     "Items":
