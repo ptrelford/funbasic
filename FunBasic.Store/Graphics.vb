@@ -57,6 +57,10 @@ Public Class Graphics
 
     End Sub
 
+    Sub [Stop]()
+        RemoveHandler CompositionTarget.Rendering, AddressOf Rendering
+    End Sub
+
     Private Sub Rendering(sender As Object, e As Object)
         Dim action As DispatchedHandler = Nothing
         While queue.TryDequeue(action)

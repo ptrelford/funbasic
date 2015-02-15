@@ -7,12 +7,16 @@ Public Class Console
 
     Sub New(textBox As TextBox)
         textBox.Text = ""
-        Me.MyTextBox = textBox    
-
+        Me.MyTextBox = textBox
+        Me.queue = New Concurrent.ConcurrentQueue(Of String)()
         AddHandler CompositionTarget.Rendering, AddressOf Rendering
     End Sub
 
-    Dim queue As New Concurrent.ConcurrentQueue(Of String)
+    Sub [Stop]()
+        RemoveHandler CompositionTarget.Rendering, AddressOf Rendering
+    End Sub
+
+    Dim Queue As Concurrent.ConcurrentQueue(Of String)
 
     Public Sub WriteLine(value As Object) Implements Library.IConsole.WriteLine
         queue.Enqueue(value.ToString() + vbCrLf)
@@ -21,10 +25,17 @@ Public Class Console
     Private Sub Rendering(sender As Object, e As Object)
         Dim text As String = Nothing
         Dim list = New List(Of String)
-        While queue.TryDequeue(text)
+        Dim count = 10
+        While queue.TryDequeue(text) And count > 0
             list.Add(text)
+            count = count - 1
         End While
-        MyTextBox.Text = MyTextBox.Text + String.Join("", list)
+        If list.Count > 0 Then
+            Dim appendText = String.Join("", list)
+            Dim newText = MyTextBox.Text + appendText
+            System.Diagnostics.Debug.WriteLine(newText.Count)
+            MyTextBox.Text = newText
+        End If
     End Sub
 
 End Class

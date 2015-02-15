@@ -113,6 +113,8 @@ Public NotInheritable Class ItemDetailPage
     Dim timer As New FunBasic.Store.Timer()
     Dim cancelToken As New CancelToken()
     Dim done As ManualResetEvent = New ManualResetEvent(False)
+    Dim graphics As Graphics
+    Dim console As Console
 
     Private Async Sub StartButton_Click(sender As Object, e As RoutedEventArgs) _
         Handles StartButton.Click
@@ -130,19 +132,20 @@ Public NotInheritable Class ItemDetailPage
     Private Async Sub StopButton_Click(sender As Object, e As RoutedEventArgs) _
         Handles StopButton.Click
         StopButton.IsEnabled = False
-
+        console.Stop()
+        graphics.Stop()
         Await Task.Run(Sub() [Stop]())
     End Sub
 
     Private Sub InitLibrary()
-        Dim c = New Console(Me.MyConsole)
-        TextWindow.Console = c
+        console = New Console(Me.MyConsole)
+        TextWindow.Console = console
         Dim theTurtle = Me.MyTurtle
         Me.MyGraphics.Children.Clear()
         Me.MyGraphics.Background = New SolidColorBrush(Colors.White)
         Me.MyShapes.Children.Clear()
         Me.MyShapes.Children.Add(theTurtle)
-        Dim graphics = New Graphics(Me.MyGraphics, Me.MyShapes, Me.MyTurtle)
+        graphics = New Graphics(Me.MyGraphics, Me.MyShapes, Me.MyTurtle)
         GraphicsWindow.Graphics = graphics
         Turtle.Graphics = graphics
         timer.Interval = -1
