@@ -58,7 +58,7 @@ Public Class Graphics
 
     End Sub
 
-    Sub [Stop]()
+    Public Sub [Stop]()
         RemoveHandler CompositionTarget.Rendering, AddressOf Rendering
         RemoveHandler MyCanvas.SizeChanged, AddressOf SizeChanged
     End Sub
@@ -70,15 +70,19 @@ Public Class Graphics
 
     Private Sub Rendering(sender As Object, e As Object)
         Dim action As DispatchedHandler = Nothing
-        While queue.TryDequeue(action)
-            action.Invoke()
+        While Queue.TryDequeue(action)
+            Try
+                action.Invoke()
+            Catch ex As Exception
+                System.Diagnostics.Debug.WriteLine(ex)
+            End Try
         End While
     End Sub
 
-    Dim queue As New Concurrent.ConcurrentQueue(Of DispatchedHandler)
+    Dim Queue As New Concurrent.ConcurrentQueue(Of DispatchedHandler)
 
     Public Sub Dispatch(action As DispatchedHandler)
-        queue.Enqueue(action)
+        Queue.Enqueue(action)
     End Sub
 
     Function GetColor(name As String) As Color
