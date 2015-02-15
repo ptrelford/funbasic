@@ -109,6 +109,7 @@
     <Compile Include="IConsole.cs" />
     <Compile Include="IGraphics.cs" />
     <Compile Include="ImageList.cs" />
+    <Compile Include="ISounds.cs" />
     <Compile Include="ITimer.cs" />
     <Compile Include="Math.cs" />
     <Compile Include="Mouse.cs" />

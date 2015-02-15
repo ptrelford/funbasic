@@ -13,8 +13,8 @@
          get { return _graphics; }
          set {
             _graphics = value;
-            X = _graphics.Width/2.0;
-            Y = _graphics.Height/2.0;
+            X = 150.0; //_graphics.Width/2.0;
+            Y = 150.0; // _graphics.Height / 2.0;
             Angle = 0;
             _isPenDown = true;
             Hide();
