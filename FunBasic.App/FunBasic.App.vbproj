@@ -151,6 +151,11 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <Content Include="Assets\1942.png" />
+    <Content Include="Assets\Asteroids.png" />
+    <Content Include="Assets\Chomper.png" />
+    <Content Include="Assets\Tetris.png" />
+    <Content Include="Assets\TurtleDodger.png" />
     <Content Include="Images\turtle.png" />
     <Content Include="Sounds\BeepBeep.wav" />
     <Content Include="Sounds\BellRing.wav" />
