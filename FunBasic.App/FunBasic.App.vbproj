@@ -154,11 +154,16 @@
     <Content Include="Assets\1942.png" />
     <Content Include="Assets\Asteroids.png" />
     <Content Include="Assets\Chomper.png" />
+    <Content Include="Assets\FractalTree.png" />
     <Content Include="Assets\MoveObject.png" />
+    <Content Include="Assets\MulticolorTriangle.png" />
     <Content Include="Assets\PaddleGame.png" />
     <Content Include="Assets\Paint.png" />
+    <Content Include="Assets\Pattern.png" />
     <Content Include="Assets\PolkaDots.png" />
     <Content Include="Assets\Randomize.png" />
+    <Content Include="Assets\SpiralCircles.png" />
+    <Content Include="Assets\SpiralLines.png" />
     <Content Include="Assets\Tetris.png" />
     <Content Include="Assets\TurtleDodger.png" />
     <Content Include="Images\turtle.png" />
