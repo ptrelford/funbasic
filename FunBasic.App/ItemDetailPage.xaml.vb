@@ -101,9 +101,9 @@ Public NotInheritable Class ItemDetailPage
         _navigationHelper.OnNavigatedTo(e)
     End Sub
 
-    Protected Overrides Async Sub OnNavigatedFrom(e As NavigationEventArgs)
+    Protected Overrides Sub OnNavigatedFrom(e As NavigationEventArgs)
         If StopButton.IsEnabled Then
-            Await Task.Run(Sub() [Stop]())
+            StopButton_Click(Me, New RoutedEventArgs())
         End If
         _navigationHelper.OnNavigatedFrom(e)
     End Sub
