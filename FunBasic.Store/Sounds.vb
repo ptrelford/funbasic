@@ -21,15 +21,20 @@
 
     Public Sub PlayStockSound(name As String, wait As Boolean) _
         Implements Library.ISounds.PlayStockSound
-        If name = "BellRing" Then
-            Me.BellRing.Play()
-        ElseIf name = "Chime" Then
-            Me.Chime.Play()
-        ElseIf name = "Click" Then
-            Me.Click.Play()
-        ElseIf name = "Chimes" Then
-            Me.Pause.Play()
-        End If
+        Dim ignore =
+            Me.BellRing.Dispatcher.RunAsync( _
+                Windows.UI.Core.CoreDispatcherPriority.Normal, _
+                Sub()
+                    If name = "BellRing" Then
+                        Me.BellRing.Play()
+                    ElseIf name = "Chime" Then
+                        Me.Chime.Play()
+                    ElseIf name = "Click" Then
+                        Me.Click.Play()
+                    ElseIf name = "Chimes" Then
+                        Me.Pause.Play()
+                    End If
+                End Sub)
     End Sub
 
 End Class
