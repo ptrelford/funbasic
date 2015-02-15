@@ -25,5 +25,5 @@ open System.Runtime.InteropServices
 [<assembly: AssemblyFileVersion(FParsec.CommonAssemblyInfo.FileVersion)>]
 [<assembly: AssemblyConfiguration(FParsec.CommonAssemblyInfo.Configuration)>]
 
-[<assembly: InternalsVisibleTo(FParsec.CommonAssemblyInfo.TestAssemblyName)>]
+//[<assembly: InternalsVisibleTo(FParsec.CommonAssemblyInfo.TestAssemblyName)>]
 do ()
