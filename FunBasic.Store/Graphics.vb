@@ -161,11 +161,19 @@ Public Class Graphics
                  End Sub)
     End Sub
 
+    Dim IsDialogShowing As Boolean
+
     Public Sub ShowMessage(content As String, title As String) Implements Library.IGraphics.ShowMessage
-        Dispatch(Sub()
-                     Dim message = New MessageDialog(content, title)
-                     Dim task = message.ShowAsync()
-                     ' Note: there can only be one
+        Dispatch(Async Sub()
+                     If Not IsDialogShowing Then
+                         Try
+                             IsDialogShowing = True
+                             Dim message = New MessageDialog(content, title)
+                             Dim result = Await message.ShowAsync()
+                         Finally
+                             IsDialogShowing = False
+                         End Try
+                     End If
                  End Sub)
     End Sub
 
