@@ -152,6 +152,11 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <Content Include="Images\turtle.png" />
+    <Content Include="Sounds\BeepBeep.wav" />
+    <Content Include="Sounds\BellRing.wav" />
+    <Content Include="Sounds\Chime.wav" />
+    <Content Include="Sounds\Click.wav" />
+    <Content Include="Sounds\Pause.wav" />
     <None Include="Common\ReadMe.txt" />
     <None Include="FunBasic.App_TemporaryKey.pfx" />
     <Content Include="DataModel\SampleData.json" />
