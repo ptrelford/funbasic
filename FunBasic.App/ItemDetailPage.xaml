@@ -51,15 +51,11 @@
                     <textImpl:EditorDocument>
                         <x:String xml:space="preserve">/*
 TextWindow.WriteLine("Hello World!")
-GraphicsWindow.DrawLine(50,50,100,100) 
-GraphicsWindow.PenColor = "red"
-For I = 1 To 1000
- Turtle.Move(6)
- Turtle.Turn(I*7)
-EndFor
 </x:String>
                     </textImpl:EditorDocument>
                 </editor:SyntaxEditor>
+                <Rectangle Name="CodeOverlay" Fill="Transparent" Opacity="0.5" IsHitTestVisible="False" Height="600"/>
+                
                 <!--
                 <TextBox Name="Code" Grid.Column="0" Background="White" HorizontalAlignment="Left" TextWrapping="NoWrap" AcceptsReturn="True" VerticalAlignment="Center" Width="512" Height="600" xml:space="preserve">
                 <TextBox.Text>TextWindow.WriteLine("Hello World!")

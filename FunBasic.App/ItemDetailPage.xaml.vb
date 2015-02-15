@@ -124,6 +124,7 @@ Public NotInheritable Class ItemDetailPage
         'Code.IsEnabled = False 
         Code.IsTabStop = False
         Code.Document.IsReadOnly = True
+        Me.CodeOverlay.Fill = New SolidColorBrush(Colors.Black)
 
         Dim program = Code.Text
         Await Task.Run(Sub() Start(program))
@@ -192,6 +193,7 @@ Public NotInheritable Class ItemDetailPage
                         'Me.Code.IsEnabled = True
                         Me.Code.Document.IsReadOnly = False
                         Me.Code.IsTabStop = True
+                        Me.CodeOverlay.Fill = New SolidColorBrush(Colors.Transparent)
                     End Sub)
     End Function
 
