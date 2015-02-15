@@ -70,7 +70,8 @@ Public Class Graphics
 
     Private Sub Rendering(sender As Object, e As Object)
         Dim action As DispatchedHandler = Nothing
-        While Queue.TryDequeue(action)
+        Dim timer = Stopwatch.StartNew()
+        While timer.ElapsedMilliseconds < 10 And Queue.TryDequeue(action)
             Try
                 action.Invoke()
             Catch ex As Exception
