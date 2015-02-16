@@ -105,8 +105,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Clock.cs" />
+    <Compile Include="Controls.cs" />
     <Compile Include="GraphicsWindow.cs" />
     <Compile Include="IConsole.cs" />
+    <Compile Include="IControls.cs" />
     <Compile Include="IGraphics.cs" />
     <Compile Include="ImageList.cs" />
     <Compile Include="ISounds.cs" />

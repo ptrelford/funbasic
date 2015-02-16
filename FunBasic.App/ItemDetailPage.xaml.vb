@@ -152,6 +152,7 @@ Public NotInheritable Class ItemDetailPage
         timer.Interval = -1
         FunBasic.Library.Timer.SetTimer(timer)
         FunBasic.Library.Sound.Sounds = New Sounds(Me.BeepBeep, Me.BellRing, Me.Chime, Me.Click, Me.Pause)
+        FunBasic.Library.Controls._controls = New FunBasic.Store.Controls(Me.MyGraphics)
     End Sub
 
     Private Async Sub Start(program As String)

@@ -128,6 +128,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Console.vb" />
+    <Compile Include="Controls.vb" />
     <Compile Include="DivideByTwoConverter.vb" />
     <Compile Include="FFI.vb" />
     <Compile Include="Graphics.vb" />
