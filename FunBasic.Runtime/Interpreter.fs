@@ -179,14 +179,17 @@ and arithmetic lhs op rhs =
     | Subtract, AsDoubles (l,r) -> Double(l - r)
     | Subtract, (String(AsInt l), Int r) -> Int(l - r)
     | Subtract, (Int l, String(AsInt r)) -> Int(l - r)
+    | Subtract, (String(AsInt l), String(AsInt r)) -> Int(l - r)
     | Multiply, (Int l,Int r) -> Int(l * r)
     | Multiply, AsDoubles (l,r) -> Double(l * r)
     | Multiply, (String(AsInt l), Int r) -> Int(l * r)
     | Multiply, (Int l, String(AsInt r)) -> Int(l * r)
+    | Multiply, (String(AsInt l), String(AsInt r)) -> Int(l * r)
     | Divide, (Int l,Int r) -> Double(double l / double r)
     | Divide, AsDoubles (l,r) -> Double(l / r)
     | Divide, (String(AsInt l), Int r) -> Double(double l / double r)
     | Divide, (Int l, String(AsInt r)) -> Double(double l / double r)
+    | Divide, (String(AsInt l), String(AsInt r)) -> Double(double l / double r)
     | _ -> raise (System.NotImplementedException(sprintf "%A %A %A" lhs op rhs))
 and logical lhs op rhs =
     match op, lhs, rhs with
@@ -346,7 +349,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
                | [] -> invalidOp "Expecting array index"
             let array = obtainArray vars identifier            
             setAt array indices
-        | Action(Call(name,args)) -> call (name, [for arg in args -> eval arg])            
+        | Action(Call(name,args)) -> call (name, [for arg in args -> eval arg])             
         | Action(call) -> invoke (state()) call |> ignore
         | If(condition) ->
             let rec check condition =
