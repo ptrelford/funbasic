@@ -18,11 +18,34 @@ namespace FunBasic.Library
          if (index > 0)
          {
             var startIndex = (int)Math.Min(text.Length + 1, index);
-            var len = Math.Min(length, text.Length - startIndex + 1);
+            var len = Math.Max(0, Math.Min(length, text.Length - startIndex + 1));
             return text.Substring(startIndex - 1, (int)len);
          }
          else
             return "";
+      }
+
+      public static string GetSubTextToEnd(string text, int index)
+      {
+         if (index > 0)
+         {
+            var startIndex = (int)Math.Min(text.Length + 1, index);            
+            return text.Substring(startIndex - 1);
+         }
+         else
+            return "";
+      }
+
+      public static int GetIndexOf(string text, string value)
+      {
+         return text.IndexOf(value);
+      }
+
+      public static int GetCharacterCode(string character)
+      {
+         return character.Length > 0
+            ? (int)character[0]
+            : 0;
       }
    }
 }
