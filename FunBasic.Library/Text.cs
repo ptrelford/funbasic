@@ -38,7 +38,7 @@ namespace FunBasic.Library
 
       public static int GetIndexOf(string text, string value)
       {
-         return text.IndexOf(value);
+         return text.IndexOf(value) + 1;
       }
 
       public static int GetCharacterCode(string character)
@@ -46,6 +46,11 @@ namespace FunBasic.Library
          return character.Length > 0
             ? (int)character[0]
             : 0;
+      }
+
+      public static string GetCharacter(int code)
+      {
+         return ((char)code).ToString();
       }
    }
 }
