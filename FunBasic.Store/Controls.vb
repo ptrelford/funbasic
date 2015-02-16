@@ -79,7 +79,8 @@ Public Class Controls
 
     Public Function GetTextBoxText(name As String) As String _
         Implements Library.IControls.GetTextBoxText
-        Return ""
+        Dim control = ControlLookup(name)
+        Return control.Caption
     End Function
 
     Public ReadOnly Property LastClickedButton As String _
@@ -102,6 +103,7 @@ Public Class Controls
     Public Sub SetTextBoxText(name As String, text As String) _
         Implements Library.IControls.SetTextBoxText
         Dim control = ControlLookup(name)
+        control.Caption = text
         Dispatch(Sub()
                      Dim textBox = CType(control.Element, TextBox)
                      textBox.Text = text
