@@ -26,9 +26,10 @@ Public Class Console
         Dim text As String = Nothing
         Dim list = New List(Of String)
         Dim count = 10
-        While queue.TryDequeue(text) And count > 0
+        While Queue.TryDequeue(text)
             list.Add(text)
             count = count - 1
+            If count = 0 Then Exit While
         End While
         If list.Count > 0 Then
             Dim appendText = String.Join("", list)
