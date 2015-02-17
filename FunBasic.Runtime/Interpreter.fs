@@ -49,6 +49,12 @@ let (|AsInt|_|) s =
        match System.Int32.TryParse(s) with
        | true, n -> Some n
        | false,_ -> None
+let (|AsDouble|_|) s =
+    if s = "" then Some 0.0
+    else
+       match System.Double.TryParse(s) with
+       | true, n -> Some n
+       | false,_ -> None
 /// Coerces a tuple of numeric values to double
 let (|AsDoubles|_|) = function
     | Double l, Double r -> Some(l,r)
@@ -58,7 +64,7 @@ let (|AsDoubles|_|) = function
     | Double l, String(AsInt r) -> Some(l, double r)
     | _, _ -> None
 /// Compares values
-let compare lhs rhs =
+let rec compare lhs rhs =
     match lhs, rhs with
     | Bool l, Bool r -> l.CompareTo(r)
     | Int l, Int r -> l.CompareTo(r)
@@ -66,6 +72,14 @@ let compare lhs rhs =
     | String l, String r -> l.CompareTo(r)
     | String(AsInt l), Int r -> l.CompareTo(r)
     | Int l, String(AsInt r) -> l.CompareTo(r)
+    | Array l, Array r ->
+       if l.Count = r.Count && 
+          l.Keys |> Seq.forall(fun key -> 
+             match r.TryGetValue(key) with
+             | true, x -> compare l.[key] x = 0
+             | false, _ -> false) 
+       then 0
+       else -1
     | _ -> raise (new System.NotSupportedException(sprintf "%A %A" lhs rhs))
 
 open System.Collections.Generic
@@ -180,6 +194,7 @@ and arithmetic lhs op rhs =
     | Subtract, (String(AsInt l), Int r) -> Int(l - r)
     | Subtract, (Int l, String(AsInt r)) -> Int(l - r)
     | Subtract, (String(AsInt l), String(AsInt r)) -> Int(l - r)
+    | Subtract, (String(AsDouble l), String(AsDouble r)) -> Double(l - r)
     | Multiply, (Int l,Int r) -> Int(l * r)
     | Multiply, AsDoubles (l,r) -> Double(l * r)
     | Multiply, (String(AsInt l), Int r) -> Int(l * r)
