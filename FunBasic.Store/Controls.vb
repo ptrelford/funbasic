@@ -45,8 +45,11 @@ Public Class Controls
         Dim control = New Control()
         ControlLookup.Add(name, control)
         Dispatch(Sub()
+                     ' TODO: use GraphicsWindow Font settings
                      Dim textBox = New TextBox()
                      textBox.Name = name
+                     AddHandler textBox.TextChanged, AddressOf TextChanged
+                     'TODO: unhook
                      Canvas.SetLeft(textBox, x)
                      Canvas.SetTop(textBox, y)
                      MyCanvas.Children.Add(textBox)
@@ -61,8 +64,11 @@ Public Class Controls
         Dim control = New Control()
         ControlLookup.Add(name, control)
         Dispatch(Sub()
+                     ' TODO: use GraphicsWindow Font settings
                      Dim textBox = New TextBox With {.AcceptsReturn = True}
                      textBox.Name = name
+                     AddHandler textBox.TextChanged, AddressOf TextChanged
+                     'TODO: unhook
                      Canvas.SetLeft(textBox, x)
                      Canvas.SetTop(textBox, y)
                      MyCanvas.Children.Add(textBox)
@@ -116,7 +122,15 @@ Public Class Controls
         RaiseEvent ButtonClicked(Me, New EventArgs())
     End Sub
 
+    Private Sub TextChanged(sender As Object, e As TextChangedEventArgs)
+        Dim textBox = CType(sender, TextBox)
+        Dim control = ControlLookup(textBox.Name)
+        control.Caption = textBox.Text
+    End Sub
+
     Public Event ButtonClicked(sender As Object, e As EventArgs) _
         Implements Library.IControls.ButtonClicked
+
+
 
 End Class
