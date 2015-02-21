@@ -1,9 +1,29 @@
 ﻿namespace FunBasic.Library
 {
    using System;
+   using System.Globalization;
 
    public static class Clock
    {
+
+      public static string Date
+      {
+         get
+         {
+            var format = DateTimeFormatInfo.GetInstance(CultureInfo.CurrentCulture);
+            return DateTime.Now.ToString(format.ShortDatePattern, CultureInfo.CurrentUICulture);
+         }
+      }
+
+      public static string Time
+      {
+         get
+         {
+            var format = DateTimeFormatInfo.GetInstance(CultureInfo.CurrentCulture);
+            return DateTime.Now.ToString(format.LongTimePattern, CultureInfo.CurrentUICulture);
+         }
+      }
+
       public static int Year
       {
          get
@@ -37,6 +57,14 @@
       }
 
       public static int Minute
+      {
+         get
+         {
+            return DateTime.Now.Minute;
+         }
+      }
+
+      public static int Second
       {
          get
          {
