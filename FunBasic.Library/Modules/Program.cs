@@ -11,6 +11,7 @@
          _token = token;
       }
 
+      [System.Diagnostics.DebuggerStepThrough]
       public static void Delay(int time)
       {
          try
