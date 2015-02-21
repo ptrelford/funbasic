@@ -37,11 +37,14 @@ let toInt = function
     | String "" -> 0
     | String x -> int x
     | Bool _ | Array _ -> raise (new System.NotSupportedException())
+let (|AsBool|_|) = function
+   | "True" | "true" -> Some true
+   | "False" | "false" -> Some false
+   | _ -> None
 /// Converts value to bool
 let toBool = function
     | Bool x -> x
-    | String "False" | String "false" -> false
-    | String "True" | String "true" -> true
+    | String(AsBool x) -> x
     | x -> raise (new System.NotSupportedException())
 let (|AsInt|_|) s =
     if s = "" then Some 0
@@ -185,9 +188,10 @@ and arithmetic lhs op rhs =
     match op, (lhs, rhs) with
     | Add, (Int l,Int r) -> Int(l + r)
     | Add, AsDoubles (l,r) -> Double(l + r)
-    | Add, (String l, String r) -> String(l + r)
     | Add, (String(AsInt l), Int r) -> Int(l + r)
     | Add, (Int l, String(AsInt r)) -> Int(l + r)
+    | Add, (String(AsInt l), String(AsInt r)) -> Int(l + r)
+    | Add, (String l, String r) -> String(l + r)
     | Add, (String l, r) -> String(l + (r |> toObj).ToString())
     | Subtract, (Int l,Int r) -> Int(l - r)
     | Subtract, AsDoubles (l,r) -> Double(l - r)
@@ -211,7 +215,13 @@ and arithmetic lhs op rhs =
 and logical lhs op rhs =
     match op, lhs, rhs with
     | And, Bool l, Bool r -> Bool(l && r)
+    | And, String(AsBool l), Bool r -> Bool(l && r)
+    | And, Bool l, String(AsBool r) -> Bool(l && r)
+    | And, String(AsBool l), String(AsBool r) -> Bool(l && r)
     | Or, Bool l, Bool r -> Bool(l || r)
+    | Or, String(AsBool l), Bool r -> Bool(true || r)
+    | Or, Bool l, String(AsBool r) -> Bool(true || r)
+    | Or, String(AsBool l), String(AsBool r) -> Bool(true || r)
     | _, _, _ -> raise (System.NotImplementedException())
 and invoke state invoke =
     let vars,locals,call,(ffi:IFFI) = state
