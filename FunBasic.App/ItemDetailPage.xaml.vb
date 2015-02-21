@@ -113,6 +113,7 @@ Public NotInheritable Class ItemDetailPage
     Dim timer As New FunBasic.Store.Timer()
     Dim cancelToken As New CancelToken()
     Dim done As ManualResetEvent = New ManualResetEvent(False)
+    Dim cancellationTokenSource As CancellationTokenSource
     Dim drawings As Drawings
     Dim shapes As Shapes
     Dim controls As Controls
@@ -162,6 +163,7 @@ Public NotInheritable Class ItemDetailPage
         Dim surface = New FunBasic.Store.Surface(Me.MyDrawings, Me.MyShapes, renderer, Me.MyTurtle)
         Dim keyboard = New Keyboard()
         mouse = New Mouse(Me.MyDrawings)
+        cancellationTokenSource = New CancellationTokenSource()
 
         FunBasic.Library._Library.Initialize( _
             console,
@@ -174,7 +176,8 @@ Public NotInheritable Class ItemDetailPage
             sounds,
             keyboard,
             mouse,
-            timer
+            timer,
+            cancellationTokenSource.Token
             )
     End Sub
 
@@ -198,6 +201,7 @@ Public NotInheritable Class ItemDetailPage
     End Sub
 
     Private Async Sub [Stop]()
+        cancellationTokenSource.Cancel()
         mouse.Dispose()
         console.Dispose()
         controls.Dispose()

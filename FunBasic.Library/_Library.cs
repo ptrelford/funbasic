@@ -1,5 +1,7 @@
 ﻿namespace FunBasic.Library
 {
+   using System.Threading;
+
    public static class _Library
    {
       public static void Initialize(         
@@ -13,7 +15,8 @@
          ISounds sounds,         
          IKeyboard keyboard,
          IMouse mouse,
-         ITimer timer)
+         ITimer timer,
+         CancellationToken token)
       {
          TextWindow.Init(console);
          Desktop.Init(surface);                  
@@ -25,6 +28,7 @@
          Sound.Init(sounds);                      
          Timer.Init(timer);
          Stack.Init();
+         Program.Init(token);
       }
    }
 }

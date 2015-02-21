@@ -1,10 +1,23 @@
 ﻿namespace FunBasic.Library
 {
+   using System.Threading;
+
    public static class Program
    {
+      private static CancellationToken _token;
+
+      internal static void Init(CancellationToken token)
+      {
+         _token = token;
+      }
+
       public static void Delay(int time)
       {
-         System.Threading.Tasks.Task.Delay(time).Wait();
+         try
+         {
+            System.Threading.Tasks.Task.Delay(time).Wait(_token);
+         }
+         catch (System.OperationCanceledException) { }
       }
 
       public static string Directory
