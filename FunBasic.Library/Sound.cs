@@ -2,46 +2,51 @@
 {
    public static class Sound
    {
-      public static ISounds Sounds;
+      private static ISounds _sounds;
+
+      internal static void Init(ISounds sounds)
+      {
+         _sounds = sounds;
+      }
 
       public static void PlayBellRing()
       {
-         Sounds.PlayStockSound("BellRing", false);
+         _sounds.PlayStockSound("BellRing", false);
       }
 
       public static void PlayBellRingAndWait()
       {
-         Sounds.PlayStockSound("BellRing", true);
+         _sounds.PlayStockSound("BellRing", true);
       }
 
       public static void PlayChime()
       {
-         Sounds.PlayStockSound("Chime", false);
+         _sounds.PlayStockSound("Chime", false);
       }
 
       public static void PlayChimeAndWait()
       {
-         Sounds.PlayStockSound("Chime", true);
+         _sounds.PlayStockSound("Chime", true);
       }
 
       public static void PlayChimes()
       {
-         Sounds.PlayStockSound("Chimes", false);
+         _sounds.PlayStockSound("Chimes", false);
       }
 
       public static void PlayChimesAndWait()
       {
-         Sounds.PlayStockSound("Chimes", true);
+         _sounds.PlayStockSound("Chimes", true);
       }
 
       public static void PlayClick()
       {
-         Sounds.PlayStockSound("Click", false);
+         _sounds.PlayStockSound("Click", false);
       }
 
       public static void PlayClickAndWait()
       {
-         Sounds.PlayStockSound("Click", true);
+         _sounds.PlayStockSound("Click", true);
       }
    }
 }

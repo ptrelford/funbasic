@@ -34,18 +34,34 @@ Public NotInheritable Class MainPage
     End Sub
 
     Private Sub InitLibrary()
-        Dim c = New Console(Me.MyConsole)
-        TextWindow.Console = c
+        Dim style = New Style()
+        Dim console = New Console(Me.MyConsole)
         Dim theTurtle = Me.MyTurtle
         Me.MyGraphics.Children.Clear()
         Me.MyGraphics.Background = New SolidColorBrush(Colors.White)
         Me.MyShapes.Children.Clear()
         Me.MyShapes.Children.Add(theTurtle)
-        Dim graphics = New Graphics(Me.MyGraphics, Me.MyShapes, Me.MyTurtle)
-        GraphicsWindow.Graphics = graphics
-        Turtle.Graphics = graphics
-        timer.Interval = -1
-        FunBasic.Library.Timer.SetTimer(timer)
+        Dim images = New FunBasic.Store.Images(Me.MyGraphics.Dispatcher)
+        Dim renderer = New Renderer()
+        Dim surface = New Surface(Me.MyGraphics, Me.MyShapes, renderer, theTurtle)
+        Dim drawings = New Drawings(style, Me.MyGraphics, images, renderer)
+        Dim controls = New FunBasic.Store.Controls(style, Me.MyShapes)
+        Dim shapes = New FunBasic.Store.Shapes(style, Me.MyShapes, images, theTurtle, renderer)
+        Dim sounds = New Sounds(Nothing, Nothing, Nothing, Nothing, Nothing)
+        Dim keyboard = New Keyboard()
+        Dim mouse = New FunBasic.Store.Mouse(Me.MyGraphics)
+        FunBasic.Library._Library.Initialize( _
+            console,
+            surface,
+            style,
+            drawings,
+            shapes,
+            images,
+            controls,
+            sounds,
+            keyboard,
+            mouse,
+            timer)
     End Sub
 
     Private Async Sub Start(program As String)
@@ -56,7 +72,7 @@ Public NotInheritable Class MainPage
             Runtime.Run(program, ffi, cancelToken)
         Catch ex As Exception
             System.Diagnostics.Debug.WriteLine(ex)
-            TextWindow.Console.WriteLine(ex.Message)
+            TextWindow.WriteLine(ex.Message)
         Finally
             done.Set()
         End Try

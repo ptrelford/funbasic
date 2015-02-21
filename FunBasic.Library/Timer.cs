@@ -6,9 +6,10 @@
    {
       private static ITimer _timer;
 
-      public static void SetTimer(ITimer timer)
+      internal static void Init(ITimer timer)
       {
          _timer = timer;
+         timer.Interval = -1;
       }
 
       public static int Interval

@@ -1,25 +1,24 @@
 ﻿Imports System.Text
 
 Public Class Console
-    Implements FunBasic.Library.IConsole
+    Implements FunBasic.Library.IConsole, IDisposable
 
     Dim MyTextBox As TextBox
+    Dim Queue As Concurrent.ConcurrentQueue(Of String)
 
     Sub New(textBox As TextBox)
         textBox.Text = ""
         Me.MyTextBox = textBox
-        Me.queue = New Concurrent.ConcurrentQueue(Of String)()
+        Me.Queue = New Concurrent.ConcurrentQueue(Of String)()
         AddHandler CompositionTarget.Rendering, AddressOf Rendering
     End Sub
 
-    Sub [Stop]()
+    Public Sub Dispose() Implements IDisposable.Dispose
         RemoveHandler CompositionTarget.Rendering, AddressOf Rendering
     End Sub
 
-    Dim Queue As Concurrent.ConcurrentQueue(Of String)
-
     Public Sub WriteLine(value As Object) Implements Library.IConsole.WriteLine
-        queue.Enqueue(value.ToString() + vbCrLf)
+        Queue.Enqueue(value.ToString() + vbCrLf)
     End Sub
 
     Private Sub Rendering(sender As Object, e As Object)

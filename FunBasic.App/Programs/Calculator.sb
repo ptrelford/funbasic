@@ -1,0 +1,184 @@
+﻿p = 0
+
+GraphicsWindow.CanResize = 0
+GraphicsWindow.Width = 260
+GraphicsWindow.Height = 230
+GraphicsWindow.Title = "Calculator v. 1.0 by Alex_2000"
+
+GraphicsWindow.BackgroundColor = GraphicsWindow.GetColorFromRGB(240, 240, 240)
+GraphicsWindow.FontBold = "False"
+GraphicsWindow.BrushColor = "Black"
+
+m = Shapes.AddText("M")
+Shapes.Move(m, 22, 62)
+Shapes.HideShape(m)
+
+t = Controls.AddTextBox(10, 10)
+Controls.SetSize(t, 240, 22)
+Controls.SetTextBoxText(t, "")
+
+N = 2
+R0 = 58
+R1 = R0 + (95-58)*N
+R2 = R1 + (128-95)*N 
+R3 = R2 + (161-128)*N
+R4 = R3 + (194-161)*N
+C0 = 10
+C1 = C0  + (58-10)*N
+C2 = C1  + (99-58)*N
+C3 = C2 + (140-99)*N
+C4 = C3 + (181-140)*N
+C5 = C4 + (222-181)*N
+T0 = C0
+T1 = T0 + (139-58)*N
+T2 = T1 + (202-139)*N 
+GraphicsWindow.BrushColor = "Red"
+keyMC = Controls.AddButton("MC", C0, R1)
+Controls.SetSize(keyMC, 35*N, 25*N)
+keyMR = Controls.AddButton("MR", C0, R2)
+Controls.SetSize(keyMR, 35*N, 25*N)
+keyMS = Controls.AddButton("MS", C0, R3)
+Controls.SetSize(keyMS, 35*N, 25*N)
+keyMP = Controls.AddButton("M+", C0, R4)
+Controls.SetSize(keyMP, 35*N, 25*N)
+keyC = Controls.AddButton("C", T2, R0)
+Controls.SetSize(keyC, 55*N, 25*N )
+keyCE = Controls.AddButton("CE", T1, R0)
+Controls.SetSize(keyCE, 55*N, 25*N)
+keyBackspase = Controls.AddButton("Backspace", T0, R0)
+Controls.SetSize(keyBackspase, 70*N, 25*N)
+
+keydelenie = Controls.AddButton("/", C4, R1)
+Controls.SetSize(keydelenie, 35*N, 25*N)
+keyumnogenie = Controls.AddButton("*", C4, R2)
+Controls.SetSize(keyumnogenie, 35*N, 25*N)
+keyminus = Controls.AddButton("-", C4, R3)
+Controls.SetSize(keyminus, 35*N, 25*N)
+keyplus = Controls.AddButton("+", C4, R4)
+Controls.SetSize(keyplus, 35*N, 25*N)
+keyravno = Controls.AddButton("=", C5, R4)
+Controls.SetSize(keyravno, 35*N, 25*N)
+
+GraphicsWindow.BrushColor = "Blue"
+key7 = Controls.AddButton("7", C1, R1)
+Controls.SetSize(key7, 35*N, 25*N)
+key8 = Controls.AddButton("8", C2, R1)
+Controls.SetSize(key8, 35*N, 25*N)
+key9 = Controls.AddButton("9", C3, R1)
+Controls.SetSize(key9, 35*N, 25*N)
+key4 = Controls.AddButton("4", C1, R2)
+Controls.SetSize(key4, 35*N, 25*N)
+key5 = Controls.AddButton("5", C2, R2)
+Controls.SetSize(key5, 35*N, 25*N)
+key6 = Controls.AddButton("6", C3, R2)
+Controls.SetSize(key6, 35*N, 25*N)
+key1 = Controls.AddButton("1", C1, R3)
+Controls.SetSize(key1, 35*N, 25*N)
+key2 = Controls.AddButton("2", C2, R3)
+Controls.SetSize(key2, 35*N, 25*N)
+key3 = Controls.AddButton("3", C3, R3)
+Controls.SetSize(key3, 35*N, 25*N)
+key0 = Controls.AddButton("0", C2, R4)
+Controls.SetSize(key0, 35*N, 25*N)
+
+keyplusminus = Controls.AddButton("+/-", C3, R4)
+Controls.SetSize(keyplusminus, 35*N, 25*N)
+keytochka = Controls.AddButton(".", C1, R4)
+Controls.SetSize(keytochka, 35*N, 25*N)
+
+keysqrt = Controls.AddButton("sqrt", C5, R1)
+Controls.SetSize(keysqrt, 35*N, 25*N)
+keyprocent = Controls.AddButton("%", C5, R2)
+Controls.SetSize(keyprocent, 35*N, 25*N)
+keynax = Controls.AddButton("1/x", C5, R3)
+Controls.SetSize(keynax, 35*N, 25*N)
+
+Controls.ButtonClicked = click
+
+Sub click
+  Sound.PlayClick()
+  If Controls.LastClickedButton = key0 Then
+    Controls.SetTextBoxText(t, Text.Append(Controls.GetTextBoxText(t), "0"))
+  ElseIf Controls.LastClickedButton = key1 Then
+    Controls.SetTextBoxText(t, Text.Append(Controls.GetTextBoxText(t), "1"))
+  ElseIf Controls.LastClickedButton = key2 Then
+    Controls.SetTextBoxText(t, Text.Append(Controls.GetTextBoxText(t), "2"))
+  ElseIf Controls.LastClickedButton = key3 Then
+    Controls.SetTextBoxText(t, Text.Append(Controls.GetTextBoxText(t), "3"))
+  ElseIf Controls.LastClickedButton = key4 Then
+    Controls.SetTextBoxText(t, Text.Append(Controls.GetTextBoxText(t), "4"))
+  ElseIf Controls.LastClickedButton = key5 Then
+    Controls.SetTextBoxText(t, Text.Append(Controls.GetTextBoxText(t), "5"))
+  ElseIf Controls.LastClickedButton = key6 Then
+    Controls.SetTextBoxText(t, Text.Append(Controls.GetTextBoxText(t), "6"))
+  ElseIf Controls.LastClickedButton = key7 Then
+    Controls.SetTextBoxText(t, Text.Append(Controls.GetTextBoxText(t), "7"))
+  ElseIf Controls.LastClickedButton = key8 Then
+    Controls.SetTextBoxText(t, Text.Append(Controls.GetTextBoxText(t), "8"))
+  ElseIf Controls.LastClickedButton = key9 Then
+    Controls.SetTextBoxText(t, Text.Append(Controls.GetTextBoxText(t), "9"))
+  ElseIf Controls.LastClickedButton = keytochka Then
+    Controls.SetTextBoxText(t, Text.Append(Controls.GetTextBoxText(t), "."))
+  ElseIf Controls.LastClickedButton = keyplusminus Then
+    If p = 0 Then
+      Controls.SetTextBoxText(t, Text.Append("-", Controls.GetTextBoxText(t)))
+      p = 1
+    Else
+      Controls.SetTextBoxText(t, Math.Abs(Controls.GetTextBoxText(t)))
+      p = 0
+    EndIf
+  ElseIf Controls.LastClickedButton = keyplus Then
+    a = Controls.GetTextBoxText(t)
+    Controls.SetTextBoxText(t, "")
+    знак = "+"
+  ElseIf Controls.LastClickedButton = keyminus Then
+    a = Controls.GetTextBoxText(t)
+    Controls.SetTextBoxText(t, "")
+    знак = "-"
+  ElseIf Controls.LastClickedButton = keyumnogenie Then
+    a = Controls.GetTextBoxText(t)
+    Controls.SetTextBoxText(t, "")
+    знак = "*"
+  ElseIf Controls.LastClickedButton = keydelenie Then
+    a = Controls.GetTextBoxText(t)
+    Controls.SetTextBoxText(t, "")
+    знак = "/"
+  ElseIf Controls.LastClickedButton = keysqrt Then
+    Controls.SetTextBoxText(t, Math.SquareRoot(Controls.GetTextBoxText(t)))
+  ElseIf Controls.LastClickedButton = keynax Then
+    Controls.SetTextBoxText(t, 1/Controls.GetTextBoxText(t))
+  ElseIf Controls.LastClickedButton = keyC Then
+    a = ""
+    b = ""
+    Controls.SetTextBoxText(t, "")
+  ElseIf Controls.LastClickedButton = keyCE Then
+    Controls.SetTextBoxText(t, "")
+  ElseIf Controls.LastClickedButton = keyBackspase Then
+    Controls.SetTextBoxText(t, Text.GetSubText(Controls.GetTextBoxText(t), 1, Text.GetLength(Controls.GetTextBoxText(t))-1))
+  ElseIf Controls.LastClickedButton = keyMP Or Controls.LastClickedButton = keyMS Then
+    c = Controls.GetTextBoxText(t)
+    Shapes.ShowShape(m)
+  ElseIf Controls.LastClickedButton = keyMC Then
+    c = ""
+    Shapes.HideShape(m)
+  ElseIf Controls.LastClickedButton = keyMR Then
+    Controls.SetTextBoxText(t, c)
+  ElseIf Controls.LastClickedButton = keyprocent Then
+    Controls.SetTextBoxText(t, (a * Controls.GetTextBoxText(t))/100)
+  ElseIf Controls.LastClickedButton = keyravno Then
+    b = Controls.GetTextBoxText(t)
+    If знак = "+" Then
+      Controls.SetTextBoxText(t, a + b)
+    ElseIf знак = "-" Then
+      Controls.SetTextBoxText(t, a - b)
+    ElseIf знак = "*" Then
+      Controls.SetTextBoxText(t, a * b)
+    ElseIf знак = "/" Then
+      If b = 0 Then
+        Controls.SetTextBoxText(t, "Divide by zero is impossible!")
+      Else
+        Controls.SetTextBoxText(t, a / b)
+      EndIf
+    EndIf
+  EndIf
+EndSub

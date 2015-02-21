@@ -2,11 +2,19 @@
 {
    public static class TextWindow
    {    
-      public static IConsole Console;
+      private static IConsole _console;
+
+      internal static void Init(IConsole console)
+      {
+         _console = console;
+      }
+
+      public static int Top { get; set; }
+      public static int Left { get; set; }
 
       public static void WriteLine(object text)
       {
-         Console.WriteLine(text);
+         _console.WriteLine(text);
       }
    }
 }

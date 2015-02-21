@@ -4,21 +4,20 @@
 
    public static class Turtle
    {
-      private static IGraphics _graphics;
+      private static IDrawings _graphics;
+      private static IShapes _shapes;
       private static bool _isPenDown;
       private static bool _isVisible = false;
 
-      public static IGraphics Graphics
+      internal static void Init(ISurface surface, IDrawings drawings, IShapes shapes)
       {
-         get { return _graphics; }
-         set {
-            _graphics = value;
-            X = _graphics.Width / 2.0;
-            Y = _graphics.Height / 2.0;
-            Angle = 0;
-            _isPenDown = true;
-            Hide();
-         }
+         _graphics = drawings;
+         _shapes = shapes;
+         X = surface.Width / 2.0;
+         Y = surface.Height / 2.0;
+         Angle = 0;
+         _isPenDown = true;
+         Hide();
       }
 
       public static double Angle { get; set; }
@@ -38,9 +37,9 @@
          Y = y2;
          if (_isPenDown)
          {
-            Graphics.DrawLine(x1, y1, x2, y2);
+            _graphics.DrawLine(x1, y1, x2, y2);
          }
-         Graphics.Move("Turtle", x2 - 8.0, y2 - 8.0);
+         _shapes.Move("Turtle", x2 - 8.0, y2 - 8.0);
       }
 
       public static void MoveTo(double x, double y)
@@ -48,14 +47,14 @@
          Show();
          X = x;
          Y = y;
-         Graphics.Move("Turtle", x - 8.0, y - 8.0);
+         _shapes.Move("Turtle", x - 8.0, y - 8.0);
       }
 
       public static void Turn(double angle)
       {
          Show();
          Angle += angle%360.0;
-         Graphics.Rotate("Turtle", Angle);
+         _shapes.Rotate("Turtle", Angle);
       }
 
       public static void TurnLeft()
@@ -87,14 +86,14 @@
          if (!_isVisible)
          {
             _isVisible = true;
-            GraphicsWindow.Graphics.ShowShape("Turtle");
+            _shapes.ShowShape("Turtle");
          }
       }
 
       public static void Hide()
       {
          _isVisible = false;
-         GraphicsWindow.Graphics.HideShape("Turtle");
+         _shapes.HideShape("Turtle");
       }
    }
 }

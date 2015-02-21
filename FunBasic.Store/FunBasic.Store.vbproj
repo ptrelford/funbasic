@@ -127,13 +127,21 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ColorLookup.vb" />
     <Compile Include="Console.vb" />
     <Compile Include="Controls.vb" />
     <Compile Include="DivideByTwoConverter.vb" />
     <Compile Include="FFI.vb" />
-    <Compile Include="Graphics.vb" />
+    <Compile Include="Drawings.vb" />
+    <Compile Include="Images.vb" />
+    <Compile Include="Keyboard.vb" />
+    <Compile Include="Mouse.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="Renderer.vb" />
+    <Compile Include="Shapes.vb" />
     <Compile Include="Sounds.vb" />
+    <Compile Include="Style.vb" />
+    <Compile Include="Surface.vb" />
     <Compile Include="Timer.vb" />
   </ItemGroup>
   <ItemGroup>

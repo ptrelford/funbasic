@@ -4,7 +4,12 @@
 
    public static class Controls
    {
-      public static IControls _controls;
+      private static IControls _controls;
+
+      internal static void Init(IControls controls)
+      {
+         _controls = controls;
+      }
 
       public static string AddButton(string caption, int x, int y)
       {

@@ -2,35 +2,44 @@
 {
    public static class GraphicsWindow
    {
-      private static IGraphics _graphics;
+      private static ISurface _surface;
+      private static IDrawings _drawings;
+      private static IKeyboard _keyboard;
+      private static IMouse _mouse;
       private static System.Random _random = new System.Random();
+      private static IStyle _style { get;set; }
 
-      public static IGraphics Graphics
+      internal static void Init(
+         IStyle style, 
+         ISurface surface, 
+         IDrawings graphics, 
+         IKeyboard keyboard,      
+         IMouse mouse)
       {
-         get { return _graphics; }
-         set
-         {
-            _graphics = value;
-            PenWidth = 2.0;
-            BrushColor = "purple";
-            PenColor = "black";
-            FontSize = 12;
-            FontName = "Tahoma";
-         }
+         _surface = surface;
+         _drawings = graphics;
+         _keyboard = keyboard;
+         _style = style;
+         _mouse = mouse;
+         PenWidth = 2.0;
+         BrushColor = "purple";
+         PenColor = "black";
+         FontSize = 12;
+         FontName = "Tahoma";
       }
 
       public static string Title { get; set; }
 
       public static double Width
       {
-         get { return _graphics.Width; }
-         set { _graphics.Width = value; }
+         get { return (int) _surface.Width; }
+         set { _surface.Width = value; }
       }
 
       public static double Height
       {
-         get { return _graphics.Height; }
-         set { }
+         get { return ((int ) _surface.Height / 2) * 2; }
+         set { _surface.Height = value; }
       }
 
       public static double Top
@@ -53,49 +62,49 @@
 
       public static string BackgroundColor 
       {
-         get { return Graphics.BackgroundColor; }
-         set { Graphics.BackgroundColor = value; } 
+         get { return _surface.BackgroundColor; }
+         set { _surface.BackgroundColor = value; } 
       }
       
       public static string BrushColor 
       {
-         get { return Graphics.BrushColor; }
-         set { Graphics.BrushColor = value; }
+         get { return _style.BrushColor; }
+         set { _style.BrushColor = value; }
       }
 
       public static string PenColor 
       {
-         get { return Graphics.PenColor; }
-         set { Graphics.PenColor = value; }
+         get { return _style.PenColor; }
+         set { _style.PenColor = value; }
       }
 
       public static double PenWidth
       {
-         get { return Graphics.PenWidth; }
-         set { Graphics.PenWidth = value; }
+         get { return _style.PenWidth; }
+         set { _style.PenWidth = value; }
       }
 
       public static double FontSize {
-         get { return Graphics.FontSize; }
-         set { Graphics.FontSize = value; }
+         get { return _style.FontSize; }
+         set { _style.FontSize = value; }
       }
 
       public static string FontName 
       {
-         get { return Graphics.FontName; }
-         set { Graphics.FontName = value; }
+         get { return _style.FontName; }
+         set { _style.FontName = value; }
       }
 
       public static bool FontItalic
       {
-         get { return Graphics.FontItalic; }
-         set { Graphics.FontItalic = value;  }
+         get { return _style.FontItalic; }
+         set { _style.FontItalic = value;  }
       }
 
       public static bool FontBold
       {
-         get { return Graphics.FontBold; }
-         set { Graphics.FontBold = value; }
+         get { return _style.FontBold; }
+         set { _style.FontBold = value; }
       }
 
       public static string GetColorFromRGB(int r, int g, int b)
@@ -122,108 +131,108 @@
 
       public static void Clear()
       {
-         Graphics.Clear();
+         _surface.Clear();
       }
 
       public static void ShowMessage(string content, string title)
       {
-         Graphics.ShowMessage(content, title);
+         _surface.ShowMessage(content, title);
       }
 
-      #region Draw
+      #region Drawing
       public static void DrawText(double x, double y, string text)
       {
-         Graphics.DrawText(x, y, text);
+         _drawings.DrawText(x, y, text);
       }
 
       public static void DrawBoundText(double x, double y, double width, string text)
       {
-         Graphics.DrawBoundText(x, y, width, text);
+         _drawings.DrawBoundText(x, y, width, text);
       }
 
       public static void DrawLine(double x1, double y1, double x2, double y2)
       {
-         Graphics.DrawLine(x1, y1, x2, y2);
+         _drawings.DrawLine(x1, y1, x2, y2);
       }
 
       public static void DrawTriangle(double x1, double y1, double x2, double y2, double x3, double y3)
       {
-         Graphics.DrawTriangle(x1, y1, x2, y2, x3, y3);
+         _drawings.DrawTriangle(x1, y1, x2, y2, x3, y3);
       }
 
       public static void DrawRectangle(double x, double y, double width, double height)
       {
-         Graphics.DrawRectangle(x, y, width, height);
+         _drawings.DrawRectangle(x, y, width, height);
       }
 
       public static void DrawImage(string imageName, double x, double y)
       {
-         Graphics.DrawImage(imageName, x, y);
+         _drawings.DrawImage(imageName, x, y);
       }
 
       public static void SetPixel(double x, double y, string color)
       {
-         Graphics.DrawLine(x, y, x + 2, y);
+         _drawings.DrawLine(x, y, x + 2, y);
       }
       #endregion
 
       #region Fill
       public static void FillEllipse(double x1, double y1, double width, double height)
       {
-         Graphics.FillEllipse(x1, y1, width, height);
+         _drawings.FillEllipse(x1, y1, width, height);
       }
 
       public static void FillTriangle(double x1, double y1, double x2, double y2, double x3, double y3)
       {
-         Graphics.FillTriangle(x1, y1, x2, y2, x3, y3);
+         _drawings.FillTriangle(x1, y1, x2, y2, x3, y3);
       }
 
       public static void FillRectangle(double x1, double y1, double width, double height)
       {
-         Graphics.FillRectangle(x1, y1, width, height);
+         _drawings.FillRectangle(x1, y1, width, height);
       }
       #endregion
 
       #region Keyboard
       public static string LastKey
       {
-         get { return _graphics.LastKey; }
+         get { return _keyboard.LastKey; }
       }
 
       public static event System.EventHandler KeyDown
       {
-         add { _graphics.KeyDown += value; }
-         remove { _graphics.KeyDown -= value; }
+         add { _keyboard.KeyDown += value; }
+         remove { _keyboard.KeyDown -= value; }
       }
       #endregion
 
       #region Mouse
       public static double MouseX
       {
-         get { return _graphics.MouseX; }
+         get { return _mouse.MouseX; }
       }
 
       public static double MouseY
       {
-         get { return _graphics.MouseY; }
+         get { return _mouse.MouseY; }
       }
 
       public static event System.EventHandler MouseDown
       {
-         add { _graphics.MouseDown += value; }
-         remove { _graphics.MouseDown -= value; }
+         add { _mouse.MouseDown += value; }
+         remove { _mouse.MouseDown -= value; }
       }
 
       public static event System.EventHandler MouseUp
       {
-         add { _graphics.MouseUp += value; }
-         remove { _graphics.MouseUp -= value; }
+         add { _mouse.MouseUp += value; }
+         remove { _mouse.MouseUp -= value; }
       }
 
       public static event System.EventHandler MouseMove
       {
-         add { _graphics.MouseMove += value; }
-         remove { _graphics.MouseMove -= value; }
+         add { _mouse.MouseMove += value; }
+         remove { _mouse.MouseMove -= value; }
       }
       #endregion
    }

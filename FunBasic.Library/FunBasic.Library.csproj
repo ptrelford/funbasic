@@ -106,12 +106,19 @@
   <ItemGroup>
     <Compile Include="Clock.cs" />
     <Compile Include="Controls.cs" />
+    <Compile Include="Desktop.cs" />
     <Compile Include="GraphicsWindow.cs" />
     <Compile Include="IConsole.cs" />
     <Compile Include="IControls.cs" />
-    <Compile Include="IGraphics.cs" />
+    <Compile Include="IDrawings.cs" />
+    <Compile Include="IImages.cs" />
+    <Compile Include="IKeyboard.cs" />
     <Compile Include="ImageList.cs" />
+    <Compile Include="IMouse.cs" />
+    <Compile Include="IShapes.cs" />
     <Compile Include="ISounds.cs" />
+    <Compile Include="IStyle.cs" />
+    <Compile Include="ISurface.cs" />
     <Compile Include="ITimer.cs" />
     <Compile Include="Math.cs" />
     <Compile Include="Mouse.cs" />
@@ -126,6 +133,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Timer.cs" />
     <Compile Include="Turtle.cs" />
+    <Compile Include="_Library.cs" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>

@@ -6,41 +6,41 @@
    {
       private static Dictionary<string, Stack<object>> _stackMap;
 
-      static Stack()
+      internal static void Init()
       {
-         Stack._stackMap = new Dictionary<string, Stack<object>>();
+         _stackMap = new Dictionary<string, Stack<object>>();
       }
 
       public static object GetCount(string stackName)
       {
-         Stack<object> primitives;
-         if (!Stack._stackMap.TryGetValue(stackName, out primitives))
+         Stack<object> values;
+         if (!_stackMap.TryGetValue(stackName, out values))
          {
-            primitives = new Stack<object>();
-            Stack._stackMap[stackName] = primitives;
+            values = new Stack<object>();
+            _stackMap[stackName] = values;
          }
-         return primitives.Count;
+         return values.Count;
       }
 
       public static object PopValue(string stackName)
       {
-         Stack<object> primitives;
-         if (Stack._stackMap.TryGetValue(stackName, out primitives))
+         Stack<object> values;
+         if (_stackMap.TryGetValue(stackName, out values))
          {
-            return primitives.Pop();
+            return values.Pop();
          }
          return "";
       }
 
       public static void PushValue(string stackName, object value)
       {
-         Stack<object> primitives;
-         if (!Stack._stackMap.TryGetValue(stackName, out primitives))
+         Stack<object> values;
+         if (!_stackMap.TryGetValue(stackName, out values))
          {
-            primitives = new Stack<object>();
-            Stack._stackMap[stackName] = primitives;
+            values = new Stack<object>();
+            _stackMap[stackName] = values;
          }
-         primitives.Push(value);
+         values.Push(value);
       }
    }
 }

@@ -1,5 +1,5 @@
 ﻿Imports System.Text, System.Reflection, System.Threading
-Imports FunBasic.Interpreter, FunBasic.Library, FunBasic.Store
+Imports FunBasic.Interpreter, FunBasic.Store
 Imports ActiproSoftware.Text, ActiproSoftware.Text.Implementation
 Imports Windows.UI
 Imports Windows.UI.Core
@@ -43,12 +43,12 @@ Public NotInheritable Class ItemDetailPage
 
         Code.Document.Language = LoadLanguageDefinitionFromResourceStream("FunBasic.langdef")
 
-        AddHandler Me.MyGraphics.SizeChanged, AddressOf MyGraphics_SizeChanged
+        AddHandler Me.MyDrawings.SizeChanged, AddressOf MyGraphics_SizeChanged
 
     End Sub
 
     Private Sub MyGraphics_SizeChanged(sender As Object, e As SizeChangedEventArgs)        
-        Me.MyGraphics.Clip.Rect = New Rect(0, 0, e.NewSize.Width, e.NewSize.Height)
+        Me.MyDrawings.Clip.Rect = New Rect(0, 0, e.NewSize.Width, e.NewSize.Height)
         Me.MyShapes.Clip.Rect = New Rect(0, 0, e.NewSize.Width, e.NewSize.Height)
     End Sub
 
@@ -113,8 +113,13 @@ Public NotInheritable Class ItemDetailPage
     Dim timer As New FunBasic.Store.Timer()
     Dim cancelToken As New CancelToken()
     Dim done As ManualResetEvent = New ManualResetEvent(False)
-    Dim graphics As Graphics
+    Dim drawings As Drawings
+    Dim shapes As Shapes
+    Dim controls As Controls
+    Dim renderer As Renderer
     Dim console As Console
+    Dim images As Images
+    Dim mouse As Mouse
 
     Private Async Sub StartButton_Click(sender As Object, e As RoutedEventArgs) _
         Handles StartButton.Click
@@ -130,29 +135,47 @@ Public NotInheritable Class ItemDetailPage
         Await Task.Run(Sub() Start(program))
     End Sub
 
-    Private Async Sub StopButton_Click(sender As Object, e As RoutedEventArgs) _
+    Private Sub StopButton_Click(sender As Object, e As RoutedEventArgs) _
         Handles StopButton.Click
         StopButton.IsEnabled = False
-        console.Stop()
-        graphics.Stop()
-        Await Task.Run(Sub() [Stop]())
+        [Stop]()
     End Sub
 
     Private Sub InitLibrary()
+        Dim style = New Style()
+
         console = New Console(Me.MyConsole)
-        TextWindow.Console = console
+        images = New Images(Me.MyDrawings.Dispatcher)
+        renderer = New Renderer()
+        drawings = New Drawings(style, Me.MyDrawings, images, renderer)
+        shapes = New Shapes(style, Me.MyShapes, images, Me.MyTurtle, renderer)
+        timer.Interval = -1
+        controls = New FunBasic.Store.Controls(style, Me.MyDrawings)
+
         Dim theTurtle = Me.MyTurtle
-        Me.MyGraphics.Children.Clear()
-        Me.MyGraphics.Background = New SolidColorBrush(Colors.White)
+        Me.MyDrawings.Children.Clear()
+        Me.MyDrawings.Background = New SolidColorBrush(Colors.White)
         Me.MyShapes.Children.Clear()
         Me.MyShapes.Children.Add(theTurtle)
-        graphics = New Graphics(Me.MyGraphics, Me.MyShapes, Me.MyTurtle)
-        GraphicsWindow.Graphics = graphics
-        Turtle.Graphics = graphics
-        timer.Interval = -1
-        FunBasic.Library.Timer.SetTimer(timer)
-        FunBasic.Library.Sound.Sounds = New Sounds(Me.BeepBeep, Me.BellRing, Me.Chime, Me.Click, Me.Pause)
-        FunBasic.Library.Controls._controls = New FunBasic.Store.Controls(Me.MyGraphics)
+
+        Dim sounds = New Sounds(Me.BeepBeep, Me.BellRing, Me.Chime, Me.Click, Me.Pause)
+        Dim surface = New FunBasic.Store.Surface(Me.MyDrawings, Me.MyShapes, renderer, Me.MyTurtle)
+        Dim keyboard = New Keyboard()
+        mouse = New Mouse(Me.MyDrawings)
+
+        FunBasic.Library._Library.Initialize( _
+            console,
+            surface,
+            style,
+            drawings,
+            shapes,
+            images,
+            controls,
+            sounds,
+            keyboard,
+            mouse,
+            timer
+            )
     End Sub
 
     Private Async Sub Start(program As String)
@@ -164,7 +187,7 @@ Public NotInheritable Class ItemDetailPage
             Runtime.Run(program, ffi, cancelToken)
         Catch ex As Exception
             System.Diagnostics.Debug.WriteLine(ex)
-            TextWindow.Console.WriteLine(ex.Message)
+            FunBasic.Library.TextWindow.WriteLine(ex.Message)
         Finally
             done.Set()
         End Try
@@ -175,6 +198,14 @@ Public NotInheritable Class ItemDetailPage
     End Sub
 
     Private Async Sub [Stop]()
+        mouse.Dispose()
+        console.Dispose()
+        controls.Dispose()
+        renderer.Dispose()
+        Await Task.Run(Sub() StopRuntime())
+    End Sub
+
+    Private Async Sub StopRuntime()
         ffi.Unhook()
         timer.Pause()
         cancelToken.Cancel()

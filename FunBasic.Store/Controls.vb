@@ -1,19 +1,32 @@
 ﻿Imports Windows.UI.Core
+Imports FunBasic.Library
 
 Public Class Controls
-    Implements FunBasic.Library.IControls
+    Implements IControls, IDisposable
 
     Public Class Control
         Public Property Element As UIElement
         Public Property Caption As String
+        Public Property Unsubscribe As Action
     End Class
 
     Dim MyCanvas As Canvas
+    Dim MyStyle As IStyle
     Dim Clicked As String
     Dim ControlLookup = New Dictionary(Of String, Control)()
 
-    Public Sub New(canvas As Canvas)
+    Public Sub New(style As IStyle, canvas As Canvas)
         Me.MyCanvas = canvas
+        Me.MyStyle = style
+    End Sub
+
+    Public Sub Dispose() Implements IDisposable.Dispose
+        For Each control As Control In ControlLookup.Values
+            If control.Unsubscribe IsNot Nothing Then
+                control.Unsubscribe.Invoke()
+                control.Unsubscribe = Nothing
+            End If
+        Next
     End Sub
 
     Private Async Sub Dispatch(action As DispatchedHandler)
@@ -29,8 +42,9 @@ Public Class Controls
         Dispatch(Sub()
                      Dim button = New Button With {.Content = text}
                      button.Name = name
+                     button.Foreground = New SolidColorBrush(ColorLookup.GetColor(MyStyle.BrushColor))
                      AddHandler button.Click, AddressOf ButtonClick
-                     'TODO: unhook
+                     control.Unsubscribe = Sub() RemoveHandler button.Click, AddressOf ButtonClick
                      Canvas.SetLeft(button, x)
                      Canvas.SetTop(button, y)
                      MyCanvas.Children.Add(button)
@@ -45,11 +59,11 @@ Public Class Controls
         Dim control = New Control()
         ControlLookup.Add(name, control)
         Dispatch(Sub()
-                     ' TODO: use GraphicsWindow Font settings
                      Dim textBox = New TextBox()
                      textBox.Name = name
+                     textBox.Foreground = New SolidColorBrush(ColorLookup.GetColor(MyStyle.BrushColor))
                      AddHandler textBox.TextChanged, AddressOf TextChanged
-                     'TODO: unhook
+                     control.Unsubscribe = Sub() RemoveHandler textBox.TextChanged, AddressOf TextChanged
                      Canvas.SetLeft(textBox, x)
                      Canvas.SetTop(textBox, y)
                      MyCanvas.Children.Add(textBox)
@@ -64,11 +78,11 @@ Public Class Controls
         Dim control = New Control()
         ControlLookup.Add(name, control)
         Dispatch(Sub()
-                     ' TODO: use GraphicsWindow Font settings
                      Dim textBox = New TextBox With {.AcceptsReturn = True}
                      textBox.Name = name
+                     textBox.Foreground = New SolidColorBrush(ColorLookup.GetColor(MyStyle.BrushColor))
                      AddHandler textBox.TextChanged, AddressOf TextChanged
-                     'TODO: unhook
+                     control.Unsubscribe = Sub() RemoveHandler textBox.TextChanged, AddressOf TextChanged
                      Canvas.SetLeft(textBox, x)
                      Canvas.SetTop(textBox, y)
                      MyCanvas.Children.Add(textBox)
@@ -130,7 +144,5 @@ Public Class Controls
 
     Public Event ButtonClicked(sender As Object, e As EventArgs) _
         Implements Library.IControls.ButtonClicked
-
-
 
 End Class
