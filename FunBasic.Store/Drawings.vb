@@ -112,6 +112,18 @@ Public Class Drawings
                  End Sub)
     End Sub
 
+    Public Sub DrawResizedImage(url As String, x As Double, y As Double, width As Double, height As Double) _
+        Implements Library.IDrawings.DrawResizedImage
+        Dispatch(Sub()
+                     Dim image = MyImages.CreateImage(url)
+                     Canvas.SetLeft(image, x)
+                     Canvas.SetTop(image, y)
+                     image.Width = width
+                     image.Height = height
+                     MyDrawingCanvas.Children.Add(image)
+                 End Sub)
+    End Sub
+
     Public Sub DrawText(x As Double, y As Double, _
                         text As String) _
     Implements Library.IDrawings.DrawText

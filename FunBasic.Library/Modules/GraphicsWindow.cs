@@ -150,6 +150,11 @@
          _drawings.DrawBoundText(x, y, width, text);
       }
 
+      public static void DrawEllipse(double x1, double y1, double width, double height)
+      {
+         _drawings.DrawEllipse(x1, y1, width, height);
+      }
+
       public static void DrawLine(double x1, double y1, double x2, double y2)
       {
          _drawings.DrawLine(x1, y1, x2, y2);
@@ -168,6 +173,11 @@
       public static void DrawImage(string imageName, double x, double y)
       {
          _drawings.DrawImage(imageName, x, y);
+      }
+
+      public static void DrawResizedImage(string imageName, double x, double y, double width, double height)
+      {
+         _drawings.DrawResizedImage(imageName, x, y, width, height);
       }
 
       public static void SetPixel(double x, double y, string color)
