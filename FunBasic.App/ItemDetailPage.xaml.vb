@@ -1,9 +1,8 @@
 ﻿Imports System.Linq, System.Text, System.Reflection, System.Threading
 Imports FunBasic.Interpreter, FunBasic.Store
-Imports ActiproSoftware.Text, ActiproSoftware.Text.Implementation
 Imports Windows.UI
 Imports Windows.UI.Core
-Imports ActiproSoftware.Text.Lexing
+Imports ActiproSoftware.Text, ActiproSoftware.Text.Implementation, ActiproSoftware.Text.Lexing
 Imports ActiproSoftware.UI.Xaml.Controls.SyntaxEditor.IntelliPrompt.Implementation
 Imports ActiproSoftware.UI.Xaml.Controls.SyntaxEditor.IntelliPrompt
 
@@ -277,9 +276,9 @@ Public NotInheritable Class ItemDetailPage
                     session.CanCommitWithoutPopup = False
                     For Each item In memberLookup.Keys
                         Dim ci = New CompletionItem()
-                        ci.Text = item
-                        'ci.AutoCompletePostText = item
+                        ci.Text = item                        
                         ci.AutoCompletePreText = item
+                        ci.ImageSourceProvider = New CommonImageSourceProvider(CommonImage.ClassPublic)
                         session.Items.Add(ci)
                     Next
                     session.Open(editor.ActiveView)
@@ -297,9 +296,12 @@ Public NotInheritable Class ItemDetailPage
                             Dim session As CompletionSession = New CompletionSession()
                             For Each item In memberLookup(reader.TokenText)
                                 Dim ci = New CompletionItem()
-                                ci.ImageSourceProvider = New CommonImageSourceProvider(CommonImage.MethodPublic)
+                                If item.Item2.Contains("(") Then
+                                    ci.ImageSourceProvider = New CommonImageSourceProvider(CommonImage.MethodPublic)
+                                Else
+                                    ci.ImageSourceProvider = New CommonImageSourceProvider(CommonImage.PropertyPublic)
+                                End If
                                 ci.Text = item.Item1
-                                'ci.AutoCompletePostText = item.Item1
                                 ci.AutoCompletePreText = item.Item1
                                 ci.DescriptionProvider = New PlainTextContentProvider(item.Item2)
                                 session.Items.Add(ci)
