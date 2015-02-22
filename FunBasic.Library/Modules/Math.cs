@@ -78,10 +78,14 @@
          return System.Math.Sin(number);
       }
 
-      public static double GetRadians(double angle)
+      public static double GetRadians(double degrees)
       {
-         return (angle % 360) * Pi / 180.0;
+         return (degrees % 360) * Pi / 180.0;
       }
 
+      public static double GetDegrees(double radians)
+      {
+         return (180.0 * radians / Math.Pi) % 360;
+      }
    }
 }
