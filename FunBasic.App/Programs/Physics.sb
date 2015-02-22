@@ -1,14 +1,12 @@
 ﻿
 'Initialise graphics window
 GraphicsWindow.Hide()
-gw = 800
-gh = 600
+gw = GraphicsWindow.Width
+gh = GraphicsWindow.Height
 GraphicsWindow.CanResize = "False"
 GraphicsWindow.Top = (Desktop.Height-gh)/2
 GraphicsWindow.Left = (Desktop.Width-gw)/2
 GraphicsWindow.Title = "Bouncing balls with realistic collision physics"
-GraphicsWindow.Width = gw
-GraphicsWindow.Height = gh
 GraphicsWindow.BackgroundColor = "LightBlue"
 
 'Reduce gw for options
@@ -73,10 +71,13 @@ While ("True")
    EndFor
    energy = dt*dt*energy
    energy = Math.Floor(energy)
-   GraphicsWindow.BrushColor = "LightBlue"
-   GraphicsWindow.FillRectangle(gw+15,560,190,20)
-   GraphicsWindow.BrushColor = "Black"
-   GraphicsWindow.DrawText(gw+65,560,"Energy "+energy)
+   If energy <> lastEnergy Then
+     lastEnergy = energy
+	 GraphicsWindow.BrushColor = "LightBlue"
+     GraphicsWindow.FillRectangle(gw+15,560,190,20)
+     GraphicsWindow.BrushColor = "Black"
+     GraphicsWindow.DrawText(gw+65,560,"Energy "+energy)
+   EndIf
    If (ireset) Then
      reset()
      ireset = "False"
