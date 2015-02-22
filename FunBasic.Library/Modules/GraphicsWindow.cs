@@ -150,9 +150,9 @@
          _drawings.DrawBoundText(x, y, width, text);
       }
 
-      public static void DrawEllipse(double x1, double y1, double width, double height)
+      public static void DrawEllipse(double x, double y, double width, double height)
       {
-         _drawings.DrawEllipse(x1, y1, width, height);
+         _drawings.DrawEllipse(x, y, width, height);
       }
 
       public static void DrawLine(double x1, double y1, double x2, double y2)
@@ -187,9 +187,9 @@
       #endregion
 
       #region Fill
-      public static void FillEllipse(double x1, double y1, double width, double height)
+      public static void FillEllipse(double x, double y, double width, double height)
       {
-         _drawings.FillEllipse(x1, y1, width, height);
+         _drawings.FillEllipse(x, y, width, height);
       }
 
       public static void FillTriangle(double x1, double y1, double x2, double y2, double x3, double y3)
