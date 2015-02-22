@@ -40,7 +40,7 @@
          var ass = typeof(_Library).GetTypeInfo().Assembly;
          var types = ass.DefinedTypes;
          var lookup = new Dictionary<string, Tuple<string,string>[]>();
-         foreach(var ti in types)
+         foreach(var ti in types.Where(t => !t.IsInterface && !t.Name.StartsWith("_")))
          {
             var ty = ass.GetType("FunBasic.Library." + ti.Name);
             var ms =
