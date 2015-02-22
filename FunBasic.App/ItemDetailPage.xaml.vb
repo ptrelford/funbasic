@@ -3,6 +3,8 @@ Imports FunBasic.Interpreter, FunBasic.Store
 Imports ActiproSoftware.Text, ActiproSoftware.Text.Implementation
 Imports Windows.UI
 Imports Windows.UI.Core
+Imports ActiproSoftware.Text.Lexing
+Imports ActiproSoftware.UI.Xaml.Controls.SyntaxEditor.IntelliPrompt.Implementation
 
 ' The Item Detail Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234232
 
@@ -35,6 +37,8 @@ Public NotInheritable Class ItemDetailPage
     Private _defaultViewModel As New Common.ObservableDictionary()
 
 
+    Dim memberLookup As IDictionary(Of String, Tuple(Of String, String)())
+
     Public Sub New()
         InitializeComponent()
         Me._navigationHelper = New Common.NavigationHelper(Me)
@@ -45,9 +49,13 @@ Public NotInheritable Class ItemDetailPage
 
         AddHandler Me.MyDrawings.SizeChanged, AddressOf MyGraphics_SizeChanged
 
+        AddHandler Me.Code.DocumentTextChanged, AddressOf DocumentTextChanged
+
+        memberLookup = FunBasic.Library._Library.GetMemberLookup()
+
     End Sub
 
-    Private Sub MyGraphics_SizeChanged(sender As Object, e As SizeChangedEventArgs)        
+    Private Sub MyGraphics_SizeChanged(sender As Object, e As SizeChangedEventArgs)
         Me.MyDrawings.Clip.Rect = New Rect(0, 0, e.NewSize.Width, e.NewSize.Height)
         Me.MyShapes.Clip.Rect = New Rect(0, 0, e.NewSize.Width, e.NewSize.Height)
     End Sub
@@ -250,5 +258,33 @@ Public NotInheritable Class ItemDetailPage
             End If
         End Using
     End Function
+
+    Private Sub DocumentTextChanged(sender As Object, _
+                                    e As ActiproSoftware.UI.Xaml.Controls.SyntaxEditor.EditorSnapshotChangedEventArgs)
+        Dim editor = Code
+        If (e.TextChange.Source Is editor.ActiveView) Then
+            Select Case e.TypedText
+                Case "."
+                    ' Use a snapshot reader to iterate backwards through the active view's current text
+                    Dim reader As ITextSnapshotReader = editor.ActiveView.GetReader()
+                    reader.ReadCharacterReverseThrough("."c)
+                    Dim token As IToken = reader.ReadTokenReverse()                
+                    ' In production code, a token ID comparison would be better than this string comparison
+                    If ((token IsNot Nothing) AndAlso (memberLookup.ContainsKey(reader.TokenText))) Then
+                        ' A dot was typed after a "this" keyword so open the completion list session here
+                        Dim session As CompletionSession = New CompletionSession()
+                        For Each item In memberLookup(reader.TokenText)
+                            Dim ci = New CompletionItem()
+                            ci.ImageSourceProvider = New CommonImageSourceProvider(CommonImage.MethodPublic)
+                            ci.Text = item.Item1
+                            ci.AutoCompletePostText = item.Item1
+                            ci.DescriptionProvider = New PlainTextContentProvider(item.Item2)
+                            session.Items.Add(ci)
+                        Next
+                        session.Open(editor.ActiveView)
+                    End If
+            End Select
+        End If
+    End Sub
 
 End Class
