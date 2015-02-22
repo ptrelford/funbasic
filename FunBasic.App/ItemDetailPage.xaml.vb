@@ -1,10 +1,11 @@
-﻿Imports System.Text, System.Reflection, System.Threading
+﻿Imports System.Linq, System.Text, System.Reflection, System.Threading
 Imports FunBasic.Interpreter, FunBasic.Store
 Imports ActiproSoftware.Text, ActiproSoftware.Text.Implementation
 Imports Windows.UI
 Imports Windows.UI.Core
 Imports ActiproSoftware.Text.Lexing
 Imports ActiproSoftware.UI.Xaml.Controls.SyntaxEditor.IntelliPrompt.Implementation
+Imports ActiproSoftware.UI.Xaml.Controls.SyntaxEditor.IntelliPrompt
 
 ' The Item Detail Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234232
 
@@ -262,28 +263,51 @@ Public NotInheritable Class ItemDetailPage
     Private Sub DocumentTextChanged(sender As Object, _
                                     e As ActiproSoftware.UI.Xaml.Controls.SyntaxEditor.EditorSnapshotChangedEventArgs)
         Dim editor = Code
-        If (e.TextChange.Source Is editor.ActiveView) Then
-            Select Case e.TypedText
-                Case "."
-                    ' Use a snapshot reader to iterate backwards through the active view's current text
-                    Dim reader As ITextSnapshotReader = editor.ActiveView.GetReader()
-                    reader.ReadCharacterReverseThrough("."c)
-                    Dim token As IToken = reader.ReadTokenReverse()                
-                    ' In production code, a token ID comparison would be better than this string comparison
-                    If ((token IsNot Nothing) AndAlso (memberLookup.ContainsKey(reader.TokenText))) Then
-                        ' A dot was typed after a "this" keyword so open the completion list session here
-                        Dim session As CompletionSession = New CompletionSession()
-                        For Each item In memberLookup(reader.TokenText)
-                            Dim ci = New CompletionItem()
-                            ci.ImageSourceProvider = New CommonImageSourceProvider(CommonImage.MethodPublic)
-                            ci.Text = item.Item1
-                            ci.AutoCompletePostText = item.Item1
-                            ci.DescriptionProvider = New PlainTextContentProvider(item.Item2)
-                            session.Items.Add(ci)
-                        Next
-                        session.Open(editor.ActiveView)
-                    End If
-            End Select
+        If (e.TextChange.Source Is editor.ActiveView) Then            
+            If e.IsTypedWordStart And e.TypedText IsNot Nothing AndAlso memberLookup.Keys.Any(Function(x) x.StartsWith(e.TypedText, StringComparison.OrdinalIgnoreCase)) Then
+                ' Check input is at the start of a line
+                Dim start = e.ChangedSnapshotRange.StartPosition
+                Dim leftText = e.ChangedSnapshotRange.Snapshot.Lines(start.Line).Text.Substring(0, start.Character)
+                If Not String.IsNullOrWhiteSpace(leftText) Then
+                    Return
+                End If
+                ' If no completion session is currently open, show a completion list
+                If Not editor.IntelliPrompt.Sessions.Contains(IntelliPromptSessionTypes.Completion) Then
+                    Dim session As CompletionSession = New CompletionSession()
+                    session.CanCommitWithoutPopup = False
+                    For Each item In memberLookup.Keys
+                        Dim ci = New CompletionItem()
+                        ci.Text = item
+                        'ci.AutoCompletePostText = item
+                        ci.AutoCompletePreText = item
+                        session.Items.Add(ci)
+                    Next
+                    session.Open(editor.ActiveView)
+                End If
+            Else
+                Select Case e.TypedText
+                    Case "."
+                        ' Use a snapshot reader to iterate backwards through the active view's current text
+                        Dim reader As ITextSnapshotReader = editor.ActiveView.GetReader()
+                        reader.ReadCharacterReverseThrough("."c)
+                        Dim token As IToken = reader.ReadTokenReverse()
+                        ' In production code, a token ID comparison would be better than this string comparison
+                        If ((token IsNot Nothing) AndAlso (memberLookup.ContainsKey(reader.TokenText))) Then
+                            ' A dot was typed after a "this" keyword so open the completion list session here
+                            Dim session As CompletionSession = New CompletionSession()
+                            For Each item In memberLookup(reader.TokenText)
+                                Dim ci = New CompletionItem()
+                                ci.ImageSourceProvider = New CommonImageSourceProvider(CommonImage.MethodPublic)
+                                ci.Text = item.Item1
+                                'ci.AutoCompletePostText = item.Item1
+                                ci.AutoCompletePreText = item.Item1
+                                ci.DescriptionProvider = New PlainTextContentProvider(item.Item2)
+                                session.Items.Add(ci)
+                            Next
+                            session.Open(editor.ActiveView)
+                        End If
+                End Select
+            End If
         End If
     End Sub
 
