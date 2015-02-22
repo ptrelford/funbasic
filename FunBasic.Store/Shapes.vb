@@ -165,10 +165,14 @@ Public Class Shapes
 
     Public Sub SetText(name As String, text As String) _
         Implements IShapes.SetText
-        Dispatch(Sub()
-                     Dim textBlock = CType(ShapeLookup(name).Element, TextBlock)
-                     textBlock.Text = text
-                 End Sub)
+        Dim shape As ShapeInfo = Nothing
+        If ShapeLookup.TryGetValue(name, shape) Then
+            Dispatch(
+                Sub()
+                    Dim textBlock = CType(shape.Element, TextBlock)
+                    textBlock.Text = text
+                End Sub)
+        End If
     End Sub
 
     Public Function GetLeft(name As String) As Double _
@@ -299,16 +303,20 @@ Public Class Shapes
     Public Function GetOpacity(name As String) As Integer _
         Implements IShapes.GetOpacity
         Dim opacity = 0
-        Dim shape = ShapeLookup(name)
-        opacity = shape.Opacity
+        Dim shape As ShapeInfo = Nothing
+        If ShapeLookup.TryGetValue(name, shape) Then
+            opacity = shape.Opacity
+        End If
         Return opacity
     End Function
 
     Public Sub SetOpacity(name As String, value As Integer) _
         Implements IShapes.SetOpacity
-        Dim shape = ShapeLookup(name)
-        shape.Opacity = value
-        Dispatch(Sub() shape.Element.Opacity = CType(value, Double) / 100.0)
+        Dim shape As ShapeInfo = Nothing
+        If ShapeLookup.TryGetValue(name, shape) Then            
+            shape.Opacity = value
+            Dispatch(Sub() shape.Element.Opacity = CType(value, Double) / 100.0)
+        End If
     End Sub
 
 #End Region
