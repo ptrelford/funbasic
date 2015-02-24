@@ -263,7 +263,9 @@ Public NotInheritable Class ItemDetailPage
                                     e As ActiproSoftware.UI.Xaml.Controls.SyntaxEditor.EditorSnapshotChangedEventArgs)
         Dim editor = Code
         If (e.TextChange.Source Is editor.ActiveView) Then            
-            If e.IsTypedWordStart And e.TypedText IsNot Nothing AndAlso memberLookup.Keys.Any(Function(x) x.StartsWith(e.TypedText, StringComparison.OrdinalIgnoreCase)) Then
+            If e.IsTypedWordStart _
+                And e.TypedText IsNot Nothing Then
+                'AndAlso memberLookup.Keys.Any(Function(x) x.StartsWith(e.TypedText, StringComparison.OrdinalIgnoreCase)) Then                
                 ' Check input is at the start of a line
                 Dim start = e.ChangedSnapshotRange.StartPosition
                 Dim leftText = e.ChangedSnapshotRange.Snapshot.Lines(start.Line).Text.Substring(0, start.Character)
@@ -276,11 +278,23 @@ Public NotInheritable Class ItemDetailPage
                     session.CanCommitWithoutPopup = False
                     For Each item In memberLookup.Keys
                         Dim ci = New CompletionItem()
-                        ci.Text = item                        
+                        ci.Text = item
                         ci.AutoCompletePreText = item
                         ci.ImageSourceProvider = New CommonImageSourceProvider(CommonImage.ClassPublic)
                         session.Items.Add(ci)
                     Next
+                    Dim keywords = New List(Of String)()
+                    keywords.Add("If")
+                    keywords.Add("For")
+                    keywords.Add("While")                    
+                    For Each item In keywords
+                        Dim ci = New CompletionItem()
+                        ci.Text = item
+                        ci.AutoCompletePreText = item
+                        ci.ImageSourceProvider = New CommonImageSourceProvider(CommonImage.Keyword)
+                        session.Items.Add(ci)
+                    Next
+                    session.SortItems()
                     session.Open(editor.ActiveView)
                 End If
             Else
