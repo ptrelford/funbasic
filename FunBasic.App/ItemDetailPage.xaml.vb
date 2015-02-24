@@ -173,6 +173,8 @@ Public NotInheritable Class ItemDetailPage
         mouse = New Mouse(Me.MyDrawings)
         cancellationTokenSource = New CancellationTokenSource()
 
+        Dim speech = New FunBasic.Store.Speech(Me.MyDrawings.Dispatcher)
+
         FunBasic.Library._Library.Initialize( _
             console,
             surface,
@@ -185,6 +187,7 @@ Public NotInheritable Class ItemDetailPage
             keyboard,
             mouse,
             timer,
+            speech,
             cancellationTokenSource.Token
             )
     End Sub

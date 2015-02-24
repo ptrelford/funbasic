@@ -140,6 +140,7 @@
     <Compile Include="Renderer.vb" />
     <Compile Include="Shapes.vb" />
     <Compile Include="Sounds.vb" />
+    <Compile Include="Speech.vb" />
     <Compile Include="Style.vb" />
     <Compile Include="Surface.vb" />
     <Compile Include="Timer.vb" />

@@ -20,6 +20,7 @@
          IKeyboard keyboard,
          IMouse mouse,
          ITimer timer,
+         ISpeech speech,
          CancellationToken token)
       {
          TextWindow.Init(console);
@@ -32,6 +33,7 @@
          Sound.Init(sounds);                      
          Timer.Init(timer);
          Stack.Init();
+         Speech.Init(speech);
          Program.Init(token);
       }
 
@@ -45,7 +47,12 @@
             var ty = ass.GetType("FunBasic.Library." + ti.Name);
             var ms =
                ty.GetRuntimeMethods()
-                 .Where(m => m.IsStatic && m.IsPublic && !(m.Name.StartsWith("get_") || m.Name.StartsWith("set_") || m.Name.StartsWith("add_") || m.Name.StartsWith("remove_")))
+                 .Where(m => 
+                        m.IsStatic && m.IsPublic && 
+                        !(m.Name.StartsWith("get_") || 
+                          m.Name.StartsWith("set_") || 
+                          m.Name.StartsWith("add_") || 
+                          m.Name.StartsWith("remove_")))
                  .Select(m => Tuple.Create(m.Name, "Method "+m.Name + "(" + String.Join(", ",m.GetParameters().Select(pi => pi.Name)) +")"));
             
             var ps =
