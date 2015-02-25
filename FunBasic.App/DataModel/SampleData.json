@@ -169,14 +169,14 @@
     "Title": "Maths",
     "Subtitle": "Maths fun",
     "ImagePath": "Assets/LightGray.png",
-    "Description" : "A collection of maths samples.",
+    "Description" : "A collection of maths related samples.",
     "Items":
     [
       {
         "UniqueId": "Group-4-Item-1",
         "Title": "Calculator",
         "Subtitle": "Pocket calculator",
-        "ImagePath": "Assets/DarkGray.png",
+        "ImagePath": "Assets/Calculator.png",
         "Description" : "Tap the calculator buttons to compute sums.",
         "Content" : "",
         "Program" : "Calculator.sb"
@@ -185,7 +185,7 @@
         "UniqueId": "Group-4-Item-2",
         "Title": "Abacus",
         "Subtitle": "Graphical abavus",
-        "ImagePath": "Assets/DarkGray.png",
+        "ImagePath": "Assets/Abacus.png",
         "Description" : "Tap the colorful beads to make numbers.",
         "Content" :  "",
         "Program" : "Abacus.sb"
@@ -194,7 +194,7 @@
         "UniqueId": "Group-4-Item-3",
         "Title": "Analogue Clock",
         "Subtitle": "Read the current time.",
-        "ImagePath": "Assets/DarkGray.png",
+        "ImagePath": "Assets/Clock.png",
         "Description" : "See the current time on this wood faced analogue clock.",
         "Content" : "",
         "Program" : "Clock.sb"
@@ -203,16 +203,16 @@
         "UniqueId": "Group-4-Item-4",
         "Title": "Physics",
         "Subtitle": "Physics simulation",
-        "ImagePath": "Assets/DarkGray.png",
+        "ImagePath": "Assets/Physics.png",
         "Description" : "Edit values in this physics simulation.",
         "Content" : "",
         "Program" : "Physics.sb"
       },
       {
         "UniqueId": "Group-4-Item-5",
-        "Title": "Moon phases",
-        "Subtitle": "Moon visualization",
-        "ImagePath": "Assets/DarkGray.png",
+        "Title": "Moon",
+        "Subtitle": "Moon phases",
+        "ImagePath": "Assets/Moon.png",
         "Description" : "View the phases of the moon.",
         "Content" : "",
         "Program" : "MoonPhases.sb"
