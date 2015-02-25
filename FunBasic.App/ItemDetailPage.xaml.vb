@@ -15,6 +15,7 @@ Imports ActiproSoftware.UI.Xaml.Controls.SyntaxEditor.IntelliPrompt
 Public NotInheritable Class ItemDetailPage
     Inherits Page
 
+#Region "Navigation stuff"
     ''' <summary>
     ''' NavigationHelper is used on each page to aid in navigation and 
     ''' process lifetime management
@@ -35,41 +36,6 @@ Public NotInheritable Class ItemDetailPage
         End Get
     End Property
     Private _defaultViewModel As New Common.ObservableDictionary()
-
-
-    Dim memberLookup As IDictionary(Of String, Tuple(Of String, String)())
-
-    Public Sub New()
-        InitializeComponent()
-        Me._navigationHelper = New Common.NavigationHelper(Me)
-        AddHandler Me._navigationHelper.LoadState,
-            AddressOf NavigationHelper_LoadState
-
-        Code.Document.Language = LoadLanguageDefinitionFromResourceStream("FunBasic.langdef")
-
-        AddHandler Me.MyDrawings.SizeChanged, AddressOf MyGraphics_SizeChanged
-
-        AddHandler Me.Code.DocumentTextChanged, AddressOf DocumentTextChanged
-
-        memberLookup = FunBasic.Library._Library.GetMemberLookup()
-
-    End Sub
-
-    Private Sub MyGraphics_SizeChanged(sender As Object, e As SizeChangedEventArgs)
-        Me.MyDrawings.Clip.Rect = New Rect(0, 0, e.NewSize.Width, e.NewSize.Height)
-        Me.MyShapes.Clip.Rect = New Rect(0, 0, e.NewSize.Width, e.NewSize.Height)
-    End Sub
-
-    Protected Overrides Sub OnKeyDown(e As KeyRoutedEventArgs)
-        If e.Key = Windows.System.VirtualKey.F5 Then
-            e.Handled = True
-            If StartButton.IsEnabled Then
-                StartButton_Click(Me, e)
-            End If
-        End If
-        'MyBase.OnKeyDown(e)
-    End Sub
-
 
     ''' <summary>
     ''' Populates the page with content passed during navigation.  Any saved state is also
@@ -93,6 +59,7 @@ Public NotInheritable Class ItemDetailPage
         Dim jsonText As String = Await FileIO.ReadTextAsync(file)
         Me.Code.Text = jsonText
     End Sub
+#End Region
 
 #Region "NavigationHelper registration"
 
@@ -116,6 +83,42 @@ Public NotInheritable Class ItemDetailPage
         _navigationHelper.OnNavigatedFrom(e)
     End Sub
 #End Region
+
+    Dim memberLookup As IDictionary(Of String, Tuple(Of String, String)())
+
+    Public Sub New()
+        InitializeComponent()
+        Me._navigationHelper = New Common.NavigationHelper(Me)
+        AddHandler Me._navigationHelper.LoadState,
+            AddressOf NavigationHelper_LoadState
+
+        Code.Document.Language = LoadLanguageDefinitionFromResourceStream("FunBasic.langdef")
+        Code.Document.Language.RegisterService(New CustomQuickInfoProvider())
+        Code.IsMouseWheelZoomEnabled = True
+        Code.ZoomLevel = 1.5
+
+        AddHandler Me.MyDrawings.SizeChanged, AddressOf MyGraphics_SizeChanged
+
+        AddHandler Me.Code.DocumentTextChanged, AddressOf DocumentTextChanged
+
+        memberLookup = FunBasic.Library._Library.GetMemberLookup()
+
+    End Sub
+
+    Private Sub MyGraphics_SizeChanged(sender As Object, e As SizeChangedEventArgs)
+        Me.MyDrawings.Clip.Rect = New Rect(0, 0, e.NewSize.Width, e.NewSize.Height)
+        Me.MyShapes.Clip.Rect = New Rect(0, 0, e.NewSize.Width, e.NewSize.Height)
+    End Sub
+
+    Protected Overrides Sub OnKeyDown(e As KeyRoutedEventArgs)
+        If e.Key = Windows.System.VirtualKey.F5 Then
+            e.Handled = True
+            If StartButton.IsEnabled Then
+                StartButton_Click(Me, e)
+            End If
+        End If
+        'MyBase.OnKeyDown(e)
+    End Sub
 
     Dim ffi As New FFI()
     Dim timer As New FunBasic.Store.Timer()
@@ -265,7 +268,7 @@ Public NotInheritable Class ItemDetailPage
     Private Sub DocumentTextChanged(sender As Object, _
                                     e As ActiproSoftware.UI.Xaml.Controls.SyntaxEditor.EditorSnapshotChangedEventArgs)
         Dim editor = Code
-        If (e.TextChange.Source Is editor.ActiveView) Then            
+        If (e.TextChange.Source Is editor.ActiveView) Then
             If e.IsTypedWordStart _
                 And e.TypedText IsNot Nothing Then
                 'AndAlso memberLookup.Keys.Any(Function(x) x.StartsWith(e.TypedText, StringComparison.OrdinalIgnoreCase)) Then                
@@ -289,7 +292,7 @@ Public NotInheritable Class ItemDetailPage
                     Dim keywords = New List(Of String)()
                     keywords.Add("If")
                     keywords.Add("For")
-                    keywords.Add("While")                    
+                    keywords.Add("While")
                     For Each item In keywords
                         Dim ci = New CompletionItem()
                         ci.Text = item

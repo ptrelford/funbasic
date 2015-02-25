@@ -13,7 +13,10 @@
     <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{F184B08F-C81C-45F6-A57F-5ABD9991F28F}</ProjectTypeGuids>
-    <PackageCertificateKeyFile>FunBasic.App_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile>FunBasic.App_StoreKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateThumbprint>8696E9C6F8CD8F5D6859A4C1907EDDA6E6314312</PackageCertificateThumbprint>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxBundlePlatforms>neutral</AppxBundlePlatforms>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -135,6 +138,7 @@
     <Compile Include="App.xaml.vb">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomQuickInfoProvider.vb" />
     <Compile Include="GroupedItemsPage.xaml.vb">
       <DependentUpon>GroupedItemsPage.xaml</DependentUpon>
     </Compile>
@@ -152,14 +156,19 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <Content Include="Assets\1942.png" />
+    <Content Include="Assets\Abacus.png" />
     <Content Include="Assets\Asteroids.png" />
+    <Content Include="Assets\Calculator.png" />
     <Content Include="Assets\Chomper.png" />
+    <Content Include="Assets\Clock.png" />
     <Content Include="Assets\FractalTree.png" />
+    <Content Include="Assets\Moon.png" />
     <Content Include="Assets\MoveObject.png" />
     <Content Include="Assets\MulticolorTriangle.png" />
     <Content Include="Assets\PaddleGame.png" />
     <Content Include="Assets\Paint.png" />
     <Content Include="Assets\Pattern.png" />
+    <Content Include="Assets\Physics.png" />
     <Content Include="Assets\PolkaDots.png" />
     <Content Include="Assets\Randomize.png" />
     <Content Include="Assets\SpiralCircles.png" />
@@ -167,6 +176,9 @@
     <Content Include="Assets\Tetris.png" />
     <Content Include="Assets\TurtleDodger.png" />
     <Content Include="Images\turtle.png" />
+    <None Include="FunBasic.App_StoreKey.pfx" />
+    <None Include="Package.StoreAssociation.xml" />
+    <Content Include="Programs\MoonPhases.sb" />
     <Content Include="Sounds\BeepBeep.wav" />
     <Content Include="Sounds\BellRing.wav" />
     <Content Include="Sounds\Chime.wav" />
@@ -192,6 +204,11 @@
     <Content Include="Programs\Pattern.sb" />
     <Content Include="Programs\SpiralCircles.sb" />
     <Content Include="Programs\Randomize.sb" />
+    <Content Include="Programs\EasyGraf.sb" />
+    <Content Include="Programs\Abacus.sb" />
+    <Content Include="Programs\Calculator.sb" />
+    <Content Include="Programs\Physics.sb" />
+    <Content Include="Programs\Clock.sb" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Logo.scale-100.png" />
