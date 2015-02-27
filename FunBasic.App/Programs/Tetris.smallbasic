@@ -163,7 +163,7 @@ Sub DrawPreviewPiece
 
   XOFFSETBK = XOFFSET
   YOFFSETBK = YOFFSET
-  XOFFSET = XOFFSET + Array.GetValue(Array.GetValue(h, -1), "pviewx") ' Array.GetValue(h, -1) = the template name
+  XOFFSET = XOFFSET - 20 + Array.GetValue(Array.GetValue(h, -1), "pviewx") ' Array.GetValue(h, -1) = the template name
   YOFFSET = YOFFSET + Array.GetValue(Array.GetValue(h, -1), "pviewy") ' Array.GetValue(h, -1) = the template name
   MovePiece()  'in: ypos, xpos, h
 
@@ -306,7 +306,7 @@ Sub CheckStop ' in: ypos, xpos, h ret: done
     score = score + 1
     PrintScore()
 
-    ' Delete clared lines
+    ' Delete cleared lines
     DeleteLines()
   EndIf
 EndSub
@@ -389,8 +389,8 @@ Sub SetupCanvas
   GraphicsWindow.BrushColor = "Pink"
   x = XOFFSET + PREVIEW_xpos * BWIDTH - BWIDTH
   y = YOFFSET + PREVIEW_ypos * BWIDTH - BWIDTH
-  GraphicsWindow.FillRectangle(x, y, BWIDTH * 5, BWIDTH * 6)
-  GraphicsWindow.DrawRectangle(x, y, BWIDTH * 5, BWIDTH * 6)
+  GraphicsWindow.FillRectangle(x - 20, y, BWIDTH * 5, BWIDTH * 6)
+  GraphicsWindow.DrawRectangle(x - 20, y, BWIDTH * 5, BWIDTH * 6)
 
   GraphicsWindow.FillRectangle(x - 20, y + 190, 310, 170)
   GraphicsWindow.DrawRectangle(x - 20, y + 190, 310, 170)
@@ -426,14 +426,14 @@ EndSub
 Sub PrintScore
   GraphicsWindow.PenWidth = 4
   GraphicsWindow.BrushColor = "Pink"
-  GraphicsWindow.FillRectangle(500, 65, 153, 50)
+  GraphicsWindow.FillRectangle(480, 65, 150, 50)
   GraphicsWindow.BrushColor = "Black"
-  GraphicsWindow.DrawRectangle(500, 65, 153, 50)
+  GraphicsWindow.DrawRectangle(480, 65, 150, 50)
   GraphicsWindow.FontItalic = "False"
   GraphicsWindow.FontSize = 32
   GraphicsWindow.FontName = "Impact"
   GraphicsWindow.BrushColor = "Black"
-  GraphicsWindow.DrawText(505, 70, Text.Append(Text.GetSubText( "00000000", 0, 8 - Text.GetLength( score ) ), score))
+  GraphicsWindow.DrawText(485, 70, Text.Append(Text.GetSubText( "00000000", 0, 8 - Text.GetLength( score ) ), score))
 EndSub
 
 
