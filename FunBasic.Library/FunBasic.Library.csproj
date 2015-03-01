@@ -104,10 +104,12 @@
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interfaces\IFlickr.cs" />
     <Compile Include="Interfaces\ISpeech.cs" />
     <Compile Include="Modules\Clock.cs" />
     <Compile Include="Modules\Controls.cs" />
     <Compile Include="Modules\Desktop.cs" />
+    <Compile Include="Modules\Flickr.cs" />
     <Compile Include="Modules\GraphicsWindow.cs" />
     <Compile Include="Interfaces\IConsole.cs" />
     <Compile Include="Interfaces\IControls.cs" />

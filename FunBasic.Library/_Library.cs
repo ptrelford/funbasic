@@ -20,6 +20,7 @@
          IKeyboard keyboard,
          IMouse mouse,
          ITimer timer,
+         IFlickr flickr,
          ISpeech speech,
          CancellationToken token)
       {
@@ -33,6 +34,7 @@
          Sound.Init(sounds);                      
          Timer.Init(timer);
          Stack.Init();
+         Flickr.Init(flickr);
          Speech.Init(speech);
          Program.Init(token);
       }

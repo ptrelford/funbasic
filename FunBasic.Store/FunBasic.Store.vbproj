@@ -133,6 +133,7 @@
     <Compile Include="DivideByTwoConverter.vb" />
     <Compile Include="FFI.vb" />
     <Compile Include="Drawings.vb" />
+    <Compile Include="Flickr.vb" />
     <Compile Include="Images.vb" />
     <Compile Include="Keyboard.vb" />
     <Compile Include="Mouse.vb" />

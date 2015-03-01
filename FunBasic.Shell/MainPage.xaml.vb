@@ -50,6 +50,7 @@ Public NotInheritable Class MainPage
         Dim sounds = New Sounds(Nothing, Nothing, Nothing, Nothing, Nothing)
         Dim keyboard = New Keyboard()
         Dim mouse = New FunBasic.Store.Mouse(Me.MyGraphics)
+        Dim flickr = New FunBasic.Store.Flickr()
         Dim speech = New FunBasic.Store.Speech(Me.MyGraphics.Dispatcher)
         Dim token = New CancellationTokenSource()
         FunBasic.Library._Library.Initialize( _
@@ -64,6 +65,7 @@ Public NotInheritable Class MainPage
             keyboard,
             mouse,
             timer,
+            flickr,
             speech,
             token.Token)
     End Sub

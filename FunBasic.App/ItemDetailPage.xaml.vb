@@ -95,7 +95,6 @@ Public NotInheritable Class ItemDetailPage
         Code.Document.Language = LoadLanguageDefinitionFromResourceStream("FunBasic.langdef")
         Code.Document.Language.RegisterService(New CustomQuickInfoProvider())
         Code.IsMouseWheelZoomEnabled = True
-        Code.ZoomLevel = 1.5
 
         AddHandler Me.MyDrawings.SizeChanged, AddressOf MyGraphics_SizeChanged
 
@@ -175,7 +174,7 @@ Public NotInheritable Class ItemDetailPage
         Dim keyboard = New Keyboard()
         mouse = New Mouse(Me.MyDrawings)
         cancellationTokenSource = New CancellationTokenSource()
-
+        Dim flickr = New FunBasic.Store.Flickr()
         Dim speech = New FunBasic.Store.Speech(Me.MyDrawings.Dispatcher)
 
         FunBasic.Library._Library.Initialize( _
@@ -190,6 +189,7 @@ Public NotInheritable Class ItemDetailPage
             keyboard,
             mouse,
             timer,
+            flickr,
             speech,
             cancellationTokenSource.Token
             )
