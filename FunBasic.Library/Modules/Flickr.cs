@@ -13,5 +13,10 @@
       {
          return _flickr.GetInterestingPhoto();
       }
+
+      public static string GetRandomPicture(string tag)
+      {
+         return _flickr.GetTaggedPhoto(tag);
+      }
    }
 }
