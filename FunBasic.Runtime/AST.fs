@@ -28,6 +28,7 @@ and clause =
     | Is of comparison  * value
     | Range of value * value
     | Pattern of pattern
+type info = {Start:int;End:int}
 /// Small Basic expression
 type expr =
     | Literal of value
@@ -42,9 +43,10 @@ type expr =
 and location =
     | Location of identifier * expr list
 and invoke =
-    | Call of string * expr list // Language extension
-    | Method of string * string * expr list
+    | Call of string * exprInfo list // Language extension
+    | Method of string * string * exprInfo list
     | PropertyGet of string * string
+and exprInfo = expr * info
 type assign =
     | Set of identifier * expr
 /// Small Basic instruction

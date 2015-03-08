@@ -165,11 +165,11 @@ let rec eval state (expr:expr) =
               | false, _ -> String ""
           | _ -> invalidOp "Expecting array index"
        let array = 
-         match vars.TryGetValue identifier with
-         | true, Array array -> array
-         | true, String s -> toArray s
-         | true, _ -> invalidOp "Expecting array"
-         | false, _ -> toArray ""
+          match vars.TryGetValue identifier with
+          | true, Array array -> array
+          | true, String s -> toArray s
+          | true, _ -> invalidOp "Expecting array"
+          | false, _ -> toArray ""
        getAt array indices       
     | Func(call) -> invoke state call
     | Neg x -> arithmetic (eval state x) Multiply (Int(-1))
@@ -228,15 +228,15 @@ and invoke state invoke =
     let vars,locals,call,(ffi:IFFI) = state
     match invoke with
     | Call(name,args) ->
-         call (name,[for arg in args -> eval state arg])
+         call (name,[for (arg,_) in args -> eval state arg])
          String ""
-    | Method("Array","GetValue", [name; index]) ->
+    | Method("Array","GetValue", [name,_; index,_]) ->
         let name = eval state name
         match name with
         | String name ->
             eval state (GetAt(Location("Array."+name, [index])))        
         | _ -> invalidOp "Expecting array name"
-    | Method("Array","SetValue",[name;index;value]) ->
+    | Method("Array","SetValue",[name,_;index,_;value,_]) ->
         let name = eval state name
         let array =
             match name with
@@ -246,7 +246,7 @@ and invoke state invoke =
         let index = eval state index
         array.[index] <- eval state value
         String ""
-    | Method("Array","RemoveValue",[name;index]) ->
+    | Method("Array","RemoveValue",[name,_;index,_]) ->
         let name = eval state name
         let array =
             match name with
@@ -255,7 +255,7 @@ and invoke state invoke =
             | _ -> invalidOp "Expecting array name"
         array.Remove(eval state index) |> ignore
         String ""
-    | Method("Array", "GetItemCount", [name]) ->
+    | Method("Array", "GetItemCount", [name,_]) ->
         let name = eval state name
         let array =
             match name with
@@ -263,7 +263,7 @@ and invoke state invoke =
             | Array array -> array
             | _ -> invalidOp "Expecting array name"
         Int array.Count
-    | Method("Array", "GetAllIndices", [name]) ->
+    | Method("Array", "GetAllIndices", [name,_]) ->
         let name = eval state name
         let array =
             match name with
@@ -275,7 +275,7 @@ and invoke state invoke =
         for i, k in keys do indices.Add(i,k)
         Array indices
     | Method(ns,name,args) ->
-        let args = args |> List.map (eval state >> toObj)
+        let args = [for (arg,_) in args -> eval state arg |> toObj]
         ffi.MethodInvoke(ns,name,args |> List.toArray)
         |> fromObj
     | PropertyGet(ns,name) ->
@@ -388,7 +388,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
                | [] -> invalidOp "Expecting array index"
             let array = obtainArray vars identifier            
             setAt array indices
-        | Action(Call(name,args)) -> call (name, [for arg in args -> eval arg])             
+        | Action(Call(name,args)) -> call (name, [for (arg,_) in args -> eval arg])             
         | Action(call) -> invoke (state()) call |> ignore
         | If(condition) ->
             let rec check condition =

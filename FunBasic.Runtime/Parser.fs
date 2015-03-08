@@ -68,9 +68,11 @@ pnewtupleimpl :=
     |>> (fun xs -> NewTuple(xs))
 
 let pexpr = pconstruct
+let pexprinfo = pipe3 getPosition pexpr getPosition 
+                 (fun p1 e p2 -> e, {Start=int p1.Column;End=int p2.Column})
 
-let pmember = pipe3 (pidentifier_ws) (pchar '.') (pidentifier_ws) (fun tn _ mn -> tn,mn) 
-let pargs = between (str_ws "(") (str_ws ")") (sepBy pexpr (str_ws ","))
+let pmember = pipe3 (pidentifier_ws) (pchar '.') (pidentifier_ws) (fun tn _ mn -> tn,mn)
+let pargs = between (str_ws "(") (str_ws ")") (sepBy pexprinfo (str_ws ","))
 let pmemberinvoke =
     pipe2 pmember (opt pargs)
         (fun (tn,mn) args -> 

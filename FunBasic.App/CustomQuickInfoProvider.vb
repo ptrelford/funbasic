@@ -127,7 +127,7 @@ Public Class CustomQuickInfoProvider
     Public Overrides Function GetContext(ByVal hitTestResult As IHitTestResult) As Object
         Select Case hitTestResult.Type
             Case HitTestResultType.ViewTextAreaOverCharacter
-                ' Over a character... this is what the default base method implementation does:
+                ' Over a character... this is what the default base method implementation does:                
                 Return Me.GetContext(hitTestResult.View, hitTestResult.Offset)
             Case HitTestResultType.ViewMargin
                 ' Over a margin
@@ -162,6 +162,8 @@ Public Class CustomQuickInfoProvider
         Return context
     End Function
 
+    Dim memberLookup As IDictionary(Of String, Tuple(Of String, String)()) = FunBasic.Library._Library.GetMemberLookup()
+
     ''' <summary>
     ''' Requests that an <see cref="IQuickInfoSession"/> be opened for the specified <see cref="IEditorView"/>.
     ''' </summary>
@@ -174,16 +176,14 @@ Public Class CustomQuickInfoProvider
         ' Create a session and assign a context that can be used to identify it
         Dim session As New QuickInfoSession()
         session.Context = context
-
         Dim textRangeContext As TextRangeContext = TryCast(context, TextRangeContext)
         If textRangeContext IsNot Nothing Then
-            ' Get a reader initialized to the offset
-            Dim reader As ITextSnapshotReader = view.CurrentSnapshot.GetReader(textRangeContext.Range.StartOffset)
-            Dim token As IToken = reader.Token
-            If token IsNot Nothing Then
-                ' Create some marked-up content indicating the token at the offset and the line it's on
-                session.Content = New HtmlContentProvider(String.Format("Target word: <b>{0}</b><br/>Token: <b>{1}</b><br/><span style=""color: Green;"">Found on line {2}.</span>", HtmlContentProvider.Escape(view.CurrentSnapshot.GetSubstring(textRangeContext.Range)), token.Key, view.OffsetToPosition(textRangeContext.Range.StartOffset).Line + 1)).GetContent()
-
+            Dim position = view.OffsetToPosition(textRangeContext.Range.StartOffset)
+            Dim line = view.CurrentSnapshot.Lines(position.Line).Text
+            Dim info = Runtime.GetInfo(line, position.Character + 1, memberLookup)
+            If info IsNot Nothing Then
+                ' Create some marked-up content indicating the token at the offset and the line it's on                
+                session.Content = info
                 ' Open the session
                 session.Open(view, textRangeContext.Range)
                 Return True
