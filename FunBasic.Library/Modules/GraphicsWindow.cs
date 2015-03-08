@@ -214,6 +214,12 @@
          add { _keyboard.KeyDown += value; }
          remove { _keyboard.KeyDown -= value; }
       }
+
+      public static event System.EventHandler KeyUp
+      {
+         add { _keyboard.KeyUp += value; }
+         remove { _keyboard.KeyUp -= value; }
+      }
       #endregion
 
       #region Mouse

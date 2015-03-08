@@ -8,16 +8,20 @@ Public Class Keyboard
     Public Sub New()
         Dim window = CoreWindow.GetForCurrentThread()
         AddHandler window.KeyDown, AddressOf OnKeyDown
+        AddHandler window.KeyUp, AddressOf OnKeyUp
     End Sub
 
     Public Sub Dispose() Implements IDisposable.Dispose
         Dim window = CoreWindow.GetForCurrentThread()
         RemoveHandler window.KeyDown, AddressOf OnKeyDown
+        RemoveHandler window.KeyUp, AddressOf OnKeyUp
     End Sub
 
 #Region "Keyboard"
     Public Event KeyDown(sender As Object, e As EventArgs) _
         Implements Library.IKeyboard.KeyDown
+    Public Event KeyUp(sender As Object, e As EventArgs) _
+        Implements Library.IKeyboard.KeyUp
 
     Public ReadOnly Property LastKey As String Implements Library.IKeyboard.LastKey
         Get
@@ -41,6 +45,12 @@ Public Class Keyboard
         MyLastKey = args.VirtualKey
         RaiseEvent KeyDown(Me, New EventArgs)
     End Sub
+
+    Private Sub OnKeyUp(sender As CoreWindow, args As KeyEventArgs)
+        MyLastKey = args.VirtualKey
+        RaiseEvent KeyUp(Me, New EventArgs)
+    End Sub
+
 #End Region
 
 End Class
