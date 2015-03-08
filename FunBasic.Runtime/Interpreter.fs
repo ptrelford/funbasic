@@ -193,6 +193,7 @@ and arithmetic lhs op rhs =
     | Add, (String(AsInt l), String(AsInt r)) -> Int(l + r)
     | Add, (String l, String r) -> String(l + r)
     | Add, (String l, r) -> String(l + (r |> toObj).ToString())
+    | Add, (l, String r) -> String((l |> toObj).ToString() + r)
     | Subtract, (Int l,Int r) -> Int(l - r)
     | Subtract, AsDoubles (l,r) -> Double(l - r)
     | Subtract, (String(AsInt l), Int r) -> Int(l - r)
