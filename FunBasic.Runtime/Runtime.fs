@@ -38,7 +38,10 @@ let private GetMemberInfo(line:string, index:int, lookup:IDictionary<string,(str
       match instruction with
       | Assign(Set(_,x)) -> argInfo [x]
       | Action(invoke) -> invokeInfo invoke
-      | PropertySet(ns,name,_) -> methodInfo (ns,name)
+      | PropertySet(ns,name,x) -> 
+         match argInfo [x] with
+         | Some arg -> Some arg
+         | None -> methodInfo (ns,name)
       | If x | ElseIf x | While x | Select x -> argInfo [x]
       | For(Set(_,from),``to``,step) -> argInfo [from;``to``;step]
       | _ -> None
