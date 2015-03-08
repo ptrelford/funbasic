@@ -42,24 +42,26 @@ let patom =
 
 type Assoc = Associativity
 
-let opp = new OperatorPrecedenceParser<expr,unit,unit>()
+let opp = new OperatorPrecedenceParser<expr,_,_>()
 let pterm = opp.ExpressionParser
 let term = (patom .>> ws) <|> between (str_ws "(") (str_ws ")") pterm
 opp.TermParser <- term
-opp.AddOperator(InfixOperator("And", ws, 1, Assoc.Left, fun x y -> Logical(x,And,y)))
-opp.AddOperator(InfixOperator("and", ws, 1, Assoc.Left, fun x y -> Logical(x,And,y)))
-opp.AddOperator(InfixOperator("AND", ws, 1, Assoc.Left, fun x y -> Logical(x,And,y)))
-opp.AddOperator(InfixOperator("Or", ws, 1, Assoc.Left, fun x y -> Logical(x,Or,y)))
-opp.AddOperator(InfixOperator("or", ws, 1, Assoc.Left, fun x y -> Logical(x,Or,y)))
-opp.AddOperator(InfixOperator("OR", ws, 1, Assoc.Left, fun x y -> Logical(x,Or,y)))
-opp.AddOperator(InfixOperator("+", ws, 3, Assoc.Left, fun x y -> Arithmetic(x, Add, y)))
-opp.AddOperator(InfixOperator("-", ws, 3, Assoc.Left, fun x y -> Arithmetic(x, Subtract, y)))
-opp.AddOperator(InfixOperator("*", ws, 4, Assoc.Left, fun x y -> Arithmetic(x, Multiply, y)))
-opp.AddOperator(InfixOperator("/", ws, 4, Assoc.Left, fun x y -> Arithmetic(x, Divide, y)))
+
+let addInfix name pri assoc f = opp.AddOperator(InfixOperator(name, ws, pri, assoc, f))
+addInfix "And" 1 Assoc.Left (fun x y -> Logical(x,And,y))
+addInfix "and" 1 Assoc.Left (fun x y -> Logical(x,And,y))
+addInfix "AND" 1 Assoc.Left (fun x y -> Logical(x,And,y))
+addInfix "Or" 1 Assoc.Left (fun x y -> Logical(x,Or,y))
+addInfix "or" 1 Assoc.Left (fun x y -> Logical(x,Or,y))
+addInfix "OR" 1 Assoc.Left (fun x y -> Logical(x,Or,y))
+addInfix "+" 3 Assoc.Left (fun x y -> Arithmetic(x, Add, y))
+addInfix "-" 3 Assoc.Left (fun x y -> Arithmetic(x, Subtract, y))
+addInfix "*" 4 Assoc.Left (fun x y -> Arithmetic(x, Multiply, y))
+addInfix "/" 4 Assoc.Left (fun x y -> Arithmetic(x, Divide, y))
 opp.AddOperator(PrefixOperator("-", ws, 3, true, fun x -> Neg(x)))
 let comparisons = ["=",Eq; "<>",Ne; "<=",Le; ">=",Ge; "<",Lt; ">",Gt]
 for s,op in comparisons do
-    opp.AddOperator(InfixOperator(s, ws, 2, Assoc.Left, fun x y -> Comparison(x, op, y)))
+    addInfix s 2 Assoc.Left (fun x y -> Comparison(x, op, y))
 
 let pnewtuple, pnewtupleimpl = createParserForwardedToRef ()
 let pconstruct = attempt pterm <|> attempt pnewtuple
