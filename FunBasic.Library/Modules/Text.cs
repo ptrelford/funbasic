@@ -52,5 +52,15 @@ namespace FunBasic.Library
       {
          return ((char)code).ToString();
       }
+
+      public static string ConvertToLowerCase(string text)
+      {
+         return text.ToLowerInvariant();
+      }
+
+      public static string ConvertToUpperCase(string text)
+      {
+         return text.ToUpperInvariant();
+      }
    }
 }
