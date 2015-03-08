@@ -261,7 +261,18 @@ and invoke state invoke =
             | String name -> obtainArray vars ("Array." + name)
             | Array array -> array
             | _ -> invalidOp "Expecting array name"
-        Int array.Count        
+        Int array.Count
+    | Method("Array", "GetAllIndices", [name]) ->
+        let name = eval state name
+        let array =
+            match name with
+            | String name -> obtainArray vars ("Array." + name)
+            | Array array -> array
+            | _ -> invalidOp "Expecting array name"
+        let keys = array.Keys |> Seq.mapi (fun i k -> Int (i+1),k)
+        let indices = HashTable<_,_>()
+        for i, k in keys do indices.Add(i,k)
+        Array indices
     | Method(ns,name,args) ->
         let args = args |> List.map (eval state >> toObj)
         ffi.MethodInvoke(ns,name,args |> List.toArray)
