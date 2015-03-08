@@ -35,34 +35,34 @@ type expr =
     | Identifier of identifier
     | GetAt of location
     | Func of invoke
-    | Neg of expr
-    | Arithmetic of expr * arithmetic * expr
-    | Comparison of expr * comparison * expr
-    | Logical of expr * logical * expr
-    | NewTuple of expr list // Language extension
+    | Neg of exprInfo
+    | Arithmetic of exprInfo * arithmetic * exprInfo
+    | Comparison of exprInfo * comparison * exprInfo
+    | Logical of exprInfo * logical * exprInfo
+    | NewTuple of exprInfo list // Language extension
 and location =
-    | Location of identifier * expr list
+    | Location of identifier * exprInfo list
 and invoke =
     | Call of string * exprInfo list // Language extension
     | Method of string * string * exprInfo list
     | PropertyGet of string * string
 and exprInfo = expr * info
 type assign =
-    | Set of identifier * expr
+    | Set of identifier * exprInfo
 /// Small Basic instruction
 type instruction =
     | Assign of assign
-    | Deconstruct of pattern * expr // Language extension
-    | SetAt of location * expr
-    | PropertySet of string * string * expr
+    | Deconstruct of pattern * exprInfo // Language extension
+    | SetAt of location * exprInfo
+    | PropertySet of string * string * exprInfo
     | Action of invoke
-    | For of assign * expr * expr
+    | For of assign * exprInfo * exprInfo
     | EndFor
-    | If of expr
-    | ElseIf of expr
+    | If of exprInfo
+    | ElseIf of exprInfo
     | Else
     | EndIf
-    | While of expr
+    | While of exprInfo
     | EndWhile
     | Sub of identifier * string list
     | EndSub
@@ -71,7 +71,7 @@ type instruction =
     // Language extensions
     | Function of identifier * string list
     | EndFunction
-    | Select of expr
+    | Select of exprInfo
     | Case of clause list
     | EndSelect
 /// Source position info

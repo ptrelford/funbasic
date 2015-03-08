@@ -40,14 +40,19 @@ let patom =
         attempt (pidentifier |>> (fun x -> Identifier(x)))
     ]
 
+let patominfo = pipe3 getPosition patom getPosition 
+                 (fun p1 e p2 -> e, {Start=int p1.Column;End=int p2.Column})
+
 type Assoc = Associativity
 
-let opp = new OperatorPrecedenceParser<expr,_,_>()
+let opp = new OperatorPrecedenceParser<exprInfo,_,_>()
 let pterm = opp.ExpressionParser
-let term = (patom .>> ws) <|> between (str_ws "(") (str_ws ")") pterm
+let term = (patominfo .>> ws) <|> between (str_ws "(") (str_ws ")") pterm
 opp.TermParser <- term
 
-let addInfix name pri assoc f = opp.AddOperator(InfixOperator(name, ws, pri, assoc, f))
+let addInfix name pri assoc f = 
+   opp.AddOperator(
+      InfixOperator(name, ws, pri, assoc, (fun (x,p1) (y,p2) -> f (x,p1) (y,p1), {Start=p1.Start;End=p2.End})))
 addInfix "And" 1 Assoc.Left (fun x y -> Logical(x,And,y))
 addInfix "and" 1 Assoc.Left (fun x y -> Logical(x,And,y))
 addInfix "AND" 1 Assoc.Left (fun x y -> Logical(x,And,y))
@@ -58,23 +63,22 @@ addInfix "+" 3 Assoc.Left (fun x y -> Arithmetic(x, Add, y))
 addInfix "-" 3 Assoc.Left (fun x y -> Arithmetic(x, Subtract, y))
 addInfix "*" 4 Assoc.Left (fun x y -> Arithmetic(x, Multiply, y))
 addInfix "/" 4 Assoc.Left (fun x y -> Arithmetic(x, Divide, y))
-opp.AddOperator(PrefixOperator("-", ws, 3, true, fun x -> Neg(x)))
+opp.AddOperator(PrefixOperator("-", ws, 3, true, fun (x,p) -> Neg(x,p), {Start=p.Start-1;End=p.End}))
 let comparisons = ["=",Eq; "<>",Ne; "<=",Le; ">=",Ge; "<",Lt; ">",Gt]
 for s,op in comparisons do
     addInfix s 2 Assoc.Left (fun x y -> Comparison(x, op, y))
 
 let pnewtuple, pnewtupleimpl = createParserForwardedToRef ()
 let pconstruct = attempt pterm <|> attempt pnewtuple
+let ptupleItems = between (str_ws "(") (str_ws ")") (sepBy1 pconstruct (str_ws ","))
 pnewtupleimpl :=
-    between (str_ws "(") (str_ws ")") (sepBy1 pconstruct (str_ws ","))
-    |>> (fun xs -> NewTuple(xs))
+    pipe3 getPosition ptupleItems getPosition
+      (fun p1 xs p2 -> NewTuple(xs), {Start=int p1.Column;End=int p2.Column})
 
 let pexpr = pconstruct
-let pexprinfo = pipe3 getPosition pexpr getPosition 
-                 (fun p1 e p2 -> e, {Start=int p1.Column;End=int p2.Column})
 
 let pmember = pipe3 (pidentifier_ws) (pchar '.') (pidentifier_ws) (fun tn _ mn -> tn,mn)
-let pargs = between (str_ws "(") (str_ws ")") (sepBy pexprinfo (str_ws ","))
+let pargs = between (str_ws "(") (str_ws ")") (sepBy pexpr (str_ws ","))
 let pmemberinvoke =
     pipe2 pmember (opt pargs)
         (fun (tn,mn) args -> 
@@ -100,7 +104,7 @@ let pfor =
     let pfrom = str_ws1 "For" >>. pset
     let pto = str_ws1 "To" >>. pexpr
     let pstep = str_ws1 "Step" >>. pexpr
-    let toStep = function None -> Literal(Int(1)) | Some s -> s
+    let toStep = function None -> (Literal(Int(1)),{Start=0;End=0}) | Some s -> s
     pipe3 pfrom pto (opt pstep) (fun f t s -> For(f, t, toStep s))
 let pendfor = str_ws "EndFor" |>> (fun _ -> EndFor)
 

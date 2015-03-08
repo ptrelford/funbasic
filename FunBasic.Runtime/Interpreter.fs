@@ -151,12 +151,12 @@ let rec eval state (expr:expr) =
             | false, _ -> String ""
     | GetAt(Location(identifier,indices)) ->
        let rec getAt (array:HashTable<_,_>) = function
-          | x::[] ->
+          | (x,_)::[] ->
               let index = eval state x
               match array.TryGetValue(index) with
               | true, value -> value
               | false, _ -> String ""
-          | x::xs ->
+          | (x,_)::xs ->
               let index = eval state x
               match array.TryGetValue(index) with
               | true, Array array -> getAt array xs
@@ -172,10 +172,10 @@ let rec eval state (expr:expr) =
           | false, _ -> toArray ""
        getAt array indices       
     | Func(call) -> invoke state call
-    | Neg x -> arithmetic (eval state x) Multiply (Int(-1))
-    | Arithmetic(l,op,r) -> arithmetic (eval state l) op (eval state r)
-    | Comparison(l,op,r) -> comparison (eval state l) op (eval state r)
-    | Logical(l,op,r) -> logical (eval state l) op (eval state r)
+    | Neg(x,_) -> arithmetic (eval state x) Multiply (Int(-1))
+    | Arithmetic((l,_),op,(r,_)) -> arithmetic (eval state l) op (eval state r)
+    | Comparison((l,_),op,(r,_)) -> comparison (eval state l) op (eval state r)
+    | Logical((l,_),op,(r,_)) -> logical (eval state l) op (eval state r)
     | NewTuple(xs) -> raise (System.NotSupportedException())
 and comparison lhs op rhs =
     let x = compare lhs rhs
@@ -230,7 +230,7 @@ and invoke state invoke =
     | Call(name,args) ->
          call (name,[for (arg,_) in args -> eval state arg])
          String ""
-    | Method("Array","GetValue", [name,_; index,_]) ->
+    | Method("Array","GetValue", [name,_; index]) ->
         let name = eval state name
         match name with
         | String name ->
@@ -340,7 +340,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
     /// Evaluates expression with variables
     let eval = eval (state ())
     /// Assigns result of expression to variable
-    let assign (Set(identifier,expr)) =
+    let assign (Set(identifier,(expr,_))) =
         variables.[identifier] <- eval expr
     /// Obtains sub array from specified array
     let obtainSubArray (array:HashTable<_,_>) key =
@@ -371,17 +371,17 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
         match instruction with
         | Assign(set) -> 
             assign set
-        | PropertySet(ns,name,expr) ->
+        | PropertySet(ns,name,(expr,_)) ->
             match expr with
             | Identifier sub when not(variables.ContainsKey(sub)) ->
                let handler = toEventHandler sub
                ffi.EventAdd(ns,name, System.EventHandler(handler))
             | _ ->
                ffi.PropertySet(ns,name,eval expr |> toObj)       
-        | SetAt(Location(identifier,indices),expr) ->
+        | SetAt(Location(identifier,indices),(expr,_)) ->
             let rec setAt (array:HashTable<_,_>) = function
-               | x::[] -> array.[eval x] <- eval expr
-               | x::xs -> 
+               | (x,_)::[] -> array.[eval x] <- eval expr
+               | (x,_)::xs -> 
                   let key = eval x
                   let array = obtainSubArray array key
                   setAt array xs
@@ -390,21 +390,21 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
             setAt array indices
         | Action(Call(name,args)) -> call (name, [for (arg,_) in args -> eval arg])             
         | Action(call) -> invoke (state()) call |> ignore
-        | If(condition) ->
+        | If(condition,_) ->
             let rec check condition =
                if eval condition |> toBool |> not then
                   let next = function Else | ElseIf(_) | EndIf -> true | _ -> false
                   let index = findFirstIndex (!pi+1) (isIf, isEndIf) next
                   pi := index
                   match program.[index] with
-                  | ElseIf(condition) -> check condition
+                  | ElseIf(condition,_) -> check condition
                   | _ -> ()
             check condition
         | Else | ElseIf(_) ->
             let index = findIndex !pi (isIf,isEndIf) EndIf
             pi := index
         | EndIf -> ()
-        | For((Set(identifier,expr) as from), target, step) ->
+        | For((Set(identifier,(expr,_)) as from), (target,_), (step,_)) ->
             assign from
             let index = findIndex (!pi+1) (isFor,isEndFor) EndFor
             forLoops.[index] <- (!pi, identifier, target, step)
@@ -423,7 +423,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
             let step = toInt(step)
             if (step >= 0 && a <= b) || (step < 0 && a >= b)
             then pi := start
-        | While condition ->
+        | While(condition,_) ->
             let index = findIndex (!pi+1) (isWhile,isEndWhile) EndWhile
             whileLoops.[index] <- !pi 
             if eval condition |> toBool |> not then pi := index

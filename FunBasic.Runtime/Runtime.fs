@@ -22,14 +22,25 @@ let private GetMemberInfo(line:string, index:int, lookup:IDictionary<string,(str
    and argInfo args =
       let arg = args |> List.tryFind(fun (_,pos) -> index>=pos.Start && index<pos.End)
       match arg with
-      | Some(Func(invoke),_) -> invokeInfo invoke
+      | Some(arg,_) -> 
+         match arg with
+         | Literal _ -> None
+         | Identifier _ -> None
+         | GetAt(Location(_,xs)) -> argInfo xs
+         | Neg(x) -> argInfo [x]
+         | Arithmetic(x,_,y) | Comparison(x,_,y) | Logical(x,_,y) -> argInfo [x;y]
+         | NewTuple(xs) -> argInfo xs
+         | Func(invoke) -> invokeInfo invoke
       | _ -> None
    // Parse line
    match Parser.parseLine line with
    | Some(pos,instruction) when index >= pos.StartCol && index < pos.EndCol -> 
       match instruction with
-      | Action(invoke) -> invokeInfo invoke        
-      | PropertySet(ns,name,_) -> methodInfo (ns,name)             
+      | Assign(Set(_,x)) -> argInfo [x]
+      | Action(invoke) -> invokeInfo invoke
+      | PropertySet(ns,name,_) -> methodInfo (ns,name)
+      | If x | ElseIf x | While x | Select x -> argInfo [x]
+      | For(Set(_,from),``to``,step) -> argInfo [from;``to``;step]
       | _ -> None
    | _ -> None
 
