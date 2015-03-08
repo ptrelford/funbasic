@@ -179,7 +179,12 @@ let pinstructpos =
     pipe3 getPosition pinstruct getPosition (fun p1 i p2 -> toPosition p1 p2 , i)
 let pinstruction = ws >>. pinstructpos .>> peol |>> (fun (pos,i) -> Instruction(pos,i))
 let pblank = ws >>. peol |>> (fun _ -> Blank)
-let plines = many (attempt pinstruction <|> attempt pblank) .>> eof
+let pline = attempt pinstruction <|> attempt pblank
+let parseLine (line:string) =
+   match run pline (line+"\r\n") with
+   | Success (Instruction(pos,i),_,_) -> Some (pos,i)
+   | _ -> None
+let plines = many pline .>> eof
 let parse (program:string) =    
     match run plines program with
     | Success(result, _, _)   -> 
