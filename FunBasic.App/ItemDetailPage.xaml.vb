@@ -275,7 +275,7 @@ Public NotInheritable Class ItemDetailPage
                 ' Check input is at the start of a line
                 Dim start = e.ChangedSnapshotRange.StartPosition
                 Dim leftText = e.ChangedSnapshotRange.Snapshot.Lines(start.Line).Text.Substring(0, start.Character)
-                If Not String.IsNullOrWhiteSpace(leftText) Then
+                If Not (String.IsNullOrWhiteSpace(leftText) OrElse leftText.Trim().EndsWith("=") OrElse leftText.Trim().EndsWith("(")) Then
                     Return
                 End If
                 ' If no completion session is currently open, show a completion list
@@ -287,17 +287,6 @@ Public NotInheritable Class ItemDetailPage
                         ci.Text = item
                         ci.AutoCompletePreText = item
                         ci.ImageSourceProvider = New CommonImageSourceProvider(CommonImage.ClassPublic)
-                        session.Items.Add(ci)
-                    Next
-                    Dim keywords = New List(Of String)()
-                    keywords.Add("If")
-                    keywords.Add("For")
-                    keywords.Add("While")
-                    For Each item In keywords
-                        Dim ci = New CompletionItem()
-                        ci.Text = item
-                        ci.AutoCompletePreText = item
-                        ci.ImageSourceProvider = New CommonImageSourceProvider(CommonImage.Keyword)
                         session.Items.Add(ci)
                     Next
                     session.SortItems()
