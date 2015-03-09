@@ -13,6 +13,12 @@ namespace FunBasic.Library
          return text.Length;
       }
 
+      public static bool IsSubText(string text, string subText)
+      {
+         if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(subText)) return false;
+         return text.Contains(subText);
+      }
+
       public static string GetSubText(string text, int index, int length)
       {
          if (index > 0)
