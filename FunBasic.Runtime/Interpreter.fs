@@ -346,7 +346,10 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
     let obtainSubArray (array:HashTable<_,_>) key =
         match array.TryGetValue(key) with
         | true, Array array -> array
-        | true, String s -> toArray s
+        | true, String s -> 
+            let newArray = toArray s
+            array.[key] <- Array newArray
+            newArray
         | _, _ ->
            let newArray = HashTable(comparer)
            array.[key] <- Array newArray
@@ -383,8 +386,8 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
                | (x,_)::[] -> array.[eval x] <- eval expr
                | (x,_)::xs -> 
                   let key = eval x
-                  let array = obtainSubArray array key
-                  setAt array xs
+                  let subArray = obtainSubArray array key                  
+                  setAt subArray xs
                | [] -> invalidOp "Expecting array index"
             let array = obtainArray vars identifier            
             setAt array indices
