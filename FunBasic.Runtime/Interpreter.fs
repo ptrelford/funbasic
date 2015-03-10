@@ -79,7 +79,7 @@ let rec compare lhs rhs =
     | Int l, String(AsInt r) -> l.CompareTo(r)
     | Array l, Array r ->
        if l.Count = r.Count && 
-          l.Keys |> Seq.forall(fun key -> 
+          l.Keys |> Seq.forall(fun key ->
              match r.TryGetValue(key) with
              | true, x -> compare l.[key] x = 0
              | false, _ -> false) 
@@ -123,6 +123,17 @@ let toArray (s:string) =
       else readValue key startIndex (index+1)
    parse 0 0
    xs
+
+let resolveArray (variables:HashTable<_,_>) name =
+   match variables.TryGetValue("Array."+name) with
+   | true, Array array -> array
+   | true, String s -> 
+      let array = toArray s
+      variables.["Array."+name] <- Array array
+      array
+   | true, _ ->
+      invalidOp "Expecting array"
+   | false, _ -> toArray name
 
 /// Obtains array for specified identifier
 let obtainArray (variables:HashTable<_,_>) identifier =
@@ -243,7 +254,7 @@ and invoke state invoke =
         let name = eval state name
         let array =
             match name with
-            | String name -> obtainArray vars ("Array."+name)
+            | String name -> resolveArray vars name
             | Array array -> array
             | _ -> invalidOp "Expecting array name"
         let index = eval state index
@@ -253,7 +264,7 @@ and invoke state invoke =
         let name = eval state name
         let array =
             match name with
-            | String name -> obtainArray vars ("Array." + name)
+            | String name -> resolveArray vars name
             | Array array -> array
             | _ -> invalidOp "Expecting array name"
         array.Remove(eval state index) |> ignore
@@ -262,7 +273,7 @@ and invoke state invoke =
         let name = eval state name
         let array =
             match name with
-            | String name -> obtainArray vars ("Array." + name)
+            | String name -> resolveArray vars name
             | Array array -> array
             | _ -> invalidOp "Expecting array name"
         Int array.Count
@@ -270,7 +281,7 @@ and invoke state invoke =
         let name = eval state name
         let array =
             match name with
-            | String name -> obtainArray vars ("Array." + name)
+            | String name -> resolveArray vars name
             | Array array -> array
             | _ -> invalidOp "Expecting array name"
         let keys = array.Keys |> Seq.mapi (fun i k -> Int (i+1),k)
