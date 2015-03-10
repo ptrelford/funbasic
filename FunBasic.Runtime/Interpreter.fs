@@ -133,7 +133,13 @@ let resolveArray (variables:HashTable<_,_>) name =
       array
    | true, _ ->
       invalidOp "Expecting array"
-   | false, _ -> toArray name
+   | false, _ ->
+      if name.Contains(";") then
+         toArray name
+      else
+         let array = HashTable(comparer)
+         variables.Add("Array."+name,Array array)
+         array
 
 /// Obtains array for specified identifier
 let obtainArray (variables:HashTable<_,_>) identifier =
