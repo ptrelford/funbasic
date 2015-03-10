@@ -65,6 +65,8 @@ let (|AsDoubles|_|) = function
     | Double l, Int r -> Some(l,double r)
     | String(AsDouble l), Double r -> Some(l,r)
     | Double l, String(AsDouble r) -> Some(l,r)
+    | String(AsDouble l), Int r -> Some(l,double r)
+    | Int l, String(AsDouble r) -> Some(double l,r)
     | _, _ -> None
 /// Compares values
 let rec compare lhs rhs =
@@ -187,13 +189,11 @@ and comparison lhs op rhs =
 and arithmetic lhs op rhs =
     match op, (lhs, rhs) with
     | Add, (Int l,Int r) -> Int(l + r)
-    | Add, AsDoubles (l,r) -> Double(l + r)
     | Add, (String(AsInt l), Int r) -> Int(l + r)
     | Add, (Int l, String(AsInt r)) -> Int(l + r)
     | Add, (String(AsInt l), String(AsInt r)) -> Int(l + r)
+    | Add, AsDoubles (l,r) -> Double(l + r)    
     | Add, (String(AsDouble l), String(AsDouble r)) -> Double(l+r)
-    | Add, (Int l, String(AsDouble r)) -> Double(double l+r)
-    | Add, (String(AsDouble l), Int r) -> Double(l+double r)
     | Add, (String l, String r) -> String(l + r)
     | Add, (String l, r) -> String(l + (r |> toObj).ToString())
     | Add, (l, String r) -> String((l |> toObj).ToString() + r)
