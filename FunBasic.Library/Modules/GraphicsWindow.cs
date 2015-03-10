@@ -180,6 +180,11 @@
          _drawings.DrawResizedImage(imageName, x, y, width, height);
       }
 
+      public static string GetPixel(double x, double y)
+      {
+         return "#FFFFFF";
+      }
+
       public static void SetPixel(double x, double y, string color)
       {
          _drawings.DrawLine(x, y, x + 2, y);
