@@ -158,7 +158,7 @@ Public NotInheritable Class ItemDetailPage
         console = New Console(Me.MyConsole)
         images = New Images(Me.MyDrawings.Dispatcher)
         renderer = New Renderer()
-        drawings = New Drawings(style, Me.MyDrawings, images, renderer)
+        drawings = New Drawings(style, Me.MyDrawings, Me.MyShapes, images, renderer)
         shapes = New Shapes(style, Me.MyShapes, images, Me.MyTurtle, renderer)
         timer.Interval = -1
         controls = New FunBasic.Store.Controls(style, Me.MyDrawings)

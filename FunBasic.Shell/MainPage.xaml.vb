@@ -44,7 +44,7 @@ Public NotInheritable Class MainPage
         Dim images = New FunBasic.Store.Images(Me.MyGraphics.Dispatcher)
         Dim renderer = New Renderer()
         Dim surface = New Surface(Me.MyGraphics, Me.MyShapes, renderer, theTurtle)
-        Dim drawings = New Drawings(style, Me.MyGraphics, images, renderer)
+        Dim drawings = New Drawings(style, Me.MyGraphics, Me.MyShapes, images, renderer)
         Dim controls = New FunBasic.Store.Controls(style, Me.MyShapes)
         Dim shapes = New FunBasic.Store.Shapes(style, Me.MyShapes, images, theTurtle, renderer)
         Dim sounds = New Sounds(Nothing, Nothing, Nothing, Nothing, Nothing)

@@ -9,11 +9,17 @@ Public Class Drawings
     Dim MyRenderer As New Renderer()
     Dim MyStyle As FunBasic.Library.IStyle
     Dim MyDrawingCanvas As Canvas
+    Dim MyShapesCanvas As Canvas
     Dim MyImages As Images
 
-    Public Sub New(style As FunBasic.Library.IStyle, drawingCanvas As Canvas, imageList As Images, renderer As Renderer)
+    Public Sub New(style As FunBasic.Library.IStyle, _
+                   drawingCanvas As Canvas, _
+                   shapesCanvas As Canvas, _
+                   imageList As Images, _
+                   renderer As Renderer)
         Me.MyStyle = style
         Me.MyDrawingCanvas = drawingCanvas
+        Me.MyShapesCanvas = shapesCanvas
         Me.MyImages = imageList
         Me.MyRenderer = renderer
     End Sub
@@ -24,6 +30,14 @@ Public Class Drawings
 
     Private Sub Dispatch(handler As DispatchedHandler)
         MyRenderer.Dispatch(handler)
+    End Sub
+
+    Private Sub AddElement(element As UIElement)
+        If MyShapesCanvas.Children.Count <= 1 Then
+            MyDrawingCanvas.Children.Add(element)
+        Else
+            MyShapesCanvas.Children.Add(element)
+        End If
     End Sub
 
 #Region "IDrawing"
@@ -38,7 +52,7 @@ Public Class Drawings
                      ellipse.StrokeThickness = thickness
                      ellipse.Stroke = New SolidColorBrush(color)
                      ellipse.Margin = New Thickness(x, y, 0, 0)
-                     MyDrawingCanvas.Children.Add(ellipse)
+                     AddElement(ellipse)
                  End Sub)
     End Sub
 
@@ -51,7 +65,7 @@ Public Class Drawings
                      Dim line = CreateLine(x1, y1, x2, y2)
                      line.Stroke = New SolidColorBrush(color)
                      line.StrokeThickness = thickness
-                     MyDrawingCanvas.Children.Add(line)
+                     AddElement(line)
                  End Sub)
     End Sub
 
@@ -70,7 +84,7 @@ Public Class Drawings
                      Dim poly = CreateTriangle(x1, y1, x2, y2, x3, y3)
                      poly.StrokeThickness = thickness
                      poly.Stroke = New SolidColorBrush(color)
-                     MyDrawingCanvas.Children.Add(poly)
+                     AddElement(poly)
                  End Sub)
     End Sub
 
@@ -94,7 +108,7 @@ Public Class Drawings
                      rectangle.StrokeThickness = thickness
                      rectangle.Stroke = New SolidColorBrush(color)
                      rectangle.Margin = New Thickness(x, y, 0, 0)
-                     MyDrawingCanvas.Children.Add(rectangle)
+                     AddElement(rectangle)
                  End Sub)
     End Sub
 
@@ -108,7 +122,7 @@ Public Class Drawings
                      Dim image = MyImages.CreateImage(url)
                      Canvas.SetLeft(image, x)
                      Canvas.SetTop(image, y)
-                     MyDrawingCanvas.Children.Add(image)
+                     AddElement(image)
                  End Sub)
     End Sub
 
@@ -120,7 +134,7 @@ Public Class Drawings
                      Canvas.SetTop(image, y)
                      image.Width = width
                      image.Height = height
-                     MyDrawingCanvas.Children.Add(image)
+                     AddElement(image)
                  End Sub)
     End Sub
 
@@ -138,7 +152,7 @@ Public Class Drawings
                      textBlock.FontStyle = If(MyStyle.FontItalic, FontStyle.Italic, FontStyle.Normal)
                      textBlock.FontWeight = If(MyStyle.FontBold, FontWeights.Bold, FontWeights.Normal)
                      textBlock.Margin = New Thickness(x, y, 0, 0)
-                     MyDrawingCanvas.Children.Add(textBlock)
+                     AddElement(textBlock)
                  End Sub)
     End Sub
 
@@ -156,7 +170,7 @@ Public Class Drawings
                      textBlock.FontWeight = If(MyStyle.FontBold, FontWeights.Bold, FontWeights.Normal)
                      textBlock.Margin = New Thickness(x, y, 0, 0)
                      textBlock.MaxWidth = width
-                     MyDrawingCanvas.Children.Add(textBlock)
+                     AddElement(textBlock)
                  End Sub)
     End Sub
 
@@ -172,7 +186,7 @@ Public Class Drawings
         Dispatch(Sub()
                      Dim poly = CreateTriangle(x1, y1, x2, y2, x3, y3)
                      poly.Fill = New SolidColorBrush(color)
-                     MyDrawingCanvas.Children.Add(poly)
+                     AddElement(poly)
                  End Sub)
     End Sub
 
@@ -184,7 +198,7 @@ Public Class Drawings
                      Dim rectangle = CreateRectangle(width, height)
                      rectangle.Fill = New SolidColorBrush(color)
                      rectangle.Margin = New Thickness(x, y, 0, 0)
-                     MyDrawingCanvas.Children.Add(rectangle)
+                     AddElement(rectangle)
                  End Sub)
     End Sub
 
@@ -196,7 +210,7 @@ Public Class Drawings
                      Dim ellipse = CreateEllipse(width, height)
                      ellipse.Fill = New SolidColorBrush(color)
                      ellipse.Margin = New Thickness(x, y, 0, 0)
-                     MyDrawingCanvas.Children.Add(ellipse)
+                     AddElement(ellipse)
                  End Sub)
     End Sub
 
