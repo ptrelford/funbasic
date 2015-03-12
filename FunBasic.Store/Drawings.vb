@@ -42,6 +42,47 @@ Public Class Drawings
 
 #Region "IDrawing"
 
+    Public Function GetPixel(x As Double, y As Double) As String _
+        Implements Library.IDrawings.GetPixel
+        Dim color As String = "#FFFFFF"
+        Dim handle = New System.Threading.ManualResetEvent(False)
+        Dim ignore = _
+            MyDrawingCanvas.Dispatcher.RunAsync( _
+                CoreDispatcherPriority.Normal, _
+                Async Sub()
+                    Dim bitmap = New RenderTargetBitmap()
+                    Await bitmap.RenderAsync(MyDrawingCanvas)
+                    x = x * bitmap.PixelWidth / MyDrawingCanvas.ActualWidth
+                    y = y * bitmap.PixelHeight / MyDrawingCanvas.ActualHeight
+                    If x >= 0 And x < bitmap.PixelWidth And _
+                       y >= 0 And y < bitmap.PixelHeight Then
+                        Dim pixels = Await bitmap.GetPixelsAsync()
+                        Dim stream = pixels.AsStream()
+                        Dim offset = CType(x, Integer) + (bitmap.PixelWidth * CType(y, Integer))
+                        stream.Seek(offset * 4, SeekOrigin.Begin)
+                        color = String.Format("#{0:X2}{1:X2}{2:X2}", _
+                            stream.ReadByte(), _
+                            stream.ReadByte(), _
+                            stream.ReadByte())
+                    End If
+                    handle.Set()
+                End Sub)
+        handle.WaitOne()
+        Return color
+    End Function
+
+    Public Sub SetPixel(x As Double, y As Double, color As String) _
+        Implements Library.IDrawings.SetPixel
+        Dim fillColor = GetColor(color)
+        Dim thickness = MyStyle.PenWidth
+        Dispatch(Sub()
+                     Dim rectangle = CreateRectangle(1.0, 1.0)
+                     rectangle.Fill = New SolidColorBrush(fillColor)
+                     rectangle.Margin = New Thickness(x, y, 0, 0)
+                     AddElement(rectangle)
+                 End Sub)
+    End Sub
+
     Public Sub DrawEllipse(x As Double, y As Double, _
                            width As Double, height As Double) _
         Implements Library.IDrawings.DrawEllipse
