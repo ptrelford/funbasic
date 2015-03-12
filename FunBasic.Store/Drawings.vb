@@ -42,7 +42,7 @@ Public Class Drawings
 
 #Region "IDrawing"
 
-    Public Function GetPixel(x As Double, y As Double) As String _
+    Public Function GetPixel(x As Integer, y As Integer) As String _
         Implements Library.IDrawings.GetPixel
         Dim color As String = "#FFFFFF"
         Dim handle = New System.Threading.ManualResetEvent(False)
@@ -71,7 +71,7 @@ Public Class Drawings
         Return color
     End Function
 
-    Public Sub SetPixel(x As Double, y As Double, color As String) _
+    Public Sub SetPixel(x As Integer, y As Integer, color As String) _
         Implements Library.IDrawings.SetPixel
         Dim fillColor = GetColor(color)
         Dim thickness = MyStyle.PenWidth

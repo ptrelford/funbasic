@@ -180,14 +180,14 @@
          _drawings.DrawResizedImage(imageName, x, y, width, height);
       }
 
-      public static string GetPixel(double x, double y)
+      public static string GetPixel(int x, int y)
       {
-         return "#FFFFFF";
+         return _drawings.GetPixel(x, y);
       }
 
-      public static void SetPixel(double x, double y, string color)
+      public static void SetPixel(int x, int y, string color)
       {
-         _drawings.DrawLine(x, y, x + 2, y);
+         _drawings.SetPixel(x, y, color);
       }
       #endregion
 

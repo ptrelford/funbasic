@@ -2,6 +2,8 @@
 {
    public interface IDrawings
    {
+      string GetPixel(int x, int y);
+      void SetPixel(int x, int y, string color);
       void DrawEllipse(double x, double y, double width, double height);
       void DrawLine(double x1, double y1, double x2, double y2);
       void DrawTriangle(double x1, double y1, double x2, double y2, double x3, double y3);
@@ -12,6 +14,6 @@
       void DrawResizedImage(string url, double x, double y, double width, double height);
       void FillEllipse(double x, double y, double width, double height);
       void FillTriangle(double x1, double y1, double x2, double y2, double x3, double y3);
-      void FillRectangle(double x, double y, double width, double height);
+      void FillRectangle(double x, double y, double width, double height);      
    }
 }
