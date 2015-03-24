@@ -24,6 +24,8 @@ Public Class Shapes
     Dim MyImages As Images
     Dim MyRenderer As Renderer
     Dim ShapeLookup As New Dictionary(Of String, ShapeInfo)()
+    Dim ZIndex As Integer
+    Dim ShapesCount As Integer
 
     Sub New(style As IStyle, canvas As Canvas, imageList As Images, turtle As UIElement, renderer As Renderer)
         Me.MyStyle = style
@@ -38,6 +40,11 @@ Public Class Shapes
         Me.MyRenderer.Dispatch(action)
     End Sub
 
+    Private Sub AddElement(element As UIElement)        
+        MyShapesCanvas.Children.Add(element)
+        ShapesCount = MyShapesCanvas.Children.Count
+    End Sub
+
 #Region "IShapes"
 
     Public Function AddImage(url As String) As String _
@@ -50,7 +57,7 @@ Public Class Shapes
                 Dim image = MyImages.CreateImage(url)
                 image.Name = name
                 shape.Element = image
-                MyShapesCanvas.Children.Add(image)
+                AddElement(image)
             End Sub)
         Return name
     End Function
@@ -71,7 +78,7 @@ Public Class Shapes
                 ellipse.Fill = New SolidColorBrush(fill)
                 ellipse.Name = name
                 shape.Element = ellipse
-                MyShapesCanvas.Children.Add(ellipse)
+                AddElement(ellipse)
             End Sub)
         Return name
     End Function
@@ -91,7 +98,7 @@ Public Class Shapes
                 line.Stroke = New SolidColorBrush(color)
                 line.Name = name
                 shape.Element = line
-                MyShapesCanvas.Children.Add(line)
+                AddElement(line)
             End Sub)
         Return name
     End Function
@@ -114,7 +121,7 @@ Public Class Shapes
                 poly.Fill = New SolidColorBrush(fill)
                 poly.Name = name
                 shape.Element = poly
-                MyShapesCanvas.Children.Add(poly)
+                AddElement(poly)
             End Sub)
         Return name
     End Function
@@ -135,7 +142,7 @@ Public Class Shapes
                 rectangle.Fill = New SolidColorBrush(fill)
                 rectangle.Name = name
                 shape.Element = rectangle
-                MyShapesCanvas.Children.Add(rectangle)
+                AddElement(rectangle)
             End Sub)
         Return name
     End Function
@@ -160,7 +167,7 @@ Public Class Shapes
                 textBlock.FontWeight = If(bold, FontWeights.Bold, FontWeights.Normal)
                 textBlock.Name = name
                 shape.Element = textBlock
-                MyShapesCanvas.Children.Add(textBlock)
+                AddElement(textBlock)
             End Sub)
         Return name
     End Function
@@ -232,6 +239,12 @@ Public Class Shapes
                 Sub()
                     Canvas.SetLeft(shape.Element, x)
                     Canvas.SetTop(shape.Element, y)
+                    ' Handle ZIndex when elements added via Drawing
+                    If MyShapesCanvas.Children.Count > ShapesCount Then
+                        ShapesCount = MyShapesCanvas.Children.Count
+                        ZIndex += 1
+                        Canvas.SetZIndex(shape.Element, ZIndex)
+                    End If
                 End Sub)
         End If
     End Sub
