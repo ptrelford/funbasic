@@ -185,16 +185,19 @@ Public Class Drawings
         Dim foreground = GetColor(MyStyle.BrushColor)
         Dim size = MyStyle.FontSize
         Dim family = MyStyle.FontName
-        Dispatch(Sub()
-                     Dim textBlock = CreateTextBlock(text)
-                     textBlock.Foreground = New SolidColorBrush(foreground)
-                     textBlock.FontSize = size
-                     textBlock.FontFamily = New FontFamily(family)
-                     textBlock.FontStyle = If(MyStyle.FontItalic, FontStyle.Italic, FontStyle.Normal)
-                     textBlock.FontWeight = If(MyStyle.FontBold, FontWeights.Bold, FontWeights.Normal)
-                     textBlock.Margin = New Thickness(x, y, 0, 0)
-                     AddElement(textBlock)
-                 End Sub)
+        Dim italic = MyStyle.FontItalic
+        Dim bold = MyStyle.FontBold
+        Dispatch(
+            Sub()
+                Dim textBlock = CreateTextBlock(text)
+                textBlock.Foreground = New SolidColorBrush(foreground)
+                textBlock.FontSize = size
+                textBlock.FontFamily = New FontFamily(family)
+                textBlock.FontStyle = If(italic, FontStyle.Italic, FontStyle.Normal)
+                textBlock.FontWeight = If(bold, FontWeights.Bold, FontWeights.Normal)
+                textBlock.Margin = New Thickness(x, y, 0, 0)
+                AddElement(textBlock)
+            End Sub)
     End Sub
 
     Public Sub DrawBoundText(x As Double, y As Double, width As Double, text As String) _
@@ -202,17 +205,20 @@ Public Class Drawings
         Dim foreground = GetColor(MyStyle.BrushColor)
         Dim size = MyStyle.FontSize
         Dim family = MyStyle.FontName
-        Dispatch(Sub()
-                     Dim textBlock = CreateTextBlock(text)
-                     textBlock.Foreground = New SolidColorBrush(foreground)
-                     textBlock.FontSize = size
-                     textBlock.FontFamily = New FontFamily(family)
-                     textBlock.FontStyle = If(MyStyle.FontItalic, FontStyle.Italic, FontStyle.Normal)
-                     textBlock.FontWeight = If(MyStyle.FontBold, FontWeights.Bold, FontWeights.Normal)
-                     textBlock.Margin = New Thickness(x, y, 0, 0)
-                     textBlock.MaxWidth = width
-                     AddElement(textBlock)
-                 End Sub)
+        Dim italic = MyStyle.FontItalic
+        Dim bold = MyStyle.FontBold
+        Dispatch(
+            Sub()
+                Dim textBlock = CreateTextBlock(text)
+                textBlock.Foreground = New SolidColorBrush(foreground)
+                textBlock.FontSize = size
+                textBlock.FontFamily = New FontFamily(family)
+                textBlock.FontStyle = If(italic, FontStyle.Italic, FontStyle.Normal)
+                textBlock.FontWeight = If(bold, FontWeights.Bold, FontWeights.Normal)
+                textBlock.Margin = New Thickness(x, y, 0, 0)
+                textBlock.MaxWidth = width
+                AddElement(textBlock)
+            End Sub)
     End Sub
 
     Private Function CreateTextBlock(text As String) As TextBlock

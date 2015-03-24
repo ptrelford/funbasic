@@ -148,14 +148,16 @@ Public Class Shapes
         Dim foreground = GetColor(MyStyle.BrushColor)
         Dim size = MyStyle.FontSize
         Dim family = MyStyle.FontName
+        Dim italic = MyStyle.FontItalic
+        Dim bold = MyStyle.FontBold
         Dispatch(
             Sub()
                 Dim textBlock = New TextBlock With {.Text = text}
                 textBlock.Foreground = New SolidColorBrush(foreground)
                 textBlock.FontSize = size
                 textBlock.FontFamily = New FontFamily(family)
-                textBlock.FontStyle = If(MyStyle.FontItalic, FontStyle.Italic, FontStyle.Normal)
-                textBlock.FontWeight = If(MyStyle.FontBold, FontWeights.Bold, FontWeights.Normal)
+                textBlock.FontStyle = If(italic, FontStyle.Italic, FontStyle.Normal)
+                textBlock.FontWeight = If(bold, FontWeights.Bold, FontWeights.Normal)
                 textBlock.Name = name
                 shape.Element = textBlock
                 MyShapesCanvas.Children.Add(textBlock)
@@ -226,10 +228,11 @@ Public Class Shapes
         If ShapeLookup.TryGetValue(name, shape) Then
             shape.Left = x
             shape.Top = y
-            Dispatch(Sub()
-                         Canvas.SetLeft(shape.Element, x)
-                         Canvas.SetTop(shape.Element, y)
-                     End Sub)
+            Dispatch(
+                Sub()
+                    Canvas.SetLeft(shape.Element, x)
+                    Canvas.SetTop(shape.Element, y)
+                End Sub)
         End If
     End Sub
 
