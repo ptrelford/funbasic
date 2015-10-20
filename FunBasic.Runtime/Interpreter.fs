@@ -158,14 +158,14 @@ let obtainArray (variables:HashTable<_,_>) identifier =
 
 /// Evaluates expressions
 let rec eval state (expr:expr) =
-    let (vars:VarLookup), (locals:VarLookup), _, _ = state
+    let (globals:VarLookup), (locals:VarLookup), _, _ = state
     match expr with
     | Literal x -> x
     | Identifier identifier -> 
        match locals.TryGetValue(identifier) with
        | true, value -> value
        | false, _ -> 
-            match vars.TryGetValue(identifier) with
+            match globals.TryGetValue(identifier) with
             | true, value -> value
             | false, _ -> String ""
     | GetAt(Location(identifier,indices)) ->
@@ -184,7 +184,7 @@ let rec eval state (expr:expr) =
               | false, _ -> String ""
           | _ -> invalidOp "Expecting array index"
        let array = 
-          match vars.TryGetValue identifier with
+          match globals.TryGetValue identifier with
           | true, Array array -> array
           | true, String s -> toArray s
           | true, _ -> invalidOp "Expecting array"
@@ -247,11 +247,13 @@ and logical lhs op rhs =
     | Or, String(AsBool l), String(AsBool r) -> Bool(true || r)
     | _, _, _ -> raise (System.NotImplementedException())
 and invoke state invoke =
-    let vars,locals,call,(ffi:IFFI) = state
+    let globals,locals,call,(ffi:IFFI) = state
     match invoke with
     | Call(name,args) ->
-         call (name,[for (arg,_) in args -> eval state arg])
-         String ""
+        call (name,[for (arg,_) in args -> eval state arg])
+        match globals.TryGetValue(name) with
+        | true, value -> value
+        | false, _ -> String ""
     | Method("Array","GetValue", [name,_; index]) ->
         let name = eval state name
         match name with
@@ -262,7 +264,7 @@ and invoke state invoke =
         let name = eval state name
         let array =
             match name with
-            | String name -> resolveArray vars name
+            | String name -> resolveArray globals name
             | Array array -> array
             | _ -> invalidOp "Expecting array name"
         let index = eval state index
@@ -272,7 +274,7 @@ and invoke state invoke =
         let name = eval state name
         let array =
             match name with
-            | String name -> resolveArray vars name
+            | String name -> resolveArray globals name
             | Array array -> array
             | _ -> invalidOp "Expecting array name"
         array.Remove(eval state index) |> ignore
@@ -281,7 +283,7 @@ and invoke state invoke =
         let name = eval state name
         let array =
             match name with
-            | String name -> resolveArray vars name
+            | String name -> resolveArray globals name
             | Array array -> array
             | _ -> invalidOp "Expecting array name"
         Int array.Count
@@ -289,7 +291,7 @@ and invoke state invoke =
         let name = eval state name
         let array =
             match name with
-            | String name -> resolveArray vars name
+            | String name -> resolveArray globals name
             | Array array -> array
             | _ -> invalidOp "Expecting array name"
         let keys = array.Keys |> Seq.mapi (fun i k -> Int (i+1),k)
@@ -306,19 +308,13 @@ and invoke state invoke =
 open System.Threading
 
 /// Runs program
-let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (countdown:CountdownEvent) =
-    /// Local arguments lookup
-    let locals = ref (VarLookup(System.StringComparer.OrdinalIgnoreCase))
-    /// Global Variable lookup   
-    let variables = vars
+let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:CancelToken) (countdown:CountdownEvent) =
     /// Program index
     let pi = ref pc
     /// For from EndFor lookup
     let forLoops = Dictionary<index, index * identifier * expr * expr>()
     /// While from EndWhile lookup
     let whileLoops = Dictionary<index, index>()
-    /// Call stack for Gosubs
-    let callStack = Stack<index * VarLookup>()
 
     /// Finds first index of instructions
     let findFirstIndex start (inc,dec) condition =
@@ -349,23 +345,23 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
            | _ -> false
         findFirstIndex 0 (isFalse, isFalse) condition
     let call (identifier, args:value list) : unit =
-        callStack.Push(!pi, VarLookup(!locals))
         let index = findSubIndex identifier
         let ps =
            match program.[index] with
            | Sub(_,ps) | Function(_,ps) -> ps
            | _ -> invalidOp "Expecting sub or function"
+        let locals = VarLookup()
         let xs = List.zip ps args
         for (p,arg) in xs do
-            (!locals).[p] <- arg
-        pi := index
+            locals.[p] <- arg
+        runWith ffi program (index+1) globals locals token countdown
     /// Current state
-    let state () = variables, !locals, call, ffi
+    let state () = globals, locals, call, ffi
     /// Evaluates expression with variables
     let eval = eval (state ())
     /// Assigns result of expression to variable
     let assign (Set(identifier,(expr,_))) =
-        variables.[identifier] <- eval expr
+        globals.[identifier] <- eval expr
     /// Obtains sub array from specified array
     let obtainSubArray (array:HashTable<_,_>) key =
         match array.TryGetValue(key) with
@@ -384,8 +380,8 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
        fun _ _ ->
            countdown.TryAddCount() |> ignore
            try                 
-              try     
-                 runWith ffi program (index+1) vars token countdown
+              try
+                 runWith ffi program (index+1) globals locals token countdown
               with e ->
                   System.Diagnostics.Debug.WriteLine(e.Message)
                   token.Cancel()                        
@@ -400,7 +396,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
             assign set
         | PropertySet(ns,name,(expr,_)) ->
             match expr with
-            | Identifier sub when not(variables.ContainsKey(sub)) ->
+            | Identifier sub when not(globals.ContainsKey(sub)) ->
                let handler = toEventHandler sub
                ffi.EventAdd(ns,name, System.EventHandler(handler))
             | _ ->
@@ -413,7 +409,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
                   let subArray = obtainSubArray array key                  
                   setAt subArray xs
                | [] -> invalidOp "Expecting array index"
-            let array = obtainArray vars identifier            
+            let array = obtainArray globals identifier            
             setAt array indices
         | Action(Call(name,args)) -> call (name, [for (arg,_) in args -> eval arg])             
         | Action(call) -> invoke (state()) call |> ignore
@@ -435,17 +431,17 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
             assign from
             let index = findIndex (!pi+1) (isFor,isEndFor) EndFor
             forLoops.[index] <- (!pi, identifier, target, step)
-            let a = toInt(variables.[identifier])
+            let a = toInt(globals.[identifier])
             let b = toInt(eval target)
             let step = toInt(eval step)
             if (step >= 0 && a > b) || (step < 0 && a < b)
             then pi := index
         | EndFor ->
             let start, identifier, target, step = forLoops.[!pi]
-            let x = variables.[identifier]            
+            let x = globals.[identifier]            
             let step = eval step
-            variables.[identifier] <- arithmetic x Add step
-            let a = toInt(variables.[identifier])
+            globals.[identifier] <- arithmetic x Add step
+            let a = toInt(globals.[identifier])
             let b =  toInt(eval target) 
             let step = toInt(step)
             if (step >= 0 && a <= b) || (step < 0 && a >= b)
@@ -461,19 +457,14 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
         | Function(name,ps) ->
             pi := findIndex (!pi+1) (isFalse, isFalse) EndFunction
         | EndSub | EndFunction ->
-            pi := 
-               if callStack.Count > 0 
-               then let pi, ls = callStack.Pop()
-                    locals := ls
-                    pi
-               else program.Length
+            pi := program.Length
         | Label(label) -> ()
         | Goto(label) -> pi := findIndex 0 (isFalse,isFalse) (Label(label))
         // Language Extensions
         | Deconstruct(pattern, (e,_)) ->
             let rec deconstruct e = function
                | Bind("_") -> ()
-               | Bind(name) -> variables.[name] <- e                  
+               | Bind(name) -> globals.[name] <- e                  
                | Clause(_) -> raise (System.NotImplementedException())
                | Tuple(xs) ->
                     let table =
@@ -520,10 +511,11 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
     while not token.IsCancelled && !pi < program.Length do step (); incr pi
 
 let run ffi program token =
-   let vars = VarLookup(System.StringComparer.OrdinalIgnoreCase)
+   let globals = VarLookup(System.StringComparer.OrdinalIgnoreCase)
+   let locals = VarLookup(System.StringComparer.OrdinalIgnoreCase)
    let lines, program = program |> Array.unzip
    let countdown = new CountdownEvent(1)  
-   runWith ffi program 0 vars token countdown
+   runWith ffi program 0 globals locals token countdown
    if token.IsCancelled then
       countdown.Signal() |> ignore
       countdown.Wait(1000) |> ignore
