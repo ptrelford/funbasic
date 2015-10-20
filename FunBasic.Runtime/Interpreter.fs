@@ -479,27 +479,38 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
                     let table =
                        match e with
                        | Array ar -> ar
-                       | _ -> failwith "Expecting tuple"
+                       | _ -> invalidOp "Expecting tuple"
                     xs |> List.iteri (fun i x ->
                        let item = table.[Int i]
                        deconstruct item x
                     )
-            deconstruct (eval e) pattern           
-        | Select(e,_) -> 
-            let value = eval e
-            let check = function
+            deconstruct (eval e) pattern
+        | Select(e,_) ->
+            let rec check value = function
                | Any -> true
                | Is(op,x) -> comparison value op x
-               | Range(from,until) ->
-                  comparison value Ge from &&
-                  comparison value Le until
-               | _ -> false
+               | Range(from,until) -> 
+                  comparison value Ge from && comparison value Le until
+               | Pattern(Tuple(patterns)) ->
+                  checkTuple patterns value       
+               | Pattern(_) -> failwith "Not supported"
+            and checkTuple patterns = function
+               | Array table when table.Count = patterns.Length ->
+                  let items = [for i in 0..(patterns.Length-1) -> table.[Int i]]
+                  List.forall2 checkItem items patterns
+               | _ -> false 
+            and checkItem value = function
+               | Bind("_") -> true
+               | Bind( _ ) -> failwith "Not supported"
+               | Clause(clause) -> check value clause
+               | Tuple(patterns) -> checkTuple patterns value
             let next = function Case _ | EndSelect -> true | _ -> false
+            let value = eval e
             let rec tryNext () =
                let index = findFirstIndex (!pi+1) (isSelect,isEndSelect) next
                pi := index
                match program.[index] with              
-               | Case(clauses) -> if clauses |> List.forall check |> not then tryNext()                                
+               | Case(clauses) -> if clauses |> List.forall (check value) |> not then tryNext()                                
                | _ -> ()
             tryNext ()                   
         | Case(clauses) ->
