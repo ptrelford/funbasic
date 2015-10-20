@@ -490,6 +490,9 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
             let check = function
                | Any -> true
                | Is(op,x) -> comparison value op x
+               | Range(from,until) ->
+                  comparison value Ge from &&
+                  comparison value Le until
                | _ -> false
             let next = function Case _ | EndSelect -> true | _ -> false
             let rec tryNext () =
