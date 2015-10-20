@@ -193,7 +193,7 @@ let rec eval state (expr:expr) =
     | Func(call) -> invoke state call
     | Neg(x,_) -> arithmetic (eval state x) Multiply (Int(-1))
     | Arithmetic((l,_),op,(r,_)) -> arithmetic (eval state l) op (eval state r)
-    | Comparison((l,_),op,(r,_)) -> comparison (eval state l) op (eval state r)
+    | Comparison((l,_),op,(r,_)) -> comparison (eval state l) op (eval state r) |> fromObj
     | Logical((l,_),op,(r,_)) -> logical (eval state l) op (eval state r)
     | NewTuple(xs) ->
        let table = HashTable()
@@ -205,7 +205,6 @@ and comparison lhs op rhs =
     | Eq -> x = 0   | Ne -> x <> 0
     | Lt -> x < 0   | Gt -> x > 0
     | Le -> x <= 0  | Ge -> x >= 0
-    |> fromObj
 and arithmetic lhs op rhs =
     match op, (lhs, rhs) with
     | Add, (Int l,Int r) -> Int(l + r)
@@ -339,6 +338,8 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
     let isEndFor = (=) EndFor
     let isWhile = function While(_) -> true | _ -> false
     let isEndWhile = (=) EndWhile
+    let isSelect = function Select _ -> true | _ -> false
+    let isEndSelect = function EndSelect -> true | _ -> false
     let isFalse _ = false    
     let findSubIndex (identifier) =
         let ignoreCase = System.StringComparison.OrdinalIgnoreCase
@@ -484,9 +485,24 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
                        deconstruct item x
                     )
             deconstruct (eval e) pattern           
-        | Select(e) -> raise (System.NotSupportedException())
-        | Case(clauses) -> raise (System.NotSupportedException())
-        | EndSelect -> raise (System.NotSupportedException())    
+        | Select(e,_) -> 
+            let value = eval e
+            let check = function
+               | Any -> true
+               | Is(op,x) -> comparison value op x
+               | _ -> false
+            let next = function Case _ | EndSelect -> true | _ -> false
+            let rec tryNext () =
+               let index = findFirstIndex (!pi+1) (isSelect,isEndSelect) next
+               pi := index
+               match program.[index] with              
+               | Case(clauses) -> if clauses |> List.forall check |> not then tryNext()                                
+               | _ -> ()
+            tryNext ()                   
+        | Case(clauses) ->
+            let index = findIndex !pi (isSelect,isEndSelect) EndSelect
+            pi := index            
+        | EndSelect -> ()
     while not token.IsCancelled && !pi < program.Length do step (); incr pi
 
 let run ffi program token =
