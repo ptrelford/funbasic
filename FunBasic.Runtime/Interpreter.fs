@@ -195,7 +195,10 @@ let rec eval state (expr:expr) =
     | Arithmetic((l,_),op,(r,_)) -> arithmetic (eval state l) op (eval state r)
     | Comparison((l,_),op,(r,_)) -> comparison (eval state l) op (eval state r)
     | Logical((l,_),op,(r,_)) -> logical (eval state l) op (eval state r)
-    | NewTuple(xs) -> raise (System.NotSupportedException())
+    | NewTuple(xs) ->
+       let table = HashTable()
+       xs |> List.iteri (fun i (e,_) -> table.[Int i] <- eval state e)
+       Array table      
 and comparison lhs op rhs =
     let x = compare lhs rhs
     match op with
@@ -466,7 +469,21 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc vars (token:CancelToken) (
         | Label(label) -> ()
         | Goto(label) -> pi := findIndex 0 (isFalse,isFalse) (Label(label))
         // Language Extensions
-        | Deconstruct(pattern, e) -> raise (System.NotSupportedException())
+        | Deconstruct(pattern, (e,_)) ->
+            let rec deconstruct e = function
+               | Bind("_") -> ()
+               | Bind(name) -> variables.[name] <- e                  
+               | Clause(_) -> raise (System.NotImplementedException())
+               | Tuple(xs) ->
+                    let table =
+                       match e with
+                       | Array ar -> ar
+                       | _ -> failwith "Expecting tuple"
+                    xs |> List.iteri (fun i x ->
+                       let item = table.[Int i]
+                       deconstruct item x
+                    )
+            deconstruct (eval e) pattern           
         | Select(e) -> raise (System.NotSupportedException())
         | Case(clauses) -> raise (System.NotSupportedException())
         | EndSelect -> raise (System.NotSupportedException())    
