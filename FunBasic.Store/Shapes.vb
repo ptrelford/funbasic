@@ -279,12 +279,17 @@ Public Class Shapes
         If ShapeLookup.TryGetValue(name, shape) Then
             Dispatch(
                 Sub()
-                    Dim transform As New RotateTransform()
+                    Dim transform As CompositeTransform
+                    If shape.Element.RenderTransform Is GetType(CompositeTransform) Then
+                        transform = shape.Element.RenderTransform
+                    Else
+                        transform = New CompositeTransform()
+                        shape.Element.RenderTransform = transform
+                    End If
                     Dim el = CType(shape.Element, FrameworkElement)
                     transform.CenterX = el.ActualWidth / 2.0
                     transform.CenterY = el.ActualHeight / 2.0
-                    transform.Angle = angle
-                    shape.Element.RenderTransform = transform
+                    transform.Rotation = angle
                 End Sub)
         End If
     End Sub
@@ -295,26 +300,21 @@ Public Class Shapes
         If ShapeLookup.TryGetValue(name, shape) Then
             Dispatch(
                 Sub()
-                    Dim transform As New ScaleTransform()
-                    shape.Element.RenderTransform = transform
+                    Dim transform As CompositeTransform
+                    If shape.Element.RenderTransform Is GetType(CompositeTransform) Then
+                        transform = shape.Element.RenderTransform
+                    Else
+                        transform = New CompositeTransform()
+                        shape.Element.RenderTransform = transform
+                    End If
                     Dim el = CType(shape.Element, FrameworkElement)
-                    Dim centerX = CreateDivideBy2Binding(name, "ActualWidth")
-                    BindingOperations.SetBinding(transform, ScaleTransform.CenterXProperty, centerX)
-                    Dim centerY = CreateDivideBy2Binding(name, "ActualHeight")
-                    BindingOperations.SetBinding(transform, ScaleTransform.CenterYProperty, centerY)
+                    transform.CenterX = el.ActualWidth / 2.0
+                    transform.CenterY = el.ActualHeight / 2.0
                     transform.ScaleX = scaleX
                     transform.ScaleY = scaleY
                 End Sub)
         End If
     End Sub
-
-    Private Function CreateDivideBy2Binding(elementName As String, propertyName As String) As Binding
-        Dim binding = New Binding()
-        binding.ElementName = elementName
-        binding.Path = New PropertyPath(propertyName)
-        binding.Converter = New DivideByTwoConverter()
-        Return binding
-    End Function
 
     Public Function GetOpacity(name As String) As Integer _
         Implements IShapes.GetOpacity
