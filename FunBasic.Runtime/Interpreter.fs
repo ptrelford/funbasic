@@ -512,6 +512,8 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:Canc
 
 let run ffi program token =
    let globals = VarLookup(System.StringComparer.OrdinalIgnoreCase)
+   globals.["true"] <- Bool true
+   globals.["false"] <- Bool false
    let locals = VarLookup(System.StringComparer.OrdinalIgnoreCase)
    let lines, program = program |> Array.unzip
    let countdown = new CountdownEvent(1)  
