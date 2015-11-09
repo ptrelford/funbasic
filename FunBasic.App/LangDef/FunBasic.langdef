@@ -38,7 +38,7 @@ Actipro Syntax Language Definition (.langdef)
 				<ExplicitPatternGroup TokenId="7" TokenKey="Keyword" ClassificationTypeKey="Keyword" LookAheadPattern="{NonWord}|\z">
 					<ExplicitPatterns><![CDATA[
 						and case else elseif end endfor endfunction endif endselect endsub endwhile for function goto if or
-						select step sub then to while
+						return select step sub then to while
 					]]></ExplicitPatterns>
 				</ExplicitPatternGroup>
 				<RegexPatternGroup TokenId="8" TokenKey="Identifier" ClassificationTypeKey="Identifier" Pattern="(_ | {Alpha})({Word})*" />

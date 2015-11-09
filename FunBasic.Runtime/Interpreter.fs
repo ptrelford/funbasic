@@ -250,10 +250,13 @@ and invoke state invoke =
     let globals,locals,call,(ffi:IFFI) = state
     match invoke with
     | Call(name,args) ->
-        call (name,[for (arg,_) in args -> eval state arg])
-        match globals.TryGetValue(name) with
-        | true, value -> value
-        | false, _ -> String ""
+        let returnValue = call (name,[for (arg,_) in args -> eval state arg])
+        match returnValue with
+        | Some value -> value
+        | None ->
+            match globals.TryGetValue(name) with
+            | true, value -> value
+            | false, _ -> String ""
     | Method("Array","GetValue", [name,_; index]) ->
         let name = eval state name
         match name with
@@ -315,6 +318,8 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:Canc
     let forLoops = Dictionary<index, index * identifier * expr * expr>()
     /// While from EndWhile lookup
     let whileLoops = Dictionary<index, index>()
+    /// Return value
+    let returnValue = ref None
 
     /// Finds first index of instructions
     let findFirstIndex start (inc,dec) condition =
@@ -344,7 +349,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:Canc
                when System.String.Compare(name,identifier,ignoreCase) = 0 -> true
            | _ -> false
         findFirstIndex 0 (isFalse, isFalse) condition
-    let call (identifier, args:value list) : unit =
+    let call (identifier, args:value list) : value option =
         let index = findSubIndex identifier
         let ps =
            match program.[index] with
@@ -382,6 +387,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:Canc
            try                 
               try
                  runWith ffi program (index+1) globals locals token countdown
+                 |> ignore
               with e ->
                   System.Diagnostics.Debug.WriteLine(e.Message)
                   token.Cancel()                        
@@ -411,7 +417,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:Canc
                | [] -> invalidOp "Expecting array index"
             let array = obtainArray globals identifier            
             setAt array indices
-        | Action(Call(name,args)) -> call (name, [for (arg,_) in args -> eval arg])             
+        | Action(Call(name,args)) -> call (name, [for (arg,_) in args -> eval arg]) |> ignore    
         | Action(call) -> invoke (state()) call |> ignore
         | If(condition,_) ->
             let rec check condition =
@@ -457,6 +463,9 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:Canc
         | Function(name,ps) ->
             pi := findIndex (!pi+1) (isFalse, isFalse) EndFunction
         | EndSub | EndFunction ->
+            pi := program.Length
+        | Return(e,_) ->
+            returnValue := Some (eval e)
             pi := program.Length
         | Label(label) -> ()
         | Goto(label) -> pi := findIndex 0 (isFalse,isFalse) (Label(label))
@@ -510,6 +519,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:Canc
         | EndSelect -> ()
         | End -> invalidOp "For internal use only"
     while not token.IsCancelled && !pi < program.Length do step (); incr pi
+    !returnValue
 
 let inferEnds program =
    let stack = Stack()

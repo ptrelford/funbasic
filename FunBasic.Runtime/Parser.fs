@@ -132,6 +132,7 @@ let pgoto = str_ws1 "Goto" >>. pidentifier |>> (fun label -> Goto(label))
 
 let pfunction = str_ws1 "Function" >>. pmethod |>> (fun (name,ps) -> Function(name,ps))
 let pendfunction = str_ws "EndFunction" |>> (fun _ -> EndFunction)
+let preturn = str_ws1 "Return" >>. pexpr |>> (fun e -> Return e)
 
 let pselect = str_ws1 "Select" >>. str_ws1 "Case" >>. pexpr
               |>> (fun e -> Select(e))
@@ -172,10 +173,10 @@ let pinstruct =
         pif; pelseif; pelse; pendif
         pselect; pcase; pendselect
         psub; pendsub
-        pfunction; pendfunction
+        pfunction; pendfunction; preturn
         ppropertyset; passign; psetat; pdeconstruct
         paction
-        plabel; pgoto;
+        plabel; pgoto
         pend
     ]
     |> List.map attempt
