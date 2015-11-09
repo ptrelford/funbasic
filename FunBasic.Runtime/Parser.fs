@@ -152,6 +152,8 @@ let pcase =
     |>> (fun xs -> Case(xs))
 let pendselect = str_ws "EndSelect" |>> (fun _ -> EndSelect)
 
+let pend = str_ws "End" |>> (fun _ -> End)
+
 let pbind = pidentifier_ws |>> (fun s -> Bind(s))
 let ppattern =
     attempt ptuple <|>
@@ -173,7 +175,8 @@ let pinstruct =
         pfunction; pendfunction
         ppropertyset; passign; psetat; pdeconstruct
         paction
-        plabel; pgoto
+        plabel; pgoto;
+        pend
     ]
     |> List.map attempt
     |> choice

@@ -335,7 +335,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:Canc
     let isWhile = function While(_) -> true | _ -> false
     let isEndWhile = (=) EndWhile
     let isSelect = function Select _ -> true | _ -> false
-    let isEndSelect = function EndSelect -> true | _ -> false
+    let isEndSelect = (=) EndSelect
     let isFalse _ = false    
     let findSubIndex (identifier) =
         let ignoreCase = System.StringComparison.OrdinalIgnoreCase
@@ -508,9 +508,33 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:Canc
             let index = findIndex !pi (isSelect,isEndSelect) EndSelect
             pi := index            
         | EndSelect -> ()
+        | End -> invalidOp "For internal use only"
     while not token.IsCancelled && !pi < program.Length do step (); incr pi
 
+let inferEnds program =
+   let stack = Stack()
+   let push x = stack.Push x
+   let pop () = 
+      if stack.Count > 0 then stack.Pop()
+      else invalidOp "Too many end statements"
+   let mutable current = None
+   for i = 0 to (Array.length program)-1 do
+      let info, instruction = program.[i]
+      match instruction with
+      | For(_) -> push EndFor
+      | While(_) -> push EndWhile
+      | If(_) -> push EndIf
+      | Sub(_) -> push EndSub
+      | Function(_) -> push EndFunction
+      | Select(_) -> push EndSelect
+      | EndFor | EndWhile | EndIf | EndSub | EndFunction | EndSelect -> 
+         pop () |> ignore
+      | End -> program.[i] <- (info, pop ())
+      | _ -> ()
+   if stack.Count > 0 then invalidOp "Missing end statement"
+
 let run ffi program token =
+   inferEnds program
    let globals = VarLookup(System.StringComparer.OrdinalIgnoreCase)
    globals.["true"] <- Bool true
    globals.["false"] <- Bool false
