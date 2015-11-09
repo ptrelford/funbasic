@@ -527,8 +527,8 @@ let inferEnds program =
       | Sub(_) -> push EndSub
       | Function(_) -> push EndFunction
       | Select(_) -> push EndSelect
-      | EndFor | EndWhile | EndIf | EndSub | EndFunction | EndSelect -> 
-         pop () |> ignore
+      | EndFor | EndWhile | EndIf | EndSub | EndFunction | EndSelect ->
+         if instruction <> pop () then invalidOp "Mismatch on end statement"       
       | End -> program.[i] <- (info, pop ())
       | _ -> ()
    if stack.Count > 0 then invalidOp "Missing end statement"
