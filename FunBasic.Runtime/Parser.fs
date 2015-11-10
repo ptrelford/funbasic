@@ -4,7 +4,21 @@
 open AST
 open FParsec
 
-let pnumvalue: Parser<value, unit> =
+type UserState = { Ends:instruction list; InFunction:bool } with
+   static member Default = { Ends = []; InFunction=false }
+let expectEnd ``end`` = updateUserState (fun us -> {us with Ends = ``end``::us.Ends})
+let handleEnd ``end`` = 
+   userStateSatisfies (fun us -> 
+      let expected = us.Ends |> List.head in 
+      ``end`` = expected || ``end`` = End) 
+   >>. updateUserState (fun us -> 
+      { us with
+         InFunction = if ``end`` = EndFunction then false else us.InFunction 
+         Ends = List.tail us.Ends
+       }
+   )
+
+let pnumvalue: Parser<value, UserState> =
     let numberFormat = NumberLiteralOptions.AllowFraction
     numberLiteral numberFormat "number"
     |>> fun nl ->
@@ -102,39 +116,50 @@ let psetat = pipe3 plocation (str_ws "=") pexpr (fun loc _ e -> SetAt(loc, e))
 
 let pfor =
     let pfrom = str_ws1 "For" >>. pset
-    let pto = str_ws1 "To" >>. pexpr
+    let pto = str_ws1 "To" >>. pexpr .>> expectEnd EndFor
     let pstep = str_ws1 "Step" >>. pexpr
     let toStep = function None -> (Literal(Int(1)),{Start=0;End=0}) | Some s -> s
     pipe3 pfrom pto (opt pstep) (fun f t s -> For(f, t, toStep s))
-let pendfor = str_ws "EndFor" |>> (fun _ -> EndFor)
+let pendfor = str_ws "EndFor" .>> handleEnd EndFor |>> (fun _ -> EndFor)
 
 let pwhile = (attempt (str_ws1 "While" >>. pexpr)) <|> 
              (str_ws "While" >>. (between (str_ws "(") (str_ws ")") pexpr))
+             .>> expectEnd EndWhile
              |>> (fun e -> While(e))
-let pendwhile = str_ws "EndWhile" |>> (fun _ -> EndWhile)
+let pendwhile = str_ws "EndWhile" .>> handleEnd EndWhile |>> (fun _ -> EndWhile)
 
 let pif = (attempt (str_ws1 "If" >>. pexpr)) <|> 
           (str_ws "If" >>. (between (str_ws "(") (str_ws ")") pexpr)) 
-          .>> str_ws "Then" |>> (fun e -> If(e))
+          .>> str_ws "Then"
+          .>> expectEnd EndIf
+          |>> (fun e -> If(e))
 let pelseif = str_ws1 "ElseIf" >>. pexpr .>> str_ws "Then" |>> (fun e -> ElseIf(e))
 let pelse = str_ws "Else" |>> (fun _ -> Else)
-let pendif = str_ws "EndIf" |>> (fun _ -> EndIf)
+let pendif = str_ws "EndIf" .>> handleEnd EndIf |>> (fun _ -> EndIf)
 
 let pparams = between (str_ws "(") (str_ws ")") (sepBy pidentifier_ws (str_ws ","))
 let pmethod = pidentifier_ws .>>. opt pparams
               |>> (fun (name,ps) -> name, match ps with Some ps -> ps | None -> [])
 
-let psub = str_ws1 "Sub" >>. pmethod |>> (fun (name,ps) -> Sub(name,ps))
-let pendsub = str_ws "EndSub" |>> (fun _ -> EndSub)
+let psub = str_ws1 "Sub" >>. pmethod .>> expectEnd EndSub |>> (fun (name,ps) -> Sub(name,ps))
+let pendsub = str_ws "EndSub" .>> handleEnd EndSub |>> (fun _ -> EndSub)
 
 let plabel = pidentifier_ws .>> str_ws ":" |>> (fun label -> Label(label))
 let pgoto = str_ws1 "Goto" >>. pidentifier |>> (fun label -> Goto(label))
 
-let pfunction = str_ws1 "Function" >>. pmethod |>> (fun (name,ps) -> Function(name,ps))
-let pendfunction = str_ws "EndFunction" |>> (fun _ -> EndFunction)
-let preturn = str_ws1 "Return" >>. pexpr |>> (fun e -> Return e)
+let pfunction = 
+   str_ws1 "Function" >>. pmethod
+   .>> expectEnd EndFunction 
+   .>> updateUserState (fun us -> {us with InFunction = true})
+   |>> (fun (name,ps) -> Function(name,ps))
+let pendfunction = 
+   str_ws "EndFunction" .>> handleEnd EndFunction 
+   |>> (fun _ -> EndFunction)
+let preturn = 
+   attempt (str_ws1 "Return" >>. pexpr .>> userStateSatisfies (fun us -> us.InFunction) |>> (fun e -> Return (Some e)))
+   <|> (str_ws "Return" .>> userStateSatisfies (fun us -> not us.InFunction) |>> (fun _ -> Return None))
 
-let pselect = str_ws1 "Select" >>. str_ws1 "Case" >>. pexpr
+let pselect = str_ws1 "Select" >>. str_ws1 "Case" >>. pexpr .>> expectEnd EndSelect
               |>> (fun e -> Select(e))
 
 let ptuple, ptupleimpl = createParserForwardedToRef ()
@@ -151,9 +176,9 @@ let pcase =
     str_ws1 "Case" >>.
     sepBy pclause (str_ws ",") 
     |>> (fun xs -> Case(xs))
-let pendselect = str_ws "EndSelect" |>> (fun _ -> EndSelect)
+let pendselect = str_ws "EndSelect" .>> handleEnd EndSelect |>> (fun _ -> EndSelect)
 
-let pend = str_ws "End" |>> (fun _ -> End)
+let pend = str_ws "End" .>> handleEnd End |>> (fun _ -> End)
 
 let pbind = pidentifier_ws |>> (fun s -> Bind(s))
 let ppattern =
@@ -193,12 +218,12 @@ let pinstruction = ws >>. pinstructpos .>> peol |>> (fun (pos,i) -> Instruction(
 let pblank = ws >>. peol |>> (fun _ -> Blank)
 let pline = attempt pinstruction <|> attempt pblank
 let parseLine (line:string) =
-   match run pline (line+"\r\n") with
+   match runParserOnString pline UserState.Default "Program" (line+"\r\n") with
    | Success (Instruction(pos,i),_,_) -> Some (pos,i)
    | _ -> None
 let plines = many pline .>> eof
 let parse (program:string) =    
-    match run plines program with
+    match runParserOnString plines UserState.Default "Program" program with
     | Success(result, _, _)   -> 
         result 
         |> List.choose (function Instruction(pos,i) -> Some(pos,i) | Blank -> None) 

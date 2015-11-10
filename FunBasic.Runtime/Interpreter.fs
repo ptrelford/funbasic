@@ -464,8 +464,8 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:Canc
             pi := findIndex (!pi+1) (isFalse, isFalse) EndFunction
         | EndSub | EndFunction ->
             pi := program.Length
-        | Return(e,_) ->
-            returnValue := Some (eval e)
+        | Return(e) ->            
+            returnValue := e |> Option.map (eval << fst)
             pi := program.Length
         | Label(label) -> ()
         | Goto(label) -> pi := findIndex 0 (isFalse,isFalse) (Label(label))
@@ -551,7 +551,7 @@ let run ffi program token =
    let locals = VarLookup(System.StringComparer.OrdinalIgnoreCase)
    let lines, program = program |> Array.unzip
    let countdown = new CountdownEvent(1)  
-   runWith ffi program 0 globals locals token countdown
+   runWith ffi program 0 globals locals token countdown |> ignore
    if token.IsCancelled then
       countdown.Signal() |> ignore
       countdown.Wait(1000) |> ignore

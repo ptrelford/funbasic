@@ -71,7 +71,7 @@ type instruction =
     // Language extensions
     | Function of identifier * string list
     | EndFunction
-    | Return of exprInfo
+    | Return of exprInfo option
     | Select of exprInfo
     | Case of clause list
     | EndSelect
