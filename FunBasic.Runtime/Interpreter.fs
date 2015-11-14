@@ -312,6 +312,35 @@ and invoke state invoke =
     | PropertyGet(ns,name) ->
         ffi.PropertyGet(ns,name) |> fromObj       
 
+let rec check value = function
+   | Any -> true
+   | Is(op,x) -> comparison value op x
+   | Range(from,until) -> 
+      comparison value Ge from && comparison value Le until
+   | Pattern(Tuple(patterns)) ->
+      checkTuple patterns value
+   | Pattern(Record(patterns)) ->
+      checkRecord patterns value 
+   | Pattern(_) -> failwith "Not supported"
+and checkTuple patterns = function
+   | Array table when table.Count = patterns.Length ->
+      let items = [for i in 0..(patterns.Length-1) -> table.[Int i]]
+      List.forall2 checkItem items patterns
+   | _ -> false 
+and checkRecord patterns = function
+   | Array table ->
+      patterns |> List.forall (fun (name, pattern) ->
+         let value = table.[String name]
+         checkItem value pattern
+      )
+   | _ -> false
+and checkItem value = function
+   | Bind("_") -> true
+   | Bind( _ ) -> failwith "Not supported"
+   | Clause(clause) -> check value clause
+   | Tuple(patterns) -> checkTuple patterns value
+   | Record(patterns) -> checkRecord patterns value
+
 open System.Threading
 
 /// Runs program
@@ -478,9 +507,9 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:Canc
             let rec deconstruct e = function
                | Bind("_") -> ()
                | Bind(name) -> globals.[name] <- e                  
-               | Clause(_) ->
-                  // TODO: assert clause
-                  raise (System.NotImplementedException())
+               | Clause(clause) -> 
+                  if check e clause |> not then
+                     failwith "Pattern match failed"
                | Tuple(xs) ->
                     let table =
                        match e with
@@ -501,34 +530,7 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:Canc
                     )
             deconstruct (eval e) pattern
         | Select(e,_) ->
-            let rec check value = function
-               | Any -> true
-               | Is(op,x) -> comparison value op x
-               | Range(from,until) -> 
-                  comparison value Ge from && comparison value Le until
-               | Pattern(Tuple(patterns)) ->
-                  checkTuple patterns value
-               | Pattern(Record(patterns)) ->
-                  checkRecord patterns value 
-               | Pattern(_) -> failwith "Not supported"
-            and checkTuple patterns = function
-               | Array table when table.Count = patterns.Length ->
-                  let items = [for i in 0..(patterns.Length-1) -> table.[Int i]]
-                  List.forall2 checkItem items patterns
-               | _ -> false 
-            and checkRecord patterns = function
-               | Array table ->
-                  patterns |> List.forall (fun (name, pattern) ->
-                     let value = table.[String name]
-                     checkItem value pattern
-                  )
-               | _ -> false
-            and checkItem value = function
-               | Bind("_") -> true
-               | Bind( _ ) -> failwith "Not supported"
-               | Clause(clause) -> check value clause
-               | Tuple(patterns) -> checkTuple patterns value
-               | Record(patterns) -> checkRecord patterns value
+
             let next = function Case _ | EndSelect -> true | _ -> false
             let value = eval e
             let rec tryNext () =
