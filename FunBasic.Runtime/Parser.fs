@@ -84,13 +84,17 @@ for s,op in comparisons do
 
 let pnewtuple, pnewtupleimpl = createParserForwardedToRef ()
 let pnewrecord, pnewrecordimpl = createParserForwardedToRef ()
+let pnewarray, pnewarrayimpl = createParserForwardedToRef ()
 
-let pconstruct = attempt pterm <|> attempt pnewtuple <|> attempt pnewrecord
+let pconstruct = attempt pterm <|> attempt pnewtuple <|> attempt pnewrecord <|> attempt pnewarray
 let ptupleItems = between (str_ws "(") (str_ws ")") (sepBy1 pconstruct (str_ws ","))
 pnewtupleimpl :=
     pipe3 getPosition ptupleItems getPosition
       (fun p1 xs p2 -> NewTuple(xs), {Start=int p1.Column;End=int p2.Column})
-
+let parrayItems = between (str_ws "[") (str_ws "]") (sepBy pconstruct (str_ws ","))
+pnewarrayimpl :=
+    pipe3 getPosition parrayItems getPosition
+      (fun p1 xs p2 -> NewTuple(xs), {Start=int p1.Column;End=int p2.Column})
 let pnamedItem = pstring .>> ws .>> str_ws ":" .>>. pconstruct
 let precordItems = between (str_ws "{") (str_ws "}") (sepBy pnamedItem (str_ws ","))
 pnewrecordimpl :=
@@ -171,6 +175,7 @@ let pselect = str_ws1 "Select" >>. str_ws1 "Case" >>. pexpr .>> expectEnd EndSel
               |>> (fun e -> Select(e))
 
 let ptuple, ptupleimpl = createParserForwardedToRef ()
+let parray, parrayimpl = createParserForwardedToRef ()
 let precord, precordimpl = createParserForwardedToRef ()
 
 let prange = pvalue .>> ws .>> str_ws1 "To" .>>. pvalue |>> (fun (a,b) -> Range(a,b))
@@ -181,6 +186,7 @@ let pany = str_ws "Else" |>> (fun _ -> Any)
 let pclause = 
     attempt prange <|> attempt pis <|> attempt pisequal <|> attempt pany <|>
     attempt (ptuple |>> (fun x -> Pattern(x))) <|>
+    attempt (parray |>> (fun x -> Pattern(x))) <|>
     attempt (precord |>> (fun x -> Pattern(x)))
 let pcase =
     str_ws1 "Case" >>.
@@ -192,7 +198,7 @@ let pend = str_ws "End" .>> handleEnd End |>> (fun _ -> End)
 
 let pbind = pidentifier_ws |>> (fun s -> Bind(s))
 let ppattern =
-    attempt ptuple <|> attempt precord <|>
+    attempt ptuple <|> attempt precord <|> attempt parray <|>
     (attempt pclause |>> (fun c -> Clause(c))) <|>
     attempt pbind
 
@@ -201,12 +207,14 @@ let precordPatterns = between (str_ws "{") (str_ws "}") (sepBy pnamedPattern (st
 precordimpl :=
     precordPatterns
     |>> (fun xs -> Record xs)
-
 ptupleimpl :=
     between (str_ws "(") (str_ws ")") (sepBy ppattern (str_ws ","))
     |>> (fun xs -> Tuple(xs))
+parrayimpl :=
+    between (str_ws "[") (str_ws "]") (sepBy ppattern (str_ws ","))
+    |>> (fun xs -> Tuple(xs))
 
-let pdeconstruct = pipe3 (ptuple <|> precord) (str_ws "=") pexpr (fun p _ e -> Deconstruct(p,e))
+let pdeconstruct = pipe3 (ptuple <|> parray <|> precord) (str_ws "=") pexpr (fun p _ e -> Deconstruct(p,e))
 
 let pinstruct = 
     [
