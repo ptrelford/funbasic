@@ -134,6 +134,7 @@
     <Compile Include="Modules\Stack.cs" />
     <Compile Include="Modules\Text.cs" />
     <Compile Include="Modules\TextWindow.cs" />
+    <Compile Include="Modules\Web.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Modules\Timer.cs" />
     <Compile Include="Modules\Turtle.cs" />
