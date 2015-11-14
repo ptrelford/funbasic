@@ -23,6 +23,7 @@ type pattern =
     | Bind of identifier
     | Clause of clause
     | Tuple of pattern list
+    | Record of (string * pattern) list
 and clause =
     | Any
     | Is of comparison  * value
@@ -40,6 +41,7 @@ type expr =
     | Comparison of exprInfo * comparison * exprInfo
     | Logical of exprInfo * logical * exprInfo
     | NewTuple of exprInfo list // Language extension
+    | NewRecord of (string * exprInfo) list // Language extension
 and location =
     | Location of identifier * exprInfo list
 and invoke =

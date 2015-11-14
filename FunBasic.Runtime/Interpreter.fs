@@ -198,7 +198,11 @@ let rec eval state (expr:expr) =
     | NewTuple(xs) ->
        let table = HashTable()
        xs |> List.iteri (fun i (e,_) -> table.[Int i] <- eval state e)
-       Array table      
+       Array table
+     | NewRecord(xs) ->
+       let table = HashTable()
+       xs |> List.iter (fun (name,(e,_)) -> table.[String name] <- eval state e)
+       Array table
 and comparison lhs op rhs =
     let x = compare lhs rhs
     match op with
@@ -474,7 +478,9 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:Canc
             let rec deconstruct e = function
                | Bind("_") -> ()
                | Bind(name) -> globals.[name] <- e                  
-               | Clause(_) -> raise (System.NotImplementedException())
+               | Clause(_) ->
+                  // TODO: assert clause
+                  raise (System.NotImplementedException())
                | Tuple(xs) ->
                     let table =
                        match e with
@@ -482,6 +488,15 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:Canc
                        | _ -> invalidOp "Expecting tuple"
                     xs |> List.iteri (fun i x ->
                        let item = table.[Int i]
+                       deconstruct item x
+                    )
+               | Record(xs) ->
+                    let table =
+                       match e with
+                       | Array ar -> ar
+                       | _ -> invalidOp "Expecting record"
+                    xs |> List.iter (fun (name,x) ->
+                       let item = table.[String name]
                        deconstruct item x
                     )
             deconstruct (eval e) pattern
@@ -492,18 +507,28 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:Canc
                | Range(from,until) -> 
                   comparison value Ge from && comparison value Le until
                | Pattern(Tuple(patterns)) ->
-                  checkTuple patterns value       
+                  checkTuple patterns value
+               | Pattern(Record(patterns)) ->
+                  checkRecord patterns value 
                | Pattern(_) -> failwith "Not supported"
             and checkTuple patterns = function
                | Array table when table.Count = patterns.Length ->
                   let items = [for i in 0..(patterns.Length-1) -> table.[Int i]]
                   List.forall2 checkItem items patterns
                | _ -> false 
+            and checkRecord patterns = function
+               | Array table ->
+                  patterns |> List.forall (fun (name, pattern) ->
+                     let value = table.[String name]
+                     checkItem value pattern
+                  )
+               | _ -> false
             and checkItem value = function
                | Bind("_") -> true
                | Bind( _ ) -> failwith "Not supported"
                | Clause(clause) -> check value clause
                | Tuple(patterns) -> checkTuple patterns value
+               | Record(patterns) -> checkRecord patterns value
             let next = function Case _ | EndSelect -> true | _ -> false
             let value = eval e
             let rec tryNext () =

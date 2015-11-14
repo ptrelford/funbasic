@@ -30,6 +30,7 @@ let private GetMemberInfo(line:string, index:int, lookup:IDictionary<string,(str
          | Neg(x) -> argInfo [x]
          | Arithmetic(x,_,y) | Comparison(x,_,y) | Logical(x,_,y) -> argInfo [x;y]
          | NewTuple(xs) -> argInfo xs
+         | NewRecord(xs) -> None
          | Func(invoke) -> invokeInfo invoke
       | _ -> None
    // Parse line

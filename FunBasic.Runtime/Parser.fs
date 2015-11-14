@@ -1,6 +1,6 @@
-﻿module FunBasic.Parser
+﻿// [snippet:Parser]
+module FunBasic.Parser
 
-// [snippet:Parser]
 open AST
 open FParsec
 
@@ -30,9 +30,8 @@ let ws = skipManySatisfy (fun c -> c = ' ' || c = '\t' || c='\r') // spaces
 let str_ws s = pstringCI s .>> ws
 let str_ws1 s = pstringCI s .>> spaces1
 
-let pstringvalue = 
-    between (pstring "\"") (pstring "\"") (manySatisfy (fun x -> x <> '"')) 
-    |>> (fun s -> String(s))
+let pstring = between (pstring "\"") (pstring "\"") (manySatisfy (fun x -> x <> '"'))
+let pstringvalue = pstring |>> (fun s -> String(s))
 
 let pvalue = pnumvalue <|> pstringvalue
 
@@ -84,11 +83,19 @@ for s,op in comparisons do
     addInfix s 2 Assoc.Left (fun x y -> Comparison(x, op, y))
 
 let pnewtuple, pnewtupleimpl = createParserForwardedToRef ()
-let pconstruct = attempt pterm <|> attempt pnewtuple
+let pnewrecord, pnewrecordimpl = createParserForwardedToRef ()
+
+let pconstruct = attempt pterm <|> attempt pnewtuple <|> attempt pnewrecord
 let ptupleItems = between (str_ws "(") (str_ws ")") (sepBy1 pconstruct (str_ws ","))
 pnewtupleimpl :=
     pipe3 getPosition ptupleItems getPosition
       (fun p1 xs p2 -> NewTuple(xs), {Start=int p1.Column;End=int p2.Column})
+
+let pnamedItem = pstring .>> ws .>> str_ws ":" .>>. pconstruct
+let precordItems = between (str_ws "{") (str_ws "}") (sepBy pnamedItem (str_ws ","))
+pnewrecordimpl :=
+    pipe3 getPosition precordItems getPosition
+      (fun p1 xs p2 -> NewRecord xs, {Start=int p1.Column;End=int p2.Column})
 
 let pexpr = pconstruct
 
@@ -164,6 +171,7 @@ let pselect = str_ws1 "Select" >>. str_ws1 "Case" >>. pexpr .>> expectEnd EndSel
               |>> (fun e -> Select(e))
 
 let ptuple, ptupleimpl = createParserForwardedToRef ()
+let precord, precordimpl = createParserForwardedToRef ()
 
 let prange = pvalue .>> ws .>> str_ws1 "To" .>>. pvalue |>> (fun (a,b) -> Range(a,b))
 let pcomparison = choice [ for s,op in comparisons -> str_ws1 s |>> fun _ -> op]
@@ -172,10 +180,11 @@ let pisequal = pvalue |>> (fun x -> Is(Eq,x))
 let pany = str_ws "Else" |>> (fun _ -> Any)
 let pclause = 
     attempt prange <|> attempt pis <|> attempt pisequal <|> attempt pany <|>
-    attempt (ptuple |>> (fun x -> Pattern(x)))
+    attempt (ptuple |>> (fun x -> Pattern(x))) <|>
+    attempt (precord |>> (fun x -> Pattern(x)))
 let pcase =
     str_ws1 "Case" >>.
-    sepBy pclause (str_ws ",") 
+    sepBy (pclause .>> ws) (str_ws ",") 
     |>> (fun xs -> Case(xs))
 let pendselect = str_ws "EndSelect" .>> handleEnd EndSelect |>> (fun _ -> EndSelect)
 
@@ -183,14 +192,21 @@ let pend = str_ws "End" .>> handleEnd End |>> (fun _ -> End)
 
 let pbind = pidentifier_ws |>> (fun s -> Bind(s))
 let ppattern =
-    attempt ptuple <|>
+    attempt ptuple <|> attempt precord <|>
     (attempt pclause |>> (fun c -> Clause(c))) <|>
     attempt pbind
+
+let pnamedPattern = pstring .>> ws .>> str_ws ":" .>>. ppattern .>> ws
+let precordPatterns = between (str_ws "{") (str_ws "}") (sepBy pnamedPattern (str_ws ","))
+precordimpl :=
+    precordPatterns
+    |>> (fun xs -> Record xs)
+
 ptupleimpl :=
     between (str_ws "(") (str_ws ")") (sepBy ppattern (str_ws ","))
     |>> (fun xs -> Tuple(xs))
 
-let pdeconstruct = pipe3 ptuple (str_ws "=") pexpr (fun p _ e -> Deconstruct(p,e))
+let pdeconstruct = pipe3 (ptuple <|> precord) (str_ws "=") pexpr (fun p _ e -> Deconstruct(p,e))
 
 let pinstruct = 
     [
