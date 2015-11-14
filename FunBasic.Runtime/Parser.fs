@@ -233,9 +233,14 @@ let pinstructpos =
     pipe3 getPosition pinstruct getPosition (fun p1 i p2 -> toPosition p1 p2 , i)
 let pinstruction = ws >>. pinstructpos .>> peol |>> (fun (pos,i) -> Instruction(pos,i))
 let pblank = ws >>. peol |>> (fun _ -> Blank)
+
+let parseExpression (text:string) =
+   match runParserOnString pexpr UserState.Default "Expression" (text+"\r\n") with
+   | Success ((e,info),_,_) -> Some e
+   | _ -> None
 let pline = attempt pinstruction <|> attempt pblank
 let parseLine (line:string) =
-   match runParserOnString pline UserState.Default "Program" (line+"\r\n") with
+   match runParserOnString pline UserState.Default "Line" (line+"\r\n") with
    | Success (Instruction(pos,i),_,_) -> Some (pos,i)
    | _ -> None
 let plines = many pline .>> eof

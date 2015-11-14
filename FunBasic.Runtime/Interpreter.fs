@@ -305,6 +305,14 @@ and invoke state invoke =
         let indices = HashTable<_,_>()
         for i, k in keys do indices.Add(i,k)
         Array indices
+    | Method("Array", "FromJson", [e,_]) ->
+        let value = eval state e
+        match value with
+        | String json ->
+           match Parser.parseExpression json with
+           | Some x -> eval state x
+           | None -> value
+        | _ -> invalidOp "Expecting json string"
     | Method(ns,name,args) ->
         let args = [for (arg,_) in args -> eval state arg |> toObj]
         ffi.MethodInvoke(ns,name,args |> List.toArray)
