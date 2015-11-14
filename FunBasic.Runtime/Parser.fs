@@ -7,10 +7,11 @@ open FParsec
 type UserState = { Ends:instruction list; InFunction:bool } with
    static member Default = { Ends = []; InFunction=false }
 let expectEnd ``end`` = updateUserState (fun us -> {us with Ends = ``end``::us.Ends})
-let handleEnd ``end`` = 
-   userStateSatisfies (fun us -> 
-      let expected = us.Ends |> List.head in 
-      ``end`` = expected || ``end`` = End) 
+let handleEnd ``end`` =
+   userStateSatisfies (fun us -> not (List.isEmpty us.Ends))
+   >>. userStateSatisfies (fun us ->
+      let expected = us.Ends |> List.head in
+      ``end`` = expected || ``end`` = End)
    >>. updateUserState (fun us -> 
       { us with
          InFunction = if ``end`` = EndFunction then false else us.InFunction 
