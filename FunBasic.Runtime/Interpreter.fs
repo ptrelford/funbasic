@@ -313,6 +313,27 @@ and invoke state invoke =
            | Some x -> eval state x
            | None -> value
         | _ -> invalidOp "Expecting json string"
+    | Method("Array", "ToJson", [e,_]) ->
+        let value = eval state e
+        let rec toJson = function
+           | Array table ->
+               let isArray = 
+                  table.Keys 
+                  |> Seq.mapi (fun i x -> i,x)
+                  |> Seq.forall (fun (a,b) -> Int a = b)
+               if isArray then
+                  let xs = table.Values |> Seq.map toJson
+                  "[" + System.String.Join(", ", xs ) + "]"
+               else
+                  let xs = 
+                     table 
+                     |> Seq.map (fun p -> toJson p.Key + ":" + toJson p.Value)
+                  "{" + System.String.Join(", ", xs ) + "}" 
+           | Int n -> n.ToString()
+           | Double n -> double.ToString()
+           | String s -> "\"" + s + "\""
+           | Bool b -> b.ToString()           
+        String (toJson value)
     | Method(ns,name,args) ->
         let args = [for (arg,_) in args -> eval state arg |> toObj]
         ffi.MethodInvoke(ns,name,args |> List.toArray)
