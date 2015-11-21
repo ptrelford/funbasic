@@ -160,8 +160,8 @@ let plabel = pidentifier_ws .>> str_ws ":" |>> (fun label -> Label(label))
 let pgoto = str_ws1 "Goto" >>. pidentifier |>> (fun label -> Goto(label))
 
 let pfunction = 
-   str_ws1 "Function" >>. pmethod
-   .>> expectEnd EndFunction 
+   (str_ws1 "Function" <|> str_ws1 "def") >>. pmethod
+   .>> expectEnd EndFunction
    .>> updateUserState (fun us -> {us with InFunction = true})
    |>> (fun (name,ps) -> Function(name,ps))
 let pendfunction = 
