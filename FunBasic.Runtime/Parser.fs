@@ -145,7 +145,11 @@ let pif = (attempt (str_ws1 "If" >>. pexpr)) <|>
           .>> str_ws "Then"
           .>> expectEnd EndIf
           |>> (fun e -> If(e))
-let pelseif = str_ws1 "ElseIf" >>. pexpr .>> str_ws "Then" |>> (fun e -> ElseIf(e))
+let pelseif = 
+   (attempt (str_ws1 "ElseIf" >>. pexpr)) <|>
+   (str_ws "ElseIf" >>. (between (str_ws "(") (str_ws ")") pexpr))
+   .>> str_ws "Then" 
+   |>> (fun e -> ElseIf(e))
 let pelse = str_ws "Else" |>> (fun _ -> Else)
 let pendif = str_ws "EndIf" .>> handleEnd EndIf |>> (fun _ -> EndIf)
 
