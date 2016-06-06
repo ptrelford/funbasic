@@ -100,61 +100,24 @@ let comparer =
          (x |> toObj).ToString().GetHashCode()
    }
 
-/// Converts string literal to array
-let toArray (s:string) =   
-   let xs = HashTable(comparer)
-   let rec parse startIndex index =
-      if index < s.Length then readKey startIndex index
-   and readKey startIndex index =
-      if s.[index] = ';' then parse (index+1) (index+1)
-      elif s.[index] = '='
-      then 
-         let key = s.Substring(startIndex,index-startIndex)
-         readValue key (index+1) (index+1)
-      else parse startIndex (index+1)
-   and readValue key startIndex index =  
-      if index = s.Length || s.[index] = ';' 
-      then 
-         let value = s.Substring(startIndex,index-startIndex)
-         match System.Int32.TryParse(key) with
-         | true, n -> xs.Add(Int n,String value)
-         | false,_ -> xs.Add(String key,String value)
-         parse (index+1) (index+1)
-      else readValue key startIndex (index+1)
-   parse 0 0
-   xs
-
-let resolveArray (variables:HashTable<_,_>) name =
-   match variables.TryGetValue("Array."+name) with
-   | true, Array array -> array
-   | true, String s -> 
-      let array = toArray s
-      variables.["Array."+name] <- Array array
-      array
-   | true, _ ->
-      invalidOp "Expecting array"
-   | false, _ ->
-      if name.Contains(";") then
-         toArray name
-      else
-         let array = HashTable(comparer)
-         variables.Add("Array."+name,Array array)
-         array
-
-/// Obtains array for specified identifier
-let obtainArray (variables:HashTable<_,_>) identifier =
-   match variables.TryGetValue(identifier) with
-   | true, Array array -> array
-   | true, String s -> 
-      let array = toArray s
-      variables.[identifier] <- Array array
-      array
-   | true, _ ->
-      invalidOp "Expecting array"
-   | false, _ -> 
-      let array = HashTable(comparer)
-      variables.Add(identifier,Array array)
-      array
+let rec toJson = function
+    | Array table ->
+        let isArray = 
+            table.Keys 
+            |> Seq.mapi (fun i x -> i,x)
+            |> Seq.forall (fun (a,b) -> Int a = b)
+        if isArray then
+            let xs = table.Values |> Seq.map toJson
+            "[" + System.String.Join(", ", xs ) + "]"
+        else
+            let xs = 
+                table 
+                |> Seq.map (fun p -> toJson p.Key + ":" + toJson p.Value)
+            "{" + System.String.Join(", ", xs ) + "}" 
+    | Int n -> n.ToString()
+    | Double n -> double.ToString()
+    | String s -> "\"" + s + "\""
+    | Bool b -> b.ToString()   
 
 /// Evaluates expressions
 let rec eval state (expr:expr) =
@@ -199,7 +162,7 @@ let rec eval state (expr:expr) =
        let table = HashTable()
        xs |> List.iteri (fun i (e,_) -> table.[Int i] <- eval state e)
        Array table
-     | NewRecord(xs) ->
+    | NewRecord(xs) ->
        let table = HashTable()
        xs |> List.iter (fun (name,(e,_)) -> table.[String name] <- eval state e)
        Array table
@@ -314,32 +277,96 @@ and invoke state invoke =
            | None -> value
         | _ -> invalidOp "Expecting json string"
     | Method("Array", "ToJson", [e,_]) ->
-        let value = eval state e
-        let rec toJson = function
-           | Array table ->
-               let isArray = 
-                  table.Keys 
-                  |> Seq.mapi (fun i x -> i,x)
-                  |> Seq.forall (fun (a,b) -> Int a = b)
-               if isArray then
-                  let xs = table.Values |> Seq.map toJson
-                  "[" + System.String.Join(", ", xs ) + "]"
-               else
-                  let xs = 
-                     table 
-                     |> Seq.map (fun p -> toJson p.Key + ":" + toJson p.Value)
-                  "{" + System.String.Join(", ", xs ) + "}" 
-           | Int n -> n.ToString()
-           | Double n -> double.ToString()
-           | String s -> "\"" + s + "\""
-           | Bool b -> b.ToString()           
+        let value = eval state e        
         String (toJson value)
+    | Method("TextWindow", "WriteLine",[e,_]) ->
+        let arg =
+            match eval state e with
+            | (Array _) as ar -> toJson ar |> box
+            | x -> x |> toObj
+        ffi.MethodInvoke("TextWindow","WriteLine",[|arg|])
+        |> fromObj
+    | Method("Web", "Post",[url,_;e,_]) ->
+        let url = eval state url |> toObj 
+        let arg =
+            match eval state e with
+            | (Array _) as ar -> toJson ar |> box
+            | x -> x |> toObj
+        ffi.MethodInvoke("Web","Post",[|url;arg|])
+        |> fromObj
     | Method(ns,name,args) ->
         let args = [for (arg,_) in args -> eval state arg |> toObj]
         ffi.MethodInvoke(ns,name,args |> List.toArray)
         |> fromObj
-    | PropertyGet(ns,name) ->
+    | PropertyGet(ns,name) -> 
         ffi.PropertyGet(ns,name) |> fromObj       
+// Resolves array from string
+and resolveArray (variables:HashTable<_,_>) name =
+   match variables.TryGetValue("Array."+name) with
+   | true, Array array -> array
+   | true, String s -> 
+      let array = toArray s
+      variables.["Array."+name] <- Array array
+      array
+   | true, _ ->
+      invalidOp "Expecting array"
+   | false, _ ->
+      if name.StartsWith("{") || name.StartsWith("[") || name.Contains(";") then
+         toArray name
+      else
+         let array = HashTable(comparer)
+         variables.Add("Array."+name,Array array)
+         array
+/// Converts string literal to array
+and toArray (s:string) =
+   if s.StartsWith("[") || s.StartsWith("{") then
+       match Parser.parseExpression s with
+       | Some x -> 
+           let state =
+              VarLookup(System.StringComparer.OrdinalIgnoreCase),
+                 VarLookup(System.StringComparer.OrdinalIgnoreCase),
+                    (fun _ -> invalidOp "Method invoke not allowed on JSON literal"),
+                        Unchecked.defaultof<IFFI>
+           match eval state x with
+           | Array xs -> xs
+           | _ -> failwith "Bang"
+       | _ -> failwith "Bang"
+   else 
+       let xs = HashTable(comparer)
+       let rec parse startIndex index =
+          if index < s.Length then readKey startIndex index
+       and readKey startIndex index =
+          if s.[index] = ';' then parse (index+1) (index+1)
+          elif s.[index] = '='
+          then 
+             let key = s.Substring(startIndex,index-startIndex)
+             readValue key (index+1) (index+1)
+          else parse startIndex (index+1)
+       and readValue key startIndex index =  
+          if index = s.Length || s.[index] = ';' 
+          then 
+             let value = s.Substring(startIndex,index-startIndex)
+             match System.Int32.TryParse(key) with
+             | true, n -> xs.Add(Int n,String value)
+             | false,_ -> xs.Add(String key,String value)
+             parse (index+1) (index+1)
+          else readValue key startIndex (index+1)
+       parse 0 0
+       xs
+/// Obtains array for specified identifier
+and obtainArray (variables:HashTable<_,_>) identifier =
+   match variables.TryGetValue(identifier) with
+   | true, Array array -> array
+   | true, String s -> 
+      let array = toArray s
+      variables.[identifier] <- Array array
+      array
+   | true, _ ->
+      invalidOp "Expecting array"
+   | false, _ -> 
+      let array = HashTable(comparer)
+      variables.Add(identifier,Array array)
+      array
 
 let rec check value = function
    | Any -> true
@@ -559,7 +586,6 @@ let rec runWith (ffi:IFFI) (program:instruction[]) pc globals locals (token:Canc
                     )
             deconstruct (eval e) pattern
         | Select(e,_) ->
-
             let next = function Case _ | EndSelect -> true | _ -> false
             let value = eval e
             let rec tryNext () =

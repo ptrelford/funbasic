@@ -2,6 +2,6 @@
 {
    public interface IConsole
    {
-      void WriteLine(object value);
+      void WriteLine(string value);
    }
 }

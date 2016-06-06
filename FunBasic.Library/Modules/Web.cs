@@ -22,9 +22,9 @@ namespace FunBasic.Library
          return result;
       }
 
-      public static void Post(string url, string content)
+      public static string Post(string url, string content)
       {
-         var __ = PostAsync(url, content).Result;
+         return PostAsync(url, content).Result;
       }
 
       private static async Task<string> PostAsync(string url, string content)

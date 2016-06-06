@@ -12,7 +12,7 @@
       public static int Top { get; set; }
       public static int Left { get; set; }
 
-      public static void WriteLine(object text)
+      public static void WriteLine(string text)
       {
          _console.WriteLine(text);
       }

@@ -17,8 +17,8 @@ Public Class Console
         RemoveHandler CompositionTarget.Rendering, AddressOf Rendering
     End Sub
 
-    Public Sub WriteLine(value As Object) Implements Library.IConsole.WriteLine
-        Queue.Enqueue(value.ToString() + vbCrLf)
+    Public Sub WriteLine(value As String) Implements Library.IConsole.WriteLine
+        Queue.Enqueue(value + vbCrLf)
     End Sub
 
     Private Sub Rendering(sender As Object, e As Object)
