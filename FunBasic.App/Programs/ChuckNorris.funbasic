@@ -1,0 +1,5 @@
+﻿url = "http://api.icndb.com/jokes/random"
+response = Web.Get(url)
+json= Array.FromJson(response)
+{ "value" : {"joke" : joke } } = json
+TextWindow.WriteLine(joke)

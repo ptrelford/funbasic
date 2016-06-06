@@ -1,0 +1,6 @@
+﻿while true
+	url = Flickr.GetRandomPicture("cat")
+	GraphicsWindow.Clear()
+	GraphicsWindow.DrawImage(url,0,0)
+	Program.Delay(1000)
+end

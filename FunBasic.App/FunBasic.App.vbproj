@@ -14,7 +14,7 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{F184B08F-C81C-45F6-A57F-5ABD9991F28F}</ProjectTypeGuids>
     <PackageCertificateKeyFile>FunBasic.App_StoreKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>8696E9C6F8CD8F5D6859A4C1907EDDA6E6314312</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>B29D525971D1AFC9FDAA98D2ECE80CB9225E8008</PackageCertificateThumbprint>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <AppxBundlePlatforms>neutral</AppxBundlePlatforms>
   </PropertyGroup>
@@ -159,7 +159,9 @@
     <Content Include="Assets\Abacus.png" />
     <Content Include="Assets\Asteroids.png" />
     <Content Include="Assets\Calculator.png" />
+    <Content Include="Assets\Cat.png" />
     <Content Include="Assets\Chomper.png" />
+    <Content Include="Assets\ChuckNorris.png" />
     <Content Include="Assets\Clock.png" />
     <Content Include="Assets\FractalTree.png" />
     <Content Include="Assets\Moon.png" />
@@ -171,12 +173,15 @@
     <Content Include="Assets\Physics.png" />
     <Content Include="Assets\PolkaDots.png" />
     <Content Include="Assets\Randomize.png" />
+    <Content Include="Assets\Snake.png" />
     <Content Include="Assets\SpiralCircles.png" />
     <Content Include="Assets\SpiralLines.png" />
+    <Content Include="Assets\Spirograph.png" />
     <Content Include="Assets\Tetris.png" />
     <Content Include="Assets\TurtleDodger.png" />
     <Content Include="Images\turtle.png" />
     <None Include="FunBasic.App_StoreKey.pfx" />
+    <!--None Include="Package.StoreAssociation.xml" /-->
     <None Include="Package.StoreAssociation.xml" />
     <Content Include="Programs\MoonPhases.sb" />
     <Content Include="Sounds\BeepBeep.wav" />
@@ -204,11 +209,14 @@
     <Content Include="Programs\Pattern.sb" />
     <Content Include="Programs\SpiralCircles.sb" />
     <Content Include="Programs\Randomize.sb" />
-    <Content Include="Programs\EasyGraf.sb" />
     <Content Include="Programs\Abacus.sb" />
     <Content Include="Programs\Calculator.sb" />
     <Content Include="Programs\Physics.sb" />
     <Content Include="Programs\Clock.sb" />
+    <Content Include="Programs\Cats.funbasic" />
+    <Content Include="Programs\ChuckNorris.funbasic" />
+    <Content Include="Programs\Snake.funbasic" />
+    <Content Include="Programs\Spirograph.sb" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Logo.scale-100.png" />

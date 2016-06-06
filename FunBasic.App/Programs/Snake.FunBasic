@@ -1,0 +1,112 @@
+﻿size = 8.0
+(w,h) = (80.,60.)
+GraphicsWindow.Width = size * w
+GraphicsWindow.Height = size * h
+directions = [(1,0),(0,1),(-1,0),(0,-1)]
+function opposite(dir)   
+   return Math.Remainder(dir+2, 4)
+end
+function position(shape)
+   return (Shapes.GetLeft(shape), Shapes.GetTop(shape))
+end
+function create_snake(x,y,dir)    
+    (dx,dy) = directions[opposite(dir)]
+    for i = 0 to 3
+        segment = Shapes.AddRectangle(size,size)
+        Shapes.Move(segment, size*(x+dx*i), size*(y+dy*i))
+        snake[i] = segment
+    end   
+    return snake
+end
+sub add_segment(snake,dx,dy)
+	segment = Shapes.AddRectangle(size,size)
+    Shapes.Move(segment,x+size*dx,y+size*dy)
+    for i = Array.GetItemCount(snake) to 1 step -1
+		snake[i] = snake[i-1]
+    end
+    snake[0] = segment
+end
+function move(snake,dx,dy)
+    length = Array.GetItemCount(snake)
+    last = snake[length-1]
+    first = snake[0]
+    (x,y) = position(first)   
+    for i = length-1 to 1 step -1
+        snake[i] = snake[i-1]
+    end
+    Shapes.Move(last, x+size*dx, y+size*dy)
+    snake[0] = last
+end
+function self_harm(snake)
+    (x,y) = position(snake[0])
+	length = Array.GetItemCount(snake)
+    for i = 1 to length - 1
+        (x1,y1) = position(snake[i])
+        if x = x1 and y = y1 then
+            return true
+        end
+    end
+    return false
+end
+function hit_wall(snake)
+    (x,y) = position(snake[0])
+    return x <= 0.0 or y <= 0.0 or x >= w*size or y >= h*size
+end
+dir = 0
+function OnKeyDown
+    select case GraphicsWindow.LastKey
+        case "Right"
+            dir = 0    
+        case "Down"
+            dir = 1
+        case "Left"
+            dir = 2
+        case "Up"
+            dir = 3
+	end
+end
+GraphicsWindow.KeyDown = OnKeyDown
+GraphicsWindow.BackgroundColor = "black"
+GraphicsWindow.BrushColor = "yellow"
+GraphicsWindow.PenColor = "orange"
+GraphicsWindow.FontSize = 32.0 
+start:
+    prompt = Shapes.AddText("Click to Start")
+    Shapes.Move(prompt, 100, 200)
+    while Mouse.IsLeftButtonDown <> true
+    end
+    Shapes.Remove(prompt)
+    snake = create_snake(30,30,dir)  
+    spawn_count = 10
+    apple = Shapes.AddEllipse(size,size)
+    Shapes.Move(apple, -size,-size) 
+    while (self_harm(snake) or hit_wall(snake)) <> true
+        Program.Delay(300)
+        (dx,dy) = directions[dir]
+        move(snake,dx,dy)       
+        if spawn_count > 0 then
+            spawn_count = spawn_count - 1
+            if spawn_count = 0 then
+                x = Math.GetRandomNumber(w-1.0)*size
+                y = Math.GetRandomNumber(h-1.)*size
+                Shapes.Move(apple, x, y)
+            end
+        else		
+            (x,y) = position(snake[0])
+            (x1,y1) = position(apple)
+            if x = x1 and y = y1 then                
+                add_segment(snake,dx,dy)
+                Shapes.Move(apple, -size, -size)
+                spawn_count = 10
+            end			
+        end
+    end
+    go = Shapes.AddText("Game Over")
+    Shapes.Move(go, 100, 200)
+    Program.Delay(5000)
+    Shapes.Remove(go)
+    Shapes.Remove(apple)
+    for i=0 to Array.GetItemCount(snake)
+        Shapes.Remove(snake[i])
+    end
+goto start
